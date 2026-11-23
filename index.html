@@ -627,7 +627,7 @@ const b64 = b => btoa(String.fromCharCode(...b));
 async function scCall(body){
   const r = await fetch(WORKER + '/scsync', { method:'POST', body: JSON.stringify({ auth: scAuth(), ...body }) });
   let j = {}; try { j = await r.json(); } catch(e) {}
-  return { status: r.status, ...j };
+  return { ...j, gh: j.status, status: r.status };
 }
 function setSt(state, msg){
   sc.state = state; sc.msg = msg;
@@ -638,9 +638,11 @@ function setSt(state, msg){
   drawBk();
 }
 const errMsg = r => r.status === 404 ? 'Cloudflare Worker를 아직 안 바꿨어요'
-  : r.status === 401 ? 'Cloudflare에 확인값이 아직 없어요'
+  : r.status === 401 ? '확인값이 Cloudflare 값과 달라요'
   : r.status === 503 ? 'Cloudflare 설정이 아직 안 됐어요'
-  : r.status === 502 ? 'GitHub 저장소 권한을 확인해 주세요' : '저장 안 됨 (다시 시도 중)';
+  : r.status === 502 && (r.gh === 404 || r.gh === 403 || r.gh === 401) ? 'GitHub 토큰에 저장소 권한이 없어요'
+  : r.status === 502 ? 'GitHub 응답 오류 (다시 시도 중)'
+  : r.status === 400 ? '저장할 내용 형식 오류' : '저장 안 됨 (다시 시도 중)';
 
 // 열 때·다시 볼 때: GitHub 쪽이 더 새 것이면 받아오고, 폰이 더 새 것이면 올림
 async function scPull(first = false){
