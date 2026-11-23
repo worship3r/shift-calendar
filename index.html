@@ -124,8 +124,8 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lsum .hd .syncst{margin-left:8px;font-weight:400}
 .lsum .hd .r{display:flex;align-items:baseline;gap:4px;min-width:0}
 .lsum .hd button{border:0;background:none;color:var(--accent);font-size:14px;padding:4px 0}
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-@media (min-width:600px){ .tiles{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))} }
+.tiles{display:grid;grid-template-columns:repeat(var(--tn,3),1fr);gap:8px}
+@media (max-width:420px){ .tile{padding:8px 6px 8px 10px;box-shadow:inset 4px 0 0 var(--c)} .tile .nm i{display:none} .tile .v{font-size:23px} .tile .nm{font-size:13px} .tile .v small{font-size:12px} }
 .tile{background:var(--soft);border-radius:14px;padding:10px 12px;min-width:0}
 .tile .nm{font-size:14px;color:var(--sub);display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden}
 .tile .nm i{width:10px;height:10px;border-radius:50%;flex:none}
@@ -319,7 +319,8 @@ let S;
 try { S = JSON.parse(localStorage.getItem(SKEY)); } catch(e) {}
 if (!S || !S.types) S = {team:3, holOff:false, types:DEFAULT_TYPES, days:{}};
 if (!S.repInit){ S.types.forEach(t => { if (t.name === '연차') t.rep = true; }); S.repInit = true; }
-if (!S.barInit){ S.types.forEach(t => { if (['연차','연중','교대케어'].includes(t.name)) t.bar = true; }); S.barInit = true; }
+if (!S.barInit2){ S.types.forEach(t => { if (t.name === '야간케어') t.bar = true; }); S.barInit2 = true; }
+if (!S.barInit){ S.types.forEach(t => { if (['연차','연중','교대케어','야간케어'].includes(t.name)) t.bar = true; }); S.barInit = true; }
 const save = (edit = true) => { if (edit) S.editedAt = Date.now(); try { localStorage.setItem(SKEY, JSON.stringify(S)); } catch(e){} if (edit && typeof syncSoon === 'function') syncSoon(); };
 
 const typeById = id => S.types.find(t => t.id===id);
@@ -374,12 +375,12 @@ function renderLsum(){
   const el = document.getElementById('lsum');
   const st = `<span id="syncSt" class="syncst ${sc.state==='ok'?'ok':sc.state==='err'?'err':''}">${scAuth()?esc(sc.msg||''):''}</span>`;
   el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div>
-    <div class="tiles">${list.map(t => {
+    <div class="tiles" style="--tn:${Math.min(list.length,4)}">${list.map(t => {
       const per = periodOf(t, endK);
       const before = per.start && endK < per.start, after = per.end && startK > per.end;
       const left = t.total - usedOf(t, endK, per);
       const fresh = t.rep && per.start >= startK && per.start <= endK;   // 이 달에 새 기간 시작
-      return `<div class="tile"><div class="nm"><i style="background:${t.color}"></i>${esc(t.name)}</div>
+      return `<div class="tile" style="--c:${t.color}"><div class="nm"><i style="background:${t.color}"></i>${esc(t.name)}</div>
         <div class="v${left<=0?' zero':''}">${fmtN(left)}<small>/${fmtN(t.total)}</small></div>
         ${fresh?`<div class="s">${+per.start.slice(5,7)}/${+per.start.slice(8)}부터 새 연도</div>`:before?'<div class="s">기간 시작 전</div>':after?'<div class="s">기간 끝남</div>':''}</div>`;
     }).join('')}</div>`.replace('<div class="tiles"></div>', '');
@@ -644,8 +645,12 @@ async function scCall(body){
   let j = {}; try { j = await r.json(); } catch(e) {}
   return { ...j, gh: j.status, status: r.status };
 }
+let stHide;
 function setSt(state, msg){
-  sc.state = state; sc.msg = msg;
+  // '저장됨·받아옴'은 2.5초 뒤 사라지고, 오류는 계속 보이게
+  clearTimeout(stHide);
+  if (state === 'ok') stHide = setTimeout(() => { sc.msg = ''; const e = document.getElementById('syncSt'); if (e) e.textContent = ''; }, 2500);
+  sc.state = state; sc.msg = msg; sc.full = msg;
   const el = document.getElementById('syncSt'); if (!el) { drawBk(); return; }
   el.className = 'syncst ' + (state === 'ok' ? 'ok' : state === 'err' ? 'err' : '');
   el.textContent = scAuth() ? msg : '';
@@ -729,7 +734,7 @@ async function drawSc(){
     return;
   }
   const h = hex(await sha256b(scAuth()));
-  box.innerHTML = `<div class="sw" style="margin-bottom:10px"><span>상태</span><b id="scState" style="font-size:15px">${esc(sc.msg || '확인 중')}</b></div>
+  box.innerHTML = `<div class="sw" style="margin-bottom:10px"><span>상태</span><b id="scState" style="font-size:15px">${esc(sc.full || '확인 중')}</b></div>
     <div class="row2"><button id="scNow">지금 저장</button><button id="scOff">연결 끊기</button></div>
     <div class="small" style="margin-top:10px">처음 한 번: 아래 확인값을 Cloudflare Worker 비밀값 <b>SC_SYNC_HASH</b>에 넣어 주세요.</div>
     <div class="hashbox" id="scHash">${h}</div>
