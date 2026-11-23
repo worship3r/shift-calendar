@@ -525,7 +525,7 @@ function drawSet(){
   document.getElementById('sTypes').innerHTML = S.types.map((t,i) => `<div class="lt" data-i="${i}">
     <div class="r1"><input type="color" value="${t.color}" data-f="color" aria-label="색"><input class="name" value="${esc(t.name)}" data-f="name" aria-label="이름"></div>
     <div class="r2"><input type="date" value="${t.start||''}" data-f="start" aria-label="시작일"><span>~</span><input type="date" value="${t.end||''}" data-f="end" aria-label="종료일"></div>
-    <label class="r4"><input type="checkbox" data-f="rep" ${t.rep?'checked':''}>매년 반복</label>/label>
+    <label class="r4"><input type="checkbox" data-f="rep" ${t.rep?'checked':''}>매년 반복</label>
     <div class="r3">총 갯수 <input class="tot" type="number" inputmode="decimal" step="0.25" min="0" value="${t.total??''}" data-f="total" placeholder="없음">
       <label style="display:flex;align-items:center;gap:6px;margin-left:auto;white-space:nowrap"><input type="checkbox" data-f="bar" ${t.bar?'checked':''} style="width:20px;height:20px">아래 표시</label>
       <button class="del" data-del="${i}" style="margin-left:0">삭제</button></div>
