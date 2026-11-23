@@ -59,7 +59,7 @@ body.round .sb::before{display:none}
 body.round .sb{width:22px;margin:1px auto 2px;border-radius:50%;box-shadow:none;padding:0;color:#fff;font-size:12px}
 body.round .sb.A{background:var(--A)} body.round .sb.B{background:var(--B)} body.round .sb.C{background:var(--C)} body.round .sb.R{background:var(--R)}
 .hin{font-size:12px;line-height:14px;color:var(--sun);font-weight:600;min-width:0;margin-left:auto;text-align:right;word-break:keep-all}
-.cell.hd .top,.cell.hd .hn{background:#fbdcdc}
+.cell.hd .top,.cell.hd .hn{background:#fae3e3}
 @media (max-width:420px){ .hin{display:none} }
 @media (min-width:421px){ .hn{display:none} }
 .hn{font-size:10px;line-height:12px;color:var(--sun);padding:0 4px 2px;font-weight:600;word-break:keep-all;overflow-wrap:anywhere}
@@ -93,7 +93,12 @@ body:not(.round) .wk .circ{width:auto;height:28px;margin:0 3px;align-self:stretc
 .circ.chg{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--ink)}
 .memo{font-size:12px;line-height:14px;text-align:center;padding:0 2px;white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.lv{font-size:11px;line-height:15px;text-align:center;margin:2px 3px 0;border-radius:4px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lv::before,.sel::before,.pill::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--ac)}
+.lv::before{width:3px}
+.sel,.pill{position:relative;overflow:hidden}
+.pill{padding-left:14px}
+.sel{padding-left:14px}
+.lv{position:relative;overflow:hidden;font-size:11px;line-height:15px;text-align:center;margin:2px 3px 0;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.05);font-weight:600;padding-left:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.round .syncst{font-size:13px;white-space:nowrap}
 .syncst.ok{color:#2b8a3e} .syncst.err{color:var(--sun)}
 .cfield{width:100%;font-size:18px;padding:11px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;font-family:inherit}
@@ -104,7 +109,7 @@ body.round .syncst{font-size:13px;white-space:nowrap}
 @media (min-width:600px){
   body:not(.round) .circ{height:34px;font-size:19px;margin:4px 8px}
   .cell{height:var(--rowh,124px)} .circ{width:42px;height:42px;font-size:19px}
-  .memo{font-size:14px;line-height:17px} .lv{font-size:13px;line-height:18px} .hol{font-size:12px;line-height:13px}
+  .memo{font-size:14px;line-height:17px} .lv{font-size:13px;line-height:18px;border-radius:7px;margin:2px 6px 0;padding-left:6px} .lv::before{width:5px} .hol{font-size:12px;line-height:13px}
   .num{font-size:19px}
   .stag{font-size:14px;line-height:21px;min-width:26px;padding:0 6px} body.round .stag{width:24px;min-width:24px}
   .sb{height:28px;margin:2px 6px 3px;font-size:16px;border-radius:7px;padding-left:7px} .sb::before{width:7px}
@@ -121,7 +126,7 @@ body.round .syncst{font-size:13px;white-space:nowrap}
 .wk .tl{font-size:14px;color:var(--sub);border-right:1px solid var(--line);border-bottom:1px solid var(--line);height:44px}
 .wk .tc{height:44px;border-bottom:1px solid var(--line);cursor:pointer}
 .wk .me{background:#fffbe3}
-.wk .dr.hb{background:#fbdcdc}
+.wk .dr.hb{background:#fae3e3}
 .wk .tl.me{color:var(--ink);font-weight:700}
 .wk .tc.today{background:#f4f8ff}
 .wk .tc.pick{box-shadow:inset 2px 0 0 var(--accent),inset -2px 0 0 var(--accent)}
@@ -143,7 +148,7 @@ body.round .syncst{font-size:13px;white-space:nowrap}
 .chip{border:1px solid var(--line);background:var(--bg);border-radius:20px;padding:8px 13px;font-size:16px;display:flex;align-items:center;gap:6px}
 .chip.on{border-color:var(--ink);background:var(--ink);color:#fff}
 .chip .d{width:12px;height:12px;border-radius:50%}
-.sel{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;margin-bottom:6px}
+.sel{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;margin-bottom:6px}
 .sel .nm{flex:1;font-size:17px;font-weight:600}
 .sel input{width:76px;font-size:17px;padding:6px;border-radius:8px;border:1px solid rgba(0,0,0,.15);text-align:center;background:rgba(255,255,255,.85)}
 .x{border:0;background:rgba(255,255,255,.7);width:34px;height:34px;border-radius:50%;font-size:18px}
@@ -177,7 +182,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lnote{font-size:14px;color:var(--sub);margin:-2px 0 6px}
 .lrow .rem small{display:block;color:var(--sub);font-size:12px}
 .lrow{display:flex;align-items:center;gap:10px;padding:12px 2px;border-bottom:1px solid var(--line)}
-.pill{border-radius:20px;padding:5px 12px;font-weight:700;font-size:16px;white-space:nowrap}
+.pill{border-radius:7px;padding:5px 12px;font-weight:700;font-size:16px;white-space:nowrap}
 .lrow .per{flex:1;font-size:13px;color:var(--sub);text-align:right;line-height:1.35}
 .lrow .rem{font-size:15px;text-align:right;min-width:78px;line-height:1.3}
 .lrow .rem b{font-size:20px}
@@ -355,16 +360,16 @@ const holOf = (y,m,d) => { const k = key(y,m,d); return holidays(+k.slice(0,4))[
 
 // ───── 저장 ─────
 const DEFAULT_TYPES = [
-  {name:'연차',   color:'#f5c4b5', start:'2025-12-18', end:'2026-12-17', total:24},
-  {name:'연중',   color:'#bfe3da', start:'2026-01-01', end:'2026-12-31', total:6},
-  {name:'교대케어',color:'#f1d88c', start:'2026-07-01', end:'2026-12-31', total:2},
-  {name:'야간케어',color:'#c9d3ee', start:'2026-07-01', end:'2026-12-31', total:3},
-  {name:'검진',   color:'#cfe7f2', start:'2026-01-01', end:'2026-12-31', total:1.25},
-  {name:'공휴일', color:'#d4e8c4', start:'', end:'', total:null},
-  {name:'교육',   color:'#e2e2e2', start:'', end:'', total:null},
-  {name:'장기',   color:'#ecd3e6', start:'2026-07-24', end:'2027-07-23', total:18},
-  {name:'출장',   color:'#d9cdb8', start:'', end:'', total:null},
-  {name:'경조',   color:'#d7d0e8', start:'', end:'', total:null}
+  {name:'연차',   color:'#e07a5f', start:'2025-12-18', end:'2026-12-17', total:24},
+  {name:'연중',   color:'#2f9e8f', start:'2026-01-01', end:'2026-12-31', total:6},
+  {name:'교대케어',color:'#d4a017', start:'2026-07-01', end:'2026-12-31', total:2},
+  {name:'야간케어',color:'#c75b7a', start:'2026-07-01', end:'2026-12-31', total:3},
+  {name:'검진',   color:'#4a9fc8', start:'2026-01-01', end:'2026-12-31', total:1.25},
+  {name:'공휴일', color:'#6aa84f', start:'', end:'', total:null},
+  {name:'교육',   color:'#8a8f98', start:'', end:'', total:null},
+  {name:'장기',   color:'#a76bb5', start:'2026-07-24', end:'2027-07-23', total:18},
+  {name:'출장',   color:'#b08d57', start:'', end:'', total:null},
+  {name:'경조',   color:'#7d7aa8', start:'', end:'', total:null}
 ].map((t,i) => ({id:'t'+i, ...t}));
 const SKEY = 'shiftcal-v2';
 let S;
@@ -373,12 +378,18 @@ if (!S || !S.types) S = {team:3, types:DEFAULT_TYPES, days:{}};
 // 휴가 색을 새로 바꿈: 처음 색 그대로인 것만 새 색으로 (직접 바꾼 색은 그대로)
 if (!S.lvColV2){ const OLDC = {"연차": "#f9cbb5", "연중": "#c8f4f6", "교대케어": "#ffd400", "야간케어": "#fff2a8", "검진": "#d7e5ff", "공휴일": "#d9edc8", "교육": "#dedede", "장기": "#f2e2f6", "출장": "#b65fc8", "경조": "#e8ddd6"}, NEWC = {"연차": "#f5c4b5", "연중": "#bfe3da", "교대케어": "#f1d88c", "야간케어": "#c9d3ee", "검진": "#cfe7f2", "공휴일": "#d4e8c4", "교육": "#e2e2e2", "장기": "#ecd3e6", "출장": "#d9cdb8", "경조": "#d7d0e8"};
   S.types.forEach(t => { if (OLDC[t.name] && (t.color||'').toLowerCase() === OLDC[t.name]) t.color = NEWC[t.name]; }); S.lvColV2 = true; }
+if (!S.lvColV3){ const V2C = {"연차": "#f5c4b5", "연중": "#bfe3da", "교대케어": "#f1d88c", "야간케어": "#c9d3ee", "검진": "#cfe7f2", "공휴일": "#d4e8c4", "교육": "#e2e2e2", "장기": "#ecd3e6", "출장": "#d9cdb8", "경조": "#d7d0e8"}, BASEC = {"연차": "#e07a5f", "연중": "#2f9e8f", "교대케어": "#d4a017", "야간케어": "#c75b7a", "검진": "#4a9fc8", "공휴일": "#6aa84f", "교육": "#8a8f98", "장기": "#a76bb5", "출장": "#b08d57", "경조": "#7d7aa8"};
+  S.types.forEach(t => { if (V2C[t.name] && (t.color||'').toLowerCase() === V2C[t.name]) t.color = BASEC[t.name]; }); S.lvColV3 = true; }
 if (!S.repInit){ S.types.forEach(t => { if (t.name === '연차') t.rep = true; }); S.repInit = true; }
 if (!S.barInit2){ S.types.forEach(t => { if (t.name === '야간케어') t.bar = true; }); S.barInit2 = true; }
 if (!S.barInit){ S.types.forEach(t => { if (['연차','연중','교대케어','야간케어'].includes(t.name)) t.bar = true; }); S.barInit = true; }
 const save = (edit = true) => { if (edit) S.editedAt = Date.now(); try { localStorage.setItem(SKEY, JSON.stringify(S)); } catch(e){} if (edit && typeof syncSoon === 'function') syncSoon(); };
 
 const typeById = id => S.types.find(t => t.id===id);
+const lvBg = c => mixC(c, '#ffffff', 0.82), lvFg = c => mixC(c, '#000000', 0.42);
+const lvGrad = c => `linear-gradient(90deg,${mixC(c, '#ffffff', 0.76)},${mixC(c, '#ffffff', 0.88)} 85%)`;   // 근무 칸과 같은 은은한 그라데이션
+function mixC(hex, to, t){ const a = parseInt(hex.slice(1),16), b = parseInt(to.slice(1),16);
+  return '#' + [16,8,0].map(sh => Math.round(((a>>sh)&255)*(1-t) + ((b>>sh)&255)*t).toString(16).padStart(2,'0')).join(''); }
 const textOn = hex => { const c = parseInt(hex.slice(1),16), r=c>>16, g=(c>>8)&255, b=c&255;
   return (r*299+g*587+b*114)/1000 < 150 ? '#fff' : '#1d232b'; };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -496,7 +507,7 @@ function renderMy(){
       ${hol?`<div class="hn">${esc(hol.name)}</div>`:''}
       ${six?'':`<div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>`}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
-        return `<div class="lv" style="background:${t.color};color:${textOn(t.color)}">${esc(t.name)} ${fmtN(l.n)}</div>`; }).join('')}
+        return `<div class="lv" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)} ${fmtN(l.n)}</div>`; }).join('')}
       ${parseMemo(day.memo).map(r => `<div class="ml">${r.t?`<b>${hhmm(r.t)}</b>`:''}${esc(r.x)}</div>`).join('')}
 
     </div>`;
@@ -566,7 +577,7 @@ function drawEd(){
     `<button class="chip${!ed.shift?' on':''}" data-s="">원래대로 (${LABEL[base]})</button>` +
     ['A','B','C','R'].map(s => `<button class="chip${ed.shift===s?' on':''}" data-s="${s}">${LABEL[s]}</button>`).join('');
   document.getElementById('dLeaves').innerHTML = ed.leaves.map((l,i) => { const t = typeById(l.t); if (!t) return '';
-    return `<div class="sel" style="background:${t.color};color:${textOn(t.color)}">
+    return `<div class="sel" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">
       <span class="nm">${esc(t.name)}</span>
       <input type="number" inputmode="decimal" step="0.25" min="0" value="${l.n}" data-i="${i}" aria-label="일수">
       <button class="x" data-del="${i}" aria-label="빼기">×</button></div>`; }).join('');
@@ -621,7 +632,7 @@ function openLeave(){
   document.getElementById('leaveList').innerHTML = rows.map(([t, per, isNext]) => {
     const u = usedOf(t, null, per), done = isNext ? 0 : usedOf(t, today, per), plan = u - done, has = t.total!=null && t.total!=='';
     return `<div class="lrow">
-      <span class="pill" style="background:${t.color};color:${textOn(t.color)}">${esc(t.name)}</span>
+      <span class="pill" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)}</span>
       <span class="per">${isNext?'<b style="color:var(--accent)">다음 해</b><br>':''}${per.start||per.end?`${shortD(per.start)} – ${shortD(per.end)}`:''}</span>
       <span class="rem">${has?`<b>${fmtN(t.total-u)}</b> 남음<small>사용 ${fmtN(done)}${plan?` · 예정 ${fmtN(plan)}`:''} / ${fmtN(t.total)}</small>`:`${u?`${fmtN(u)}<small>${plan?`예정 ${fmtN(plan)} 포함`:'사용'}</small>`:'–'}`}</span>
     </div>`; }).join('');
@@ -656,9 +667,9 @@ const applyShape = () => { document.body.classList.remove('round'); applyColors(
 // ───── 근무 색 ─────
 // 색 하나(기본색)만 고르면 연한 바탕·진한 글자를 자동으로 만듦. 저장은 colA·colB·colC·colR (짧은 글자라 Worker 그대로)
 const PALETTES = [
-  {name:'파스텔',  c:{A:'#e3bf62', B:'#7d9bd6', C:'#a19bc4', R:'#e0876c'}},
+  {name:'모던',    c:{A:'#78a9e3', B:'#eeae62', C:'#9d8cd4', R:'#6b7280'}},
   {name:'산뜻',    c:{A:'#f4a261', B:'#2a9d8f', C:'#8e7dbe', R:'#e76f51'}},
-  {name:'모던',    c:{A:'#78a9e3', B:'#eeae62', C:'#9d8cd4', R:'#6b7280'}}
+  {name:'파스텔',  c:{A:'#e3bf62', B:'#7d9bd6', C:'#a19bc4', R:'#e0876c'}}
 ];
 const mix = (hex, to, t) => { const a = parseInt(hex.slice(1),16), b = parseInt(to.slice(1),16);
   const ch = sh => Math.round(((a>>sh)&255)*(1-t) + ((b>>sh)&255)*t);
