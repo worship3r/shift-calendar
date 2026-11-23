@@ -38,7 +38,7 @@ button{font-family:inherit;color:inherit}
 .dows div{text-align:center;font-size:15px;padding:6px 0;color:var(--sub)}
 .dows .su{color:var(--sun)} .dows .sa{color:var(--sat)}
 .grid{display:grid;grid-template-columns:repeat(7,1fr)}
-.cell{border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-height:108px;padding:0 0 5px;
+.cell{border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-height:var(--rowh,108px);padding:0 0 5px;
   overflow:hidden;cursor:pointer;position:relative;min-width:0}
 .cell:nth-child(7n){border-right:0}
 .cell.other{background:#f6f7f8}
@@ -71,8 +71,8 @@ body.round .syncst{font-size:13px;white-space:nowrap}
 .foot button{border:1px solid var(--line);background:var(--bg);border-radius:20px;padding:7px 14px;font-size:15px}
 @media (max-width:420px){ .hol{word-break:break-all;font-size:9px;line-height:10px} }
 @media (min-width:600px){
-  body:not(.round) .circ{height:38px;font-size:20px;margin:6px 8px}
-  .cell{min-height:124px} .circ{width:42px;height:42px;font-size:19px}
+  body:not(.round) .circ{height:34px;font-size:19px;margin:4px 8px}
+  .cell{min-height:var(--rowh,124px)} .circ{width:42px;height:42px;font-size:19px}
   .memo{font-size:14px;line-height:17px} .lv{font-size:13px;line-height:18px} .hol{font-size:12px;line-height:13px}
   .num{font-size:19px}
 }
@@ -350,7 +350,21 @@ function render(){
   document.querySelector('.dows').style.display = all ? 'none' : '';
   all ? renderAll() : renderMy();
   renderLsum();
+  fitRows();
 }
+// 달력 칸 높이를 화면 높이에 맞춰서, 아래 '남은 휴가'까지 내리지 않고 보이게 함
+function fitRows(){
+  const root = document.documentElement;
+  if (S.view === 'all'){ root.style.removeProperty('--rowh'); return; }
+  const g = document.getElementById('grid');
+  const rows = Math.round(g.children.length / 7) || 5;
+  const wide = innerWidth >= 600;
+  const below = document.getElementById('lsum').offsetHeight + document.querySelector('.foot').offsetHeight + 16;
+  const avail = innerHeight - g.getBoundingClientRect().top - window.scrollY - below;
+  const h = Math.max(wide ? 70 : 90, Math.min(wide ? 130 : 120, Math.floor(avail / rows)));
+  root.style.setProperty('--rowh', h + 'px');
+}
+let fitT; addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(fitRows, 120); });
 function renderLsum(){
   const {y,m} = cur, endK = key(y, m+1, 0), startK = key(y, m, 1);
   const list = S.types.filter(t => t.bar && t.total!=null && t.total!=='');
