@@ -222,6 +222,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lt .r2{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;margin-top:8px;font-size:14px;color:var(--sub)}
 .lt .r4{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:14px;color:var(--sub)}
 .lt .r4 input{width:20px;height:20px;flex:none}
+.lt .rsel{font-size:15px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-family:inherit;color:var(--ink)}
 .lt .r3{display:flex;gap:6px;align-items:center;margin-top:8px;font-size:15px;color:var(--sub);white-space:nowrap}
 .lt input[type=date]{width:100%;min-width:0;font-size:15px;padding:7px 4px;border:1px solid var(--line);border-radius:8px;font-family:inherit}
 .lt .tot{width:70px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center}
@@ -301,7 +302,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
   <div class="box"><h3>휴가 종류·갯수</h3>
     <label class="sw" style="margin-bottom:12px"><span>새 연도 시작 달은 오늘 기준<small>예) 연차 12/18 시작: 12월 화면에서 오늘이 12/17까지면 올해 잔여, 12/18부터는 내년 잔여</small></span><input type="checkbox" class="tog" id="sRoll"></label>
     <div id="sTypes"></div><button class="add" id="sAdd">+ 휴가 종류 추가</button>
-    <div class="small" style="margin-top:8px">갯수를 비우면 기간·갯수 없이 표시만 돼요 (예: 교육, 출장). '아래 표시'를 켠 종류는 달력 아래에 그 달까지 남은 갯수가 나와요. '매년 반복'을 켜면 해마다 같은 날짜에 새 기간이 시작되고 총 갯수부터 다시 세요 (연차: 12/18부터 쓴 건 다음 해 연차).</div></div>
+    <div class="small" style="margin-top:8px">갯수를 비우면 기간·갯수 없이 표시만 돼요 (예: 교육, 출장). '아래 표시'를 켠 종류는 달력 아래에 그 달까지 남은 갯수가 나와요. '반복'을 매년으로 하면 해마다, 반기로 하면 6개월마다 새 기간이 시작되고 총 갯수부터 다시 세요 (연차: 12/18부터 쓴 건 다음 해 연차, 교대케어·야간케어: 1~6월·7~12월 따로).</div></div>
   <div class="box"><h3>자동 저장 (GitHub)</h3>
     <div id="scBox"></div>
   </div>
@@ -411,6 +412,7 @@ if (!S.lvColV4){ const V3C = {"연차": "#e07a5f", "연중": "#2f9e8f", "교대�
 // 휴가 색 V5: 이름에 맞춤 (야간케어 남색, 경조 은회색)
 if (!S.lvColV5){ const V4C = {'야간케어':'#f48fb1','경조':'#c5d86d'}, V5C = {'야간케어':'#7986cb','경조':'#b8bcc4'};
   S.types.forEach(t => { if (V4C[t.name] && (t.color||'').toLowerCase() === V4C[t.name]) t.color = V5C[t.name]; }); S.lvColV5 = true; }
+if (!S.halfInit){ S.types.forEach(t => { if ((t.name === '교대케어' || t.name === '야간케어') && !t.rep) t.rep = 'half'; }); S.halfInit = true; }
 if (!S.repInit){ S.types.forEach(t => { if (t.name === '연차') t.rep = true; }); S.repInit = true; }
 if (!S.barInit2){ S.types.forEach(t => { if (t.name === '야간케어') t.bar = true; }); S.barInit2 = true; }
 if (!S.barInit){ S.types.forEach(t => { if (['연차','연중','교대케어','야간케어'].includes(t.name)) t.bar = true; }); S.barInit = true; }
@@ -650,8 +652,18 @@ document.getElementById('dClose').onclick = () => closeSheets();
 // 매년 반복(rep) 종류는 기준 날짜가 들어 있는 해의 기간을 씀 (예: 연차 12/18 ~ 다음 해 12/17)
 const addY = (k, n) => (+k.slice(0,4) + n) + k.slice(4);
 const nextDay = k => { const [y,m,d] = k.split('-').map(Number); return key(y, m-1, d+1); };
+// 날짜에 개월 더하기 (말일 넘치면 그 달 말일)
+const addM = (k, n) => { const [y,m,d] = k.split('-').map(Number); const last = new Date(y, m-1+n+1, 0).getDate(); return key(y, m-1+n, Math.min(d, last)); };
+const prevDay = k => { const [y,m,d] = k.split('-').map(Number); return key(y, m-1, d-1); };
 function periodOf(t, ref){
   if (!t.rep || !t.start || !t.end) return {start: t.start, end: t.end};
+  if (t.rep === 'half'){   // 반기: 시작일부터 6개월씩 (예: 1/1~6/30, 7/1~12/31)
+    const [sy, sm] = t.start.split('-').map(Number), [ry, rm] = ref.split('-').map(Number);
+    let n = Math.floor(((ry - sy) * 12 + (rm - sm)) / 6);
+    if (ref < addM(t.start, 6*n)) n--;
+    if (ref >= addM(t.start, 6*n + 6)) n++;
+    return {start: addM(t.start, 6*n), end: prevDay(addM(t.start, 6*n + 6))};
+  }
   let n = +ref.slice(0,4) - +t.start.slice(0,4);
   if (ref < addY(t.start, n)) n--;
   if (ref > addY(t.end, n)) n++;
@@ -681,7 +693,7 @@ function openLeave(){
     const u = usedOf(t, null, per), done = isNext ? 0 : usedOf(t, today, per), plan = u - done, has = t.total!=null && t.total!=='';
     return `<div class="lrow">
       <span class="pill" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)}</span>
-      <span class="per">${isNext?'<b style="color:var(--accent)">다음 해</b><br>':''}${per.start||per.end?`${shortD(per.start)} – ${shortD(per.end)}`:''}</span>
+      <span class="per">${isNext?`<b style="color:var(--accent)">${t.rep==='half'?'다음 반기':'다음 해'}</b><br>`:''}${per.start||per.end?`${shortD(per.start)} – ${shortD(per.end)}`:''}</span>
       <span class="rem">${has?`<b>${fmtN(t.total-u)}</b> 남음<small>사용 ${fmtN(done)}${plan?` · 예정 ${fmtN(plan)}`:''} / ${fmtN(t.total)}</small>`:`${u?`${fmtN(u)}<small>${plan?`예정 ${fmtN(plan)} 포함`:'사용'}</small>`:'–'}`}</span>
     </div>`; }).join('');
   document.getElementById('leaveSheet').classList.add('show');
@@ -703,7 +715,7 @@ function drawSet(){
   document.getElementById('sTypes').innerHTML = S.types.map((t,i) => `<div class="lt" data-i="${i}">
     <div class="r1"><input type="color" value="${t.color}" data-f="color" aria-label="색"><input class="name" value="${esc(t.name)}" data-f="name" aria-label="이름"></div>
     <div class="r2"><input type="date" value="${t.start||''}" data-f="start" aria-label="시작일"><span>~</span><input type="date" value="${t.end||''}" data-f="end" aria-label="종료일"></div>
-    <label class="r4"><input type="checkbox" data-f="rep" ${t.rep?'checked':''}>매년 반복</label>
+    <label class="r4">반복 <select data-f="rep" class="rsel"><option value=""${!t.rep?' selected':''}>없음</option><option value="year"${t.rep===true?' selected':''}>매년</option><option value="half"${t.rep==='half'?' selected':''}>반기 (6개월)</option></select></label>
     <div class="r3">총 갯수 <input class="tot" type="number" inputmode="decimal" step="0.25" min="0" value="${t.total??''}" data-f="total" placeholder="없음">
       <label style="display:flex;align-items:center;gap:6px;margin-left:auto;white-space:nowrap"><input type="checkbox" data-f="bar" ${t.bar?'checked':''} style="width:20px;height:20px">아래 표시</label>
       <button class="del" data-del="${i}" style="margin-left:0">삭제</button></div>
@@ -750,7 +762,8 @@ document.getElementById('sRoll').onchange = e => { S.rollToday = e.target.checke
 document.getElementById('sTypes').addEventListener('input', e => {
   const f = e.target.dataset.f; if (!f) return;
   const t = S.types[+e.target.closest('.lt').dataset.i];
-  if (f==='bar' || f==='rep') t[f] = e.target.checked;
+  if (f==='bar') t.bar = e.target.checked;
+  else if (f==='rep') t.rep = e.target.value === 'year' ? true : e.target.value === 'half' ? 'half' : false;
   else if (f==='total') t.total = e.target.value==='' ? null : parseFloat(e.target.value);
   else t[f] = e.target.value;
   save();
