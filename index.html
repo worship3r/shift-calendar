@@ -463,6 +463,17 @@ function fitRows(){
 }
 let fitT; const refit = () => { clearTimeout(fitT); fitT = setTimeout(fitRows, 120); };
 addEventListener('resize', refit); if (window.visualViewport) visualViewport.addEventListener('resize', refit);
+// 그 달까지 남은 갯수. 매년 반복 휴가는 이 달 중간에 새 연도가 시작되면(예: 연차 12/18)
+// 오늘이 시작일 전이면 올해 잔여(올해 기간 끝까지), 시작일부터는 새 연도 잔여를 보여줌
+function leftFor(t, startK, endK){
+  let per = periodOf(t, endK);
+  if (t.rep && per.start > startK && per.start <= endK && key(T.y, T.m, T.d) < per.start){
+    const [y, m, d] = per.start.split('-').map(Number);
+    per = periodOf(t, key(y, m-1, d-1));
+    return {per, left: t.total - usedOf(t, null, per)};
+  }
+  return {per, left: t.total - usedOf(t, endK, per)};
+}
 function renderLsum(){
   const {y,m} = cur, endK = key(y, m+1, 0), startK = key(y, m, 1);
   const list = S.types.filter(t => t.bar && t.total!=null && t.total!=='');
@@ -471,7 +482,7 @@ function renderLsum(){
   const compact = true;   // 남은 휴가는 항상 한 줄 (달력 칸을 크게)
   if (compact){
     // 한 줄 네모칸: 왼쪽 색 막대 + 이름 + 큰 숫자 (누르면 휴가 현황)
-    el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2" style="--tn:${Math.max(1, Math.min(list.length,4))}">${list.map(t => { const per = periodOf(t, endK), left = t.total - usedOf(t, endK, per);
+    el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2" style="--tn:${Math.max(1, Math.min(list.length,4))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
         return `<button class="lt2" title="${m+1}월까지 남은 ${esc(t.name)}"><span class="n"><i style="background:${t.color}"></i>${esc(t.name)}</span><span class="v"><b class="${left<=0?'zero':''}">${fmtN(left)}</b><small>/${fmtN(t.total)}</small></span></button>`; }).join('')}</div>`;
     el.querySelectorAll('.lt2').forEach(b => b.onclick = openLeave); document.getElementById('lsMore').onclick = openLeave; return;
   }
