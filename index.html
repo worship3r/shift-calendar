@@ -45,8 +45,22 @@ button{font-family:inherit;color:inherit}
 .cell.other>*{opacity:.33}
 .cell.today{background:#f4f8ff}
 .cell.pick{box-shadow:inset 0 0 0 2px var(--accent)}
-.top{display:flex;align-items:center;justify-content:space-between;gap:2px;padding:2px 4px;min-height:25px}
-.top.hb{background:#fbdcdc}
+.top{display:flex;align-items:center;gap:4px;padding:3px 4px 2px;min-height:25px}
+.cell.hd{background:#fff3f3}
+.hn{font-size:10px;line-height:12px;color:var(--sun);padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.stag{font-size:12px;font-weight:700;line-height:18px;min-width:20px;padding:0 4px;border-radius:5px;text-align:center;flex:none}
+.stag.A{background:#fff1c7;color:#a87400} .stag.B{background:#e2eaff;color:#2f5bd6} .stag.C{background:#e9edf1;color:#4f5d6a} .stag.R{background:#ffe3d6;color:#d24f17}
+body.round .stag{border-radius:50%;width:20px;padding:0;color:#fff}
+body.round .stag.A{background:var(--A)} body.round .stag.B{background:var(--B)} body.round .stag.C{background:var(--C)} body.round .stag.R{background:var(--R)}
+.stag.chg{box-shadow:inset 0 0 0 1.5px currentColor}
+.ml{font-size:12px;line-height:14px;padding:0 3px;margin-top:2px;word-break:keep-all;overflow-wrap:anywhere}
+.ml b{font-size:11px;color:var(--accent);font-weight:700;margin-right:2px}
+.mrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.mrow .mt{width:132px;flex:none;font-size:16px;padding:9px 6px;border:1px solid var(--line);border-radius:10px;background:var(--soft);font-family:inherit;color:var(--ink)}
+.mrow .mt.empty{color:var(--faint)}
+.mrow .mx{flex:1;min-width:0;font-size:17px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--soft);font-family:inherit;color:var(--ink)}
+.mrow .x{background:var(--soft)}
+.addm{width:100%;border:1px dashed var(--faint);background:none;border-radius:10px;padding:10px;font-size:15px;color:var(--sub)}
 .num{font-size:18px;font-weight:500;line-height:21px;flex:none}
 .num.su{color:var(--sun)} .num.sa{color:var(--sat)}
 .cell.today .num{background:var(--accent);color:#fff;border-radius:6px;padding:0 4px}
@@ -69,12 +83,14 @@ body.round .syncst{font-size:13px;white-space:nowrap}
 .hashbox{font-family:monospace;font-size:12px;word-break:break-all;background:var(--soft);border-radius:8px;padding:8px;margin-top:8px;color:var(--sub)}
 .foot{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;color:var(--sub);font-size:14px}
 .foot button{border:1px solid var(--line);background:var(--bg);border-radius:20px;padding:7px 14px;font-size:15px}
-@media (max-width:420px){ .hol{word-break:break-all;font-size:9px;line-height:10px} }
+@media (max-width:420px){ .hol{word-break:break-all;font-size:9px;line-height:10px} .ml b{display:block;line-height:12px} .ml{margin-top:3px} }
 @media (min-width:600px){
   body:not(.round) .circ{height:34px;font-size:19px;margin:4px 8px}
   .cell{min-height:var(--rowh,124px)} .circ{width:42px;height:42px;font-size:19px}
   .memo{font-size:14px;line-height:17px} .lv{font-size:13px;line-height:18px} .hol{font-size:12px;line-height:13px}
   .num{font-size:19px}
+  .stag{font-size:14px;line-height:21px;min-width:26px;padding:0 6px} body.round .stag{width:24px;min-width:24px}
+  .ml{font-size:14px;line-height:17px;padding:0 6px} .ml b{font-size:13px} .hn{font-size:12px;line-height:14px;padding:0 6px}
 }
 /* 전체 조 */
 .grid.all{display:block}
@@ -204,7 +220,8 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
   <div id="dLeaves"></div>
   <div class="chips" id="dTypes"></div>
   <div class="lab">메모</div>
-  <textarea id="dMemo" placeholder="예) 병원 10시"></textarea>
+  <div id="dMemos"></div>
+  <button class="addm" id="dAddMemo">+ 메모 줄 추가</button>
   <div class="btns"><button class="sec" id="dClose">닫기</button><button class="pri" id="dSave">저장</button></div>
 </div></div>
 
@@ -428,10 +445,10 @@ function renderMy(){
     if (!other) cnt[s]++;
     const isT = Y===T.y && M===T.m && D===T.d;
     const red = w===0 || !!hol;
-    h += `<div class="cell${other?' other':''}${isT?' today':''}${k===sel?' pick':''}" data-k="${k}">
-      <div class="top${hol?' hb':''}"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${hol?`<span class="hol">${esc(hol.name)}</span>`:''}</div>
-      <div class="circ ${s}${chg?' chg':''}">${LABEL[s]}</div>
-      ${day.memo?`<div class="memo">${esc(day.memo)}</div>`:''}
+    h += `<div class="cell${other?' other':''}${isT?' today':''}${hol?' hd':''}" data-k="${k}">
+      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span><span class="stag ${s}${chg?' chg':''}">${LABEL[s]}</span></div>
+      ${hol?`<div class="hn">${esc(hol.name)}</div>`:''}
+      ${parseMemo(day.memo).map(r => `<div class="ml">${r.t?`<b>${r.t}</b>`:''}${esc(r.x)}</div>`).join('')}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
         return `<div class="lv" style="background:${t.color};color:${textOn(t.color)}">${esc(t.name)} ${fmtN(l.n)}</div>`; }).join('')}
     </div>`;
@@ -439,17 +456,45 @@ function renderMy(){
   document.getElementById('grid').innerHTML = h;
 }
 
+// ───── 메모 (줄마다 "10:00 내용" 또는 "내용") ─────
+const parseMemo = str => (str||'').split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+  const m = l.match(/^(\d{1,2}):(\d{2})\s+(.*)$/);
+  return m ? {t: m[1].padStart(2,'0') + ':' + m[2], x: m[3]} : {t: '', x: l};
+});
+const joinMemo = rows => rows.filter(r => r.x.trim())
+  .sort((a, b) => (a.t ? 1 : 0) - (b.t ? 1 : 0) || a.t.localeCompare(b.t))   // 시간 없는 것 먼저, 나머지는 시간 순
+  .map(r => (r.t ? r.t + ' ' : '') + r.x.trim()).join('\n');
+function drawMemos(){
+  if (!ed.memos.length) ed.memos.push({t:'', x:''});
+  document.getElementById('dMemos').innerHTML = ed.memos.map((r, i) => `<div class="mrow">
+    <input type="time" class="mt${r.t?'':' empty'}" value="${r.t}" data-i="${i}" aria-label="시간 (없어도 됨)">
+    <input class="mx" value="${esc(r.x)}" data-i="${i}" placeholder="${i ? '' : '예) 병원'}" aria-label="메모">
+    <button class="x" data-del="${i}" aria-label="이 줄 지우기">×</button></div>`).join('');
+}
+document.getElementById('dMemos').addEventListener('input', e => {
+  const i = e.target.dataset.i; if (i == null) return;
+  if (e.target.classList.contains('mt')) { ed.memos[i].t = e.target.value; e.target.classList.toggle('empty', !e.target.value); }
+  else ed.memos[i].x = e.target.value;
+});
+document.getElementById('dMemos').addEventListener('click', e => {
+  const b = e.target.closest('[data-del]'); if (!b) return;
+  ed.memos.splice(+b.dataset.del, 1); drawMemos();
+});
+document.getElementById('dAddMemo').onclick = () => {
+  ed.memos.push({t:'', x:''}); drawMemos();
+  const xs = document.querySelectorAll('#dMemos .mx'); xs[xs.length-1].focus();
+};
+
 // ───── 날짜 편집 ─────
 let ed = null;
 let sel = null;   // (고른 날 표시는 쓰지 않음)
 function openDay(k){
   const [Y,M,D] = k.split('-').map(Number);
   const day = S.days[k] || {};
-  ed = {k, Y, M:M-1, D, shift: day.shift || null, leaves: (day.leaves||[]).map(l=>({...l})), memo: day.memo||''};
+  ed = {k, Y, M:M-1, D, shift: day.shift || null, leaves: (day.leaves||[]).map(l=>({...l})), memos: parseMemo(day.memo)};
   const hol = holOf(Y,M-1,D);
   document.getElementById('dTitle').innerHTML = `${M}월 ${D}일 (${DOW[new Date(Y,M-1,D).getDay()]})` + (hol?` <span class="tag">${esc(hol.name)}</span>`:'');
-  document.getElementById('dMemo').value = ed.memo;
-  drawEd();
+  drawEd(); drawMemos();
   document.getElementById('daySheet').classList.add('show');
 }
 function drawEd(){
@@ -472,7 +517,7 @@ document.getElementById('dTypes').onclick = e => { const b = e.target.closest('[
 document.getElementById('dLeaves').onclick = e => { const b = e.target.closest('[data-del]'); if (!b) return; ed.leaves.splice(+b.dataset.del,1); drawEd(); };
 document.getElementById('dLeaves').oninput = e => { if (e.target.dataset.i!=null) ed.leaves[+e.target.dataset.i].n = parseFloat(e.target.value)||0; };
 document.getElementById('dSave').onclick = () => {
-  const memo = document.getElementById('dMemo').value.trim();
+  const memo = joinMemo(ed.memos);
   const leaves = ed.leaves.filter(l => l.n>0);
   if (!memo && !leaves.length && !ed.shift) delete S.days[ed.k];
   else S.days[ed.k] = {memo, leaves, shift: ed.shift};
