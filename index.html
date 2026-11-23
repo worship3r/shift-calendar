@@ -48,17 +48,18 @@ button{font-family:inherit;color:inherit}
 .top{display:flex;align-items:center;gap:4px;padding:3px 5px;min-height:26px}
 .sb{margin:1px 3px 2px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;
   font-size:13px;font-weight:700;letter-spacing:.3px;box-shadow:inset 3px 0 0 var(--ac)}
-.sb.A{background:#fbf1d6;color:#a07a1c;--ac:#e3bf62} .sb.B{background:#e5edfa;color:#4a69ad;--ac:#7d9bd6}
-.sb.C{background:#ecebf4;color:#6b6590;--ac:#a19bc4} .sb.R{background:#fbe6de;color:#c05a3e;--ac:#e0876c}
+.sb.A{background:var(--Abg);color:var(--Afg);--ac:var(--A)} .sb.B{background:var(--Bbg);color:var(--Bfg);--ac:var(--B)}
+.sb.C{background:var(--Cbg);color:var(--Cfg);--ac:var(--C)} .sb.R{background:var(--Rbg);color:var(--Rfg);--ac:var(--R)}
 .sb.chg{outline:1.5px solid currentColor;outline-offset:-1.5px}
 body.round .sb{width:22px;margin:1px auto 2px;border-radius:50%;box-shadow:none;color:#fff;font-size:12px}
 body.round .sb.A{background:var(--A)} body.round .sb.B{background:var(--B)} body.round .sb.C{background:var(--C)} body.round .sb.R{background:var(--R)}
-.hin{font-size:12px;line-height:14px;color:var(--sun);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hin{font-size:12px;line-height:14px;color:var(--sun);font-weight:600;min-width:0;margin-left:auto;text-align:right;word-break:keep-all}
+.cell.hd .top,.cell.hd .hn{background:#fbdcdc}
 @media (max-width:420px){ .hin{display:none} }
 @media (min-width:421px){ .hn{display:none} }
-.hn{font-size:10px;line-height:12px;color:var(--sun);padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.hn{font-size:10px;line-height:12px;color:var(--sun);padding:0 4px 2px;font-weight:600;word-break:keep-all;overflow-wrap:anywhere}
 .stag{font-size:12px;font-weight:700;line-height:18px;min-width:20px;padding:0 4px;border-radius:5px;text-align:center;flex:none}
-.stag.A{background:#fbf1d6;color:#a07a1c} .stag.B{background:#e5edfa;color:#4a69ad} .stag.C{background:#ecebf4;color:#6b6590} .stag.R{background:#fbe6de;color:#c05a3e}
+.stag.A{background:var(--Abg);color:var(--Afg)} .stag.B{background:var(--Bbg);color:var(--Bfg)} .stag.C{background:var(--Cbg);color:var(--Cfg)} .stag.R{background:var(--Rbg);color:var(--Rfg)}
 body.round .stag{border-radius:50%;width:20px;padding:0;color:#fff}
 body.round .stag.A{background:var(--A)} body.round .stag.B{background:var(--B)} body.round .stag.C{background:var(--C)} body.round .stag.R{background:var(--R)}
 .stag.chg{box-shadow:inset 0 0 0 1.5px currentColor}
@@ -80,8 +81,8 @@ body.round .stag.A{background:var(--A)} body.round .stag.B{background:var(--B)} 
   color:#fff;font-weight:700;font-size:16px}
 .circ.A{background:var(--A)} .circ.B{background:var(--B)} .circ.C{background:var(--C)} .circ.R{background:var(--R)}
 body:not(.round) .circ{width:auto;height:30px;margin:5px 4px 4px;border-radius:8px;font-size:17px}
-body:not(.round) .circ.A{background:#fbf1d6;color:#a07a1c} body:not(.round) .circ.B{background:#e5edfa;color:#4a69ad}
-body:not(.round) .circ.C{background:#ecebf4;color:#6b6590} body:not(.round) .circ.R{background:#fbe6de;color:#c05a3e}
+body:not(.round) .circ.A{background:var(--Abg);color:var(--Afg)} body:not(.round) .circ.B{background:var(--Bbg);color:var(--Bfg)}
+body:not(.round) .circ.C{background:var(--Cbg);color:var(--Cfg)} body:not(.round) .circ.R{background:var(--Rbg);color:var(--Rfg)}
 body:not(.round) .circ.chg{box-shadow:inset 0 0 0 2px currentColor}
 body:not(.round) .wk .circ{width:auto;height:28px;margin:0 3px;align-self:stretch;justify-self:stretch;margin:8px 3px}
 .circ.chg{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--ink)}
@@ -110,7 +111,7 @@ body.round .syncst{font-size:13px;white-space:nowrap}
 .wk>div{display:grid;place-items:center;min-width:0}
 .wk .dr{height:36px;font-size:17px;font-weight:600;border-top:2px solid var(--line);cursor:pointer;text-align:center}
 .wk .dr.su{color:var(--sun)} .wk .dr.sa{color:var(--sat)} .wk .dr.other{opacity:.32}
-.wk .dr .h{display:block;font-size:9px;font-weight:400;line-height:10px;color:var(--sun);white-space:nowrap;overflow:hidden;max-width:48px}
+.wk .dr .h{display:block;font-size:9px;font-weight:400;line-height:10px;color:var(--sun);word-break:keep-all;overflow-wrap:anywhere;max-width:48px}
 .wk .tl{font-size:14px;color:var(--sub);border-right:1px solid var(--line);border-bottom:1px solid var(--line);height:44px}
 .wk .tc{height:44px;border-bottom:1px solid var(--line);cursor:pointer}
 .wk .me{background:#fffbe3}
@@ -197,6 +198,14 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lt .tot{width:70px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center}
 .lt .del{margin-left:auto;border:0;background:none;color:var(--sun);font-size:15px;padding:8px 4px;white-space:nowrap}
 .add{width:100%;border:1px dashed var(--faint);background:none;border-radius:12px;padding:12px;font-size:16px;color:var(--sub)}
+.pals{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px}
+.pal{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:9px 10px;text-align:left;font-size:15px}
+.pal.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.pal .sw4{display:flex;gap:4px;margin-top:6px}
+.pal .sw4 i{flex:1;height:20px;border-radius:5px;display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:700}
+.pcols{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pcols label{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:14px;color:var(--sub)}
+.pcols input{width:100%;height:40px;border:0;padding:0;background:none;border-radius:8px}
 .small{font-size:14px;color:var(--sub);line-height:1.6}
 .row2{display:flex;gap:8px}
 .row2 button,.row2 label{flex:1;text-align:center;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:12px 0;font-size:16px}
@@ -251,6 +260,10 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
   <div class="phead"><button class="icon" id="sBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>설정</h2></div>
   <div class="box"><h3>내 조</h3><div class="seg" id="sTeam"></div></div>
   <div class="box"><h3>근무 모양</h3><div class="seg" id="sShape"><button data-v="box">네모</button><button data-v="round">동그라미</button></div></div>
+  <div class="box"><h3>근무 색</h3>
+    <div class="pals" id="sPal"></div>
+    <div class="pcols" id="sCols"></div>
+    <div class="small" style="margin-top:8px">미리 만든 색을 고르거나, 아래에서 A·B·C·휴 색을 하나씩 직접 바꿀 수 있어요. 바탕·글자 색은 자동으로 맞춰져요.</div></div>
   <div class="box">
     <h3>공휴일</h3>
     <div class="small">공휴일·명절에도 근무는 그대로 보여주고 빨간 띠로 표시해요. 대체공휴일·선거일 포함, 2026~2030년까지 들어 있어요.</div>
@@ -457,7 +470,7 @@ function renderMy(){
     if (!other) cnt[s]++;
     const isT = Y===T.y && M===T.m && D===T.d;
     const red = w===0 || !!hol;
-    h += `<div class="cell${other?' other':''}${isT?' today':''}" data-k="${k}">
+    h += `<div class="cell${other?' other':''}${isT?' today':''}${hol?' hd':''}" data-k="${k}">
       <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${hol?`<span class="hin">${esc(hol.name)}</span>`:''}</div>
       ${hol?`<div class="hn">${esc(hol.name)}</div>`:''}
       <div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>
@@ -605,6 +618,7 @@ function openSet(){ drawSet(); drawBk(); drawSc(); document.getElementById('setP
 function drawSet(){
   document.getElementById('sTeam').innerHTML = [1,2,3,4].map(t => `<button class="${S.team===t?'on':''}" data-t="${t}">${t}조</button>`).join('');
   document.querySelectorAll('#sShape button').forEach(b => b.classList.toggle('on', (S.shape||'box')===b.dataset.v));
+  drawColors();
   document.getElementById('sTypes').innerHTML = S.types.map((t,i) => `<div class="lt" data-i="${i}">
     <div class="r1"><input type="color" value="${t.color}" data-f="color" aria-label="색"><input class="name" value="${esc(t.name)}" data-f="name" aria-label="이름"></div>
     <div class="r2"><input type="date" value="${t.start||''}" data-f="start" aria-label="시작일"><span>~</span><input type="date" value="${t.end||''}" data-f="end" aria-label="종료일"></div>
@@ -618,7 +632,42 @@ document.getElementById('btnSet').onclick = openSet;
 document.getElementById('sBack').onclick = () => { document.getElementById('setPage').classList.remove('show'); render(); };
 document.getElementById('sTeam').onclick = e => { const b = e.target.closest('[data-t]'); if (!b) return; S.team = +b.dataset.t; save(); drawSet(); };
 document.getElementById('sShape').onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; S.shape = b.dataset.v; save(false); applyShape(); drawSet(); };
-const applyShape = () => document.body.classList.toggle('round', S.shape==='round');
+const applyShape = () => { document.body.classList.toggle('round', S.shape==='round'); applyColors(); };
+// ───── 근무 색 ─────
+// 색 하나(기본색)만 고르면 연한 바탕·진한 글자를 자동으로 만듦. 저장은 colA·colB·colC·colR (짧은 글자라 Worker 그대로)
+const PALETTES = [
+  {name:'파스텔',  c:{A:'#e3bf62', B:'#7d9bd6', C:'#a19bc4', R:'#e0876c'}},
+  {name:'산뜻',    c:{A:'#f4a261', B:'#2a9d8f', C:'#8e7dbe', R:'#e76f51'}},
+  {name:'선명',    c:{A:'#f2b705', B:'#3b82f6', C:'#64748b', R:'#ef4444'}},
+  {name:'차분',    c:{A:'#c9a96e', B:'#6b8cae', C:'#9a9a9a', R:'#c97b6b'}},
+  {name:'숲',      c:{A:'#d4a373', B:'#588157', C:'#6c757d', R:'#bc6c25'}},
+  {name:'처음 색', c:{A:'#f2c14e', B:'#5b84e6', C:'#7c8b98', R:'#d65a24'}}
+];
+const mix = (hex, to, t) => { const a = parseInt(hex.slice(1),16), b = parseInt(to.slice(1),16);
+  const ch = sh => Math.round(((a>>sh)&255)*(1-t) + ((b>>sh)&255)*t);
+  return '#' + [16,8,0].map(sh => ch(sh).toString(16).padStart(2,'0')).join(''); };
+const shiftCol = k => S['col'+k] || PALETTES[0].c[k];
+function applyColors(){
+  const st = document.documentElement.style;
+  for (const k of ['A','B','C','R']){
+    const c = shiftCol(k);
+    st.setProperty('--'+k, c);
+    st.setProperty('--'+k+'bg', mix(c, '#ffffff', 0.78));
+    st.setProperty('--'+k+'fg', mix(c, '#000000', 0.42));
+  }
+}
+function drawColors(){
+  const cur = ['A','B','C','R'].map(shiftCol).join();
+  document.getElementById('sPal').innerHTML = PALETTES.map((p,i) => `<button class="pal${Object.values(p.c).join()===cur?' on':''}" data-p="${i}">${p.name}
+    <span class="sw4">${['A','B','C','R'].map(k => `<i style="background:${mix(p.c[k],'#ffffff',0.78)};color:${mix(p.c[k],'#000000',0.42)};box-shadow:inset 3px 0 0 ${p.c[k]}">${LABEL[k]}</i>`).join('')}</span></button>`).join('');
+  document.getElementById('sCols').innerHTML = ['A','B','C','R'].map(k => `<label>${LABEL[k]}<input type="color" value="${shiftCol(k)}" data-k="${k}"></label>`).join('');
+}
+document.getElementById('sPal').onclick = e => { const b = e.target.closest('[data-p]'); if (!b) return;
+  const p = PALETTES[+b.dataset.p].c; for (const k in p) S['col'+k] = p[k]; save(); applyColors(); drawColors(); };
+document.getElementById('sCols').addEventListener('input', e => { const k = e.target.dataset.k; if (!k) return;
+  S['col'+k] = e.target.value; applyColors(); });
+document.getElementById('sCols').addEventListener('change', e => { if (e.target.dataset.k) { save(); drawColors(); } });
+
 document.getElementById('sTypes').addEventListener('input', e => {
   const f = e.target.dataset.f; if (!f) return;
   const t = S.types[+e.target.closest('.lt').dataset.i];
