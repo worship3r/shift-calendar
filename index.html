@@ -302,7 +302,9 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
     <h3>공휴일</h3>
     <div class="small">공휴일·명절에도 근무는 그대로 보여주고 빨간 띠로 표시해요. 대체공휴일·선거일 포함, 2026~2030년까지 들어 있어요.</div>
   </div>
-  <div class="box"><h3>휴가 종류·갯수</h3><div id="sTypes"></div><button class="add" id="sAdd">+ 휴가 종류 추가</button>
+  <div class="box"><h3>휴가 종류·갯수</h3>
+    <label class="sw" style="margin-bottom:12px"><span>새 연도 시작 달은 오늘 기준<small>예) 연차 12/18 시작: 12월 화면에서 오늘이 12/17까지면 올해 잔여, 12/18부터는 내년 잔여</small></span><input type="checkbox" class="tog" id="sRoll"></label>
+    <div id="sTypes"></div><button class="add" id="sAdd">+ 휴가 종류 추가</button>
     <div class="small" style="margin-top:8px">갯수를 비우면 기간·갯수 없이 표시만 돼요 (예: 교육, 출장). '아래 표시'를 켠 종류는 달력 아래에 그 달까지 남은 갯수가 나와요. '매년 반복'을 켜면 해마다 같은 날짜에 새 기간이 시작되고 총 갯수부터 다시 세요 (연차: 12/18부터 쓴 건 다음 해 연차).</div></div>
   <div class="box"><h3>자동 저장 (GitHub)</h3>
     <div id="scBox"></div>
@@ -312,7 +314,6 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
     <div class="row2"><button id="sShare">카톡·드라이브로 보내기</button></div>
     <div class="row2" style="margin-top:8px"><button id="sExport">파일로 저장</button><label>불러오기<input type="file" id="sImport" accept=".json,application/json" hidden></label></div>
     <div class="small" style="margin-top:8px">메모·휴가·설정은 이 폰 안에만 저장돼요. 백업 파일을 카톡 '나와의 채팅'이나 구글 드라이브에 보내두면, 폰을 바꾸거나 앱을 지워도 '불러오기'로 그대로 살릴 수 있어요. 바꾼 뒤 7일 넘게 백업을 안 하면 첫 화면에 알려드려요.</div></div>
-  <div class="box"><h3>근무 순서</h3><div class="small">A 6일 → 휴 2일 → B 6일 → 휴 2일 → C 6일 → 휴 2일, 24일마다 반복. 조마다 6일씩 차이.</div></div>
 </div></div>
 
 <script>
@@ -467,7 +468,7 @@ addEventListener('resize', refit); if (window.visualViewport) visualViewport.add
 // 오늘이 시작일 전이면 올해 잔여(올해 기간 끝까지), 시작일부터는 새 연도 잔여를 보여줌
 function leftFor(t, startK, endK){
   let per = periodOf(t, endK);
-  if (t.rep && per.start > startK && per.start <= endK && key(T.y, T.m, T.d) < per.start){
+  if (S.rollToday !== false && t.rep && per.start > startK && per.start <= endK && key(T.y, T.m, T.d) < per.start){
     const [y, m, d] = per.start.split('-').map(Number);
     per = periodOf(t, key(y, m-1, d-1));
     return {per, left: t.total - usedOf(t, null, per)};
@@ -693,6 +694,7 @@ function openSet(){ drawSet(); drawBk(); drawSc(); document.getElementById('setP
 function drawSet(){
   document.getElementById('sTeam').innerHTML = [1,2,3,4].map(t => `<button class="${S.team===t?'on':''}" data-t="${t}">${t}조</button>`).join('');
   drawColors();
+  document.getElementById('sRoll').checked = S.rollToday !== false;
   document.getElementById('sTypes').innerHTML = S.types.map((t,i) => `<div class="lt" data-i="${i}">
     <div class="r1"><input type="color" value="${t.color}" data-f="color" aria-label="색"><input class="name" value="${esc(t.name)}" data-f="name" aria-label="이름"></div>
     <div class="r2"><input type="date" value="${t.start||''}" data-f="start" aria-label="시작일"><span>~</span><input type="date" value="${t.end||''}" data-f="end" aria-label="종료일"></div>
@@ -739,6 +741,7 @@ document.getElementById('sCols').addEventListener('input', e => { const k = e.ta
   S['col'+k] = e.target.value; applyColors(); });
 document.getElementById('sCols').addEventListener('change', e => { if (e.target.dataset.k) { save(); drawColors(); } });
 
+document.getElementById('sRoll').onchange = e => { S.rollToday = e.target.checked; save(); };
 document.getElementById('sTypes').addEventListener('input', e => {
   const f = e.target.dataset.f; if (!f) return;
   const t = S.types[+e.target.closest('.lt').dataset.i];
