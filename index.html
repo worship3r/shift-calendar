@@ -151,6 +151,9 @@ body.round .syncst{font-size:13px;white-space:nowrap}
 .chip .d{width:12px;height:12px;border-radius:50%}
 .sel{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;margin-bottom:6px}
 .sel .nm{flex:1;font-size:17px;font-weight:600}
+.sel .lvval{min-width:64px;text-align:center;font-size:16px}
+.qh{display:flex;gap:6px;margin:-2px 0 10px}
+.qh button{flex:1;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:7px 0;font-size:14px;color:var(--ink)}
 .sel input{width:76px;font-size:17px;padding:6px;border-radius:8px;border:1px solid rgba(0,0,0,.15);text-align:center;background:rgba(255,255,255,.85)}
 .x{border:0;background:rgba(255,255,255,.7);width:34px;height:34px;border-radius:50%;font-size:18px}
 textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12px;border:1px solid var(--line);
@@ -165,8 +168,9 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lt2{position:relative;overflow:hidden;border:0;background:var(--soft);border-radius:12px;padding:6px 12px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:6px;text-align:left;font-family:inherit;color:var(--ink);min-width:0;box-shadow:0 1px 2px rgba(0,0,0,.05)}
 .lt2 .n{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--sub);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .lt2 .n i{width:10px;height:10px;border-radius:50%;flex:none}
+.lt2 .v .u{font-size:.62em;font-weight:600;color:var(--sub);margin:0 1px}
 .lt2 .v{white-space:nowrap;line-height:1.15;flex:none} .lt2 .v b{font-size:22px} .lt2 .v b.zero{color:var(--sun)} .lt2 .v small{font-size:13px;color:var(--sub);margin-left:1px}
-@media (max-width:420px){ .lrow2{display:flex;gap:5px} .lt2{flex:1 1 auto;padding:5px 7px;gap:4px} .lt2 .n{font-size:12px;gap:3px;letter-spacing:-.3px;overflow:visible} .lt2 .n i{width:7px;height:7px} .lt2 .v b{font-size:16px} .lt2 .v small{display:none} }
+@media (max-width:420px){ .lrow2{display:flex;gap:5px} .lt2{flex:1 1 auto;padding:5px 7px;gap:4px} .lt2 .n{font-size:12px;gap:3px;letter-spacing:-.3px;overflow:visible} .lt2 .n i{width:7px;height:7px} .lt2 .v b{font-size:16px} .lt2 .v small.tot{display:none} }
 @media (max-width:600px){ .lt2{padding:5px 7px;border-radius:10px;gap:3px} .lt2 .n{font-size:12px;gap:3px;overflow:hidden} .lt2 .n i{width:7px;height:7px} .lt2 .v b{font-size:17px} .lt2 .v small{font-size:10.5px} }
 .lsum .hd{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 8px}
 .lsum .hd b{font-size:16px}
@@ -301,6 +305,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
     <div class="small" style="margin-top:8px">미리 만든 색을 고르거나, 아래에서 A·B·C·휴 색을 하나씩 직접 바꿀 수 있어요. 바탕·글자 색은 자동으로 맞춰져요.</div></div>
   <div class="box"><h3>휴가 종류·갯수</h3>
     <label class="sw" style="margin-bottom:12px"><span>새 연도 시작 달은 오늘 기준<small>예) 연차 12/18 시작: 12월 화면에서 오늘이 12/17까지면 올해 잔여, 12/18부터는 내년 잔여</small></span><input type="checkbox" class="tog" id="sRoll"></label>
+    <label class="sw" style="margin-bottom:12px"><span>하루 근무시간<small>1시간 휴가 계산 기준 (8시간이면 1시간 = 0.125일)</small></span><input type="number" id="sDayH" min="1" max="24" step="1" style="width:70px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center"></label>
     <div id="sTypes"></div><button class="add" id="sAdd">+ 휴가 종류 추가</button>
     <div class="small" style="margin-top:8px">갯수를 비우면 기간·갯수 없이 표시만 돼요 (예: 교육, 출장). '아래 표시'를 켠 종류는 달력 아래에 그 달까지 남은 갯수가 나와요. '반복'을 매년으로 하면 해마다, 반기로 하면 6개월마다 새 기간이 시작되고 총 갯수부터 다시 세요 (연차: 12/18부터 쓴 건 다음 해 연차, 교대케어·야간케어: 1~6월·7~12월 따로).</div></div>
   <div class="box"><h3>자동 저장 (GitHub)</h3>
@@ -412,6 +417,7 @@ if (!S.lvColV4){ const V3C = {"연차": "#e07a5f", "연중": "#2f9e8f", "교대�
 // 휴가 색 V5: 이름에 맞춤 (야간케어 남색, 경조 은회색)
 if (!S.lvColV5){ const V4C = {'야간케어':'#f48fb1','경조':'#c5d86d'}, V5C = {'야간케어':'#7986cb','경조':'#b8bcc4'};
   S.types.forEach(t => { if (V4C[t.name] && (t.color||'').toLowerCase() === V4C[t.name]) t.color = V5C[t.name]; }); S.lvColV5 = true; }
+if (!S.yearInit2){ S.types.forEach(t => { if ((t.name === '연중' || t.name === '검진') && !t.rep) t.rep = true; }); S.yearInit2 = true; }
 if (!S.halfInit){ S.types.forEach(t => { if ((t.name === '교대케어' || t.name === '야간케어') && !t.rep) t.rep = 'half'; }); S.halfInit = true; }
 if (!S.repInit){ S.types.forEach(t => { if (t.name === '연차') t.rep = true; }); S.repInit = true; }
 if (!S.barInit2){ S.types.forEach(t => { if (t.name === '야간케어') t.bar = true; }); S.barInit2 = true; }
@@ -427,6 +433,20 @@ const textOn = hex => { const c = parseInt(hex.slice(1),16), r=c>>16, g=(c>>8)&2
   return (r*299+g*587+b*114)/1000 < 150 ? '#fff' : '#1d232b'; };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmtN = v => (Math.round(v*100)/100).toString();
+const dayH = () => (+S.dayH > 0 ? +S.dayH : 8);   // 하루 근무시간 (기본 8)
+// 일 → '2시간' / '1' / '1일 4시간'
+function fmtDH(v, unit = true){
+  const h = Math.round(v * dayH() * 100) / 100, d = Math.floor((h + 1e-9) / dayH()), r = Math.round((h - d * dayH()) * 100) / 100;
+  if (!r) return unit ? d + '일' : String(d);
+  if (!d) return r + '시간';
+  return d + '일 ' + r + '시간';
+}
+// 남은 갯수 칸용: 정수면 그대로, 시간이 남으면 '21<small>일</small> 5<small>h</small>'
+function fmtLeft(v){
+  if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
+  const neg = v < 0, a = Math.abs(v), h = Math.round(a * dayH() * 100) / 100, d = Math.floor((h + 1e-9) / dayH()), r = Math.round((h - d * dayH()) * 100) / 100;
+  return (neg ? '-' : '') + (d ? `${d}<small class="u">일</small>` : '') + `${r}<small class="u">h</small>`;
+}
 
 function shiftFor(y,m,d){
   const k = key(y,m,d), day = S.days[k];
@@ -491,7 +511,7 @@ function renderLsum(){
   if (compact){
     // 한 줄 네모칸: 왼쪽 색 막대 + 이름 + 큰 숫자 (누르면 휴가 현황)
     el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2" style="--tn:${Math.max(1, Math.min(list.length,4))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
-        return `<button class="lt2" title="${m+1}월까지 남은 ${esc(t.name)}"><span class="n"><i style="background:${t.color}"></i>${esc(t.name)}</span><span class="v"><b class="${left<=0?'zero':''}">${fmtN(left)}</b><small>/${fmtN(t.total)}</small></span></button>`; }).join('')}</div>`;
+        return `<button class="lt2" title="${m+1}월까지 남은 ${esc(t.name)}"><span class="n"><i style="background:${t.color}"></i>${esc(t.name)}</span><span class="v"><b class="${left<=0?'zero':''}">${fmtLeft(left)}</b><small class="tot">/${fmtN(t.total)}</small></span></button>`; }).join('')}</div>`;
     el.querySelectorAll('.lt2').forEach(b => b.onclick = openLeave); document.getElementById('lsMore').onclick = openLeave; return;
   }
   el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div>
@@ -555,7 +575,7 @@ function renderMy(){
       ${hol?`<div class="hn">${esc(hol.name)}</div>`:''}
       ${six?'':`<div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>`}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
-        return `<div class="lv" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)} ${fmtN(l.n)}</div>`; }).join('')}
+        return `<div class="lv" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)} ${fmtDH(l.n, false)}</div>`; }).join('')}
       ${parseMemo(day.memo).map(r => `<div class="ml">${r.t?`<b>${hhmm(r.t)}</b> `:''}${esc(r.x)}</div>`).join('')}
 
     </div>`;
@@ -629,16 +649,24 @@ function drawEd(){
   document.getElementById('dLeaves').innerHTML = ed.leaves.map((l,i) => { const t = typeById(l.t); if (!t) return '';
     return `<div class="sel" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">
       <span class="nm">${esc(t.name)}</span>
-      <input type="number" inputmode="decimal" step="0.25" min="0" value="${l.n}" data-i="${i}" aria-label="일수">
-      <button class="x" data-del="${i}" aria-label="빼기">×</button></div>`; }).join('');
+      <button class="x" data-step="-1" data-i="${i}" aria-label="1시간 빼기">−</button>
+      <b class="lvval">${l.n >= 1 && Math.abs(l.n - Math.round(l.n)) < 1e-9 ? l.n + '일' : fmtDH(l.n)}</b>
+      <button class="x" data-step="1" data-i="${i}" aria-label="1시간 더하기">+</button>
+      <button class="x" data-del="${i}" aria-label="빼기">×</button></div>
+      <div class="qh">${[1,2,4].map(h => `<button data-q="${h}" data-i="${i}">${h}시간</button>`).join('')}<button data-q="day" data-i="${i}">하루</button></div>`; }).join('');
   document.getElementById('dTypes').innerHTML = S.types.map(t =>
     `<button class="chip" data-t="${t.id}"><span class="d" style="background:${t.color}"></span>${esc(t.name)}</button>`).join('');
 }
 document.getElementById('dShift').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; ed.shift = b.dataset.s || null; drawEd(); };
 document.getElementById('dTypes').onclick = e => { const b = e.target.closest('[data-t]'); if (!b) return;
   if (!ed.leaves.some(l => l.t===b.dataset.t)) ed.leaves.push({t:b.dataset.t, n:1}); drawEd(); };
-document.getElementById('dLeaves').onclick = e => { const b = e.target.closest('[data-del]'); if (!b) return; ed.leaves.splice(+b.dataset.del,1); drawEd(); };
-document.getElementById('dLeaves').oninput = e => { if (e.target.dataset.i!=null) ed.leaves[+e.target.dataset.i].n = parseFloat(e.target.value)||0; };
+document.getElementById('dLeaves').onclick = e => {
+  const del = e.target.closest('[data-del]'), st = e.target.closest('[data-step]'), q = e.target.closest('[data-q]');
+  if (del){ ed.leaves.splice(+del.dataset.del,1); drawEd(); return; }
+  const unit = 1 / dayH();   // 1시간 = 하루의 1/8
+  if (st){ const l = ed.leaves[+st.dataset.i]; l.n = Math.max(unit, Math.round((l.n + (+st.dataset.step) * unit) * 1000) / 1000); drawEd(); return; }
+  if (q){ const l = ed.leaves[+q.dataset.i]; l.n = q.dataset.q === 'day' ? 1 : Math.round(+q.dataset.q * unit * 1000) / 1000; drawEd(); }
+};
 document.getElementById('dSave').onclick = () => {
   const memo = joinMemo(ed.memos);
   const leaves = ed.leaves.filter(l => l.n>0);
@@ -694,7 +722,7 @@ function openLeave(){
     return `<div class="lrow">
       <span class="pill" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)}</span>
       <span class="per">${isNext?`<b style="color:var(--accent)">${t.rep==='half'?'다음 반기':'다음 해'}</b><br>`:''}${per.start||per.end?`${shortD(per.start)} – ${shortD(per.end)}`:''}</span>
-      <span class="rem">${has?`<b>${fmtN(t.total-u)}</b> 남음<small>사용 ${fmtN(done)}${plan?` · 예정 ${fmtN(plan)}`:''} / ${fmtN(t.total)}</small>`:`${u?`${fmtN(u)}<small>${plan?`예정 ${fmtN(plan)} 포함`:'사용'}</small>`:'–'}`}</span>
+      <span class="rem">${has?`<b>${fmtDH(t.total-u)}</b> 남음<small>사용 ${fmtDH(done)}${plan?` · 예정 ${fmtDH(plan)}`:''} / ${fmtN(t.total)}</small>`:`${u?`${fmtDH(u)}<small>${plan?`예정 ${fmtDH(plan)} 포함`:'사용'}</small>`:'–'}`}</span>
     </div>`; }).join('');
   document.getElementById('leaveSheet').classList.add('show');
 }
@@ -712,6 +740,7 @@ function drawSet(){
   document.getElementById('sTeam').innerHTML = [1,2,3,4].map(t => `<button class="${S.team===t?'on':''}" data-t="${t}">${t}조</button>`).join('');
   drawColors();
   document.getElementById('sRoll').checked = S.rollToday !== false;
+  document.getElementById('sDayH').value = dayH();
   document.getElementById('sTypes').innerHTML = S.types.map((t,i) => `<div class="lt" data-i="${i}">
     <div class="r1"><input type="color" value="${t.color}" data-f="color" aria-label="색"><input class="name" value="${esc(t.name)}" data-f="name" aria-label="이름"></div>
     <div class="r2"><input type="date" value="${t.start||''}" data-f="start" aria-label="시작일"><span>~</span><input type="date" value="${t.end||''}" data-f="end" aria-label="종료일"></div>
@@ -759,6 +788,7 @@ document.getElementById('sCols').addEventListener('input', e => { const k = e.ta
 document.getElementById('sCols').addEventListener('change', e => { if (e.target.dataset.k) { save(); drawColors(); } });
 
 document.getElementById('sRoll').onchange = e => { S.rollToday = e.target.checked; save(); };
+document.getElementById('sDayH').onchange = e => { const v = +e.target.value; if (v >= 1 && v <= 24){ S.dayH = v; save(); } else e.target.value = dayH(); };
 document.getElementById('sTypes').addEventListener('input', e => {
   const f = e.target.dataset.f; if (!f) return;
   const t = S.types[+e.target.closest('.lt').dataset.i];
