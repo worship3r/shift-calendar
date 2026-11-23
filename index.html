@@ -381,13 +381,13 @@ const DEFAULT_TYPES = [
   {name:'연차',   color:'#ff8a80', start:'2025-12-18', end:'2026-12-17', total:24},
   {name:'연중',   color:'#4dd0c1', start:'2026-01-01', end:'2026-12-31', total:6},
   {name:'교대케어',color:'#ffc94d', start:'2026-07-01', end:'2026-12-31', total:2},
-  {name:'야간케어',color:'#f48fb1', start:'2026-07-01', end:'2026-12-31', total:3},
+  {name:'야간케어',color:'#7986cb', start:'2026-07-01', end:'2026-12-31', total:3},
   {name:'검진',   color:'#64b5f6', start:'2026-01-01', end:'2026-12-31', total:1.25},
   {name:'공휴일', color:'#8bd17c', start:'', end:'', total:null},
   {name:'교육',   color:'#a7b4c4', start:'', end:'', total:null},
   {name:'장기',   color:'#b39ddb', start:'2026-07-24', end:'2027-07-23', total:18},
   {name:'출장',   color:'#ffab76', start:'', end:'', total:null},
-  {name:'경조',   color:'#c5d86d', start:'', end:'', total:null}
+  {name:'경조',   color:'#b8bcc4', start:'', end:'', total:null}
 ].map((t,i) => ({id:'t'+i, ...t}));
 const SKEY = 'shiftcal-v2';
 let S;
@@ -402,6 +402,9 @@ if (!S.lvColV3){ const V2C = {"연차": "#f5c4b5", "연중": "#bfe3da", "교대�
 // 휴가 색 V4: 산뜻한 파스텔 (V3 색 그대로인 것만 바꿈)
 if (!S.lvColV4){ const V3C = {"연차": "#e07a5f", "연중": "#2f9e8f", "교대케어": "#d4a017", "야간케어": "#c75b7a", "검진": "#4a9fc8", "공휴일": "#6aa84f", "교육": "#8a8f98", "장기": "#a76bb5", "출장": "#b08d57", "경조": "#7d7aa8"}, V4C = {"연차": "#ff8a80", "연중": "#4dd0c1", "교대케어": "#ffc94d", "야간케어": "#f48fb1", "검진": "#64b5f6", "공휴일": "#8bd17c", "교육": "#a7b4c4", "장기": "#b39ddb", "출장": "#ffab76", "경조": "#c5d86d"};
   S.types.forEach(t => { if (V3C[t.name] && (t.color||'').toLowerCase() === V3C[t.name]) t.color = V4C[t.name]; }); S.lvColV4 = true; }
+// 휴가 색 V5: 이름에 맞춤 (야간케어 남색, 경조 은회색)
+if (!S.lvColV5){ const V4C = {'야간케어':'#f48fb1','경조':'#c5d86d'}, V5C = {'야간케어':'#7986cb','경조':'#b8bcc4'};
+  S.types.forEach(t => { if (V4C[t.name] && (t.color||'').toLowerCase() === V4C[t.name]) t.color = V5C[t.name]; }); S.lvColV5 = true; }
 if (!S.repInit){ S.types.forEach(t => { if (t.name === '연차') t.rep = true; }); S.repInit = true; }
 if (!S.barInit2){ S.types.forEach(t => { if (t.name === '야간케어') t.bar = true; }); S.barInit2 = true; }
 if (!S.barInit){ S.types.forEach(t => { if (['연차','연중','교대케어','야간케어'].includes(t.name)) t.bar = true; }); S.barInit = true; }
