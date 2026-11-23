@@ -167,7 +167,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .tile .v{font-size:26px;font-weight:700;margin-top:3px;line-height:1.1;white-space:nowrap}
 .tile .v small{font-size:14px;font-weight:400;color:var(--sub);margin-left:2px}
 .tile .v.zero{color:var(--sun)}
-.tile .s{font-size:12px;color:var(--sub);margin-top:2px}
+.tile .s{font-size:12px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lline{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--sub);padding:2px 2px 0}
 .lc{display:flex;align-items:baseline;gap:4px;white-space:nowrap}
 .lc i{width:9px;height:9px;border-radius:50%;align-self:center}
@@ -426,7 +426,7 @@ function renderLsum(){
   const list = S.types.filter(t => t.bar && t.total!=null && t.total!=='');
   const el = document.getElementById('lsum');
   const st = `<span id="syncSt" class="syncst ${sc.state==='ok'?'ok':sc.state==='err'?'err':''}">${scAuth()?esc(sc.msg||''):''}</span>`;
-  const compact = S.view !== 'all' && Math.ceil((new Date(y,m,1).getDay() + new Date(y,m+1,0).getDate())/7) === 6;
+  const compact = false;
   if (compact){
     el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div>
       <div class="lline">${list.map(t => { const per = periodOf(t, endK), left = t.total - usedOf(t, endK, per);
@@ -441,7 +441,7 @@ function renderLsum(){
       const fresh = t.rep && per.start >= startK && per.start <= endK;   // 이 달에 새 기간 시작
       return `<div class="tile" style="--c:${t.color}"><div class="nm"><i style="background:${t.color}"></i>${esc(t.name)}</div>
         <div class="v${left<=0?' zero':''}">${fmtN(left)}<small>/${fmtN(t.total)}</small></div>
-        ${fresh?`<div class="s">${+per.start.slice(5,7)}/${+per.start.slice(8)}부터 새 연도</div>`:before?'<div class="s">기간 시작 전</div>':after?'<div class="s">기간 끝남</div>':''}</div>`;
+        ${fresh?`<div class="s">${+per.start.slice(5,7)}/${+per.start.slice(8)}부터 새 연도</div>`:before?'<div class="s">시작 전</div>':after?'<div class="s">기간 끝</div>':''}</div>`;
     }).join('')}</div>`.replace('<div class="tiles"></div>', '');
   document.getElementById('lsMore').onclick = openLeave;
 }
@@ -480,7 +480,7 @@ function renderMy(){
   const {y,m} = cur;
   document.getElementById('ym').textContent = `${y}. ${pad(m+1)}`;
   const first = new Date(y,m,1).getDay(), last = new Date(y,m+1,0).getDate();
-  const rows = Math.ceil((first+last)/7), six = rows === 6;   // 6주인 달은 칸이 낮아서 근무를 날짜 옆으로
+  const rows = Math.min(5, Math.ceil((first+last)/7)), six = false;   // 항상 5주만: 6주째(예: 5/31)는 다음 달 화면 첫 줄에 나옴
   const cnt = {A:0,B:0,C:0,R:0};
   let h = '';
   for (let i=0; i<rows*7; i++){
