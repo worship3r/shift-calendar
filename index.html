@@ -523,7 +523,7 @@ const parseMemo = str => (str||'').split('\n').map(l => l.trim()).filter(Boolean
 const joinMemo = rows => rows.filter(r => r.x.trim())
   .sort((a, b) => (a.t ? 1 : 0) - (b.t ? 1 : 0) || a.t.localeCompare(b.t))   // 시간 없는 것 먼저, 나머지는 시간 순
   .map(r => (r.t ? r.t + ' ' : '') + r.x.trim()).join('\n');
-const hhmm = t => { const [h, m] = t.split(':').map(Number); return m ? h + ':' + String(m).padStart(2,'0') : h + '시'; };   // 달력에는 짧게: 10시 / 9:20
+const hhmm = t => { const [h, m] = t.split(':').map(Number); return h + ':' + String(m).padStart(2,'0'); };   // 달력 표시: 10:00 / 9:20 (통일)
 function timeSel(t, i){
   const [h, m] = t.split(':').map(Number);
   const mins = [...new Set([0,5,10,15,20,25,30,35,40,45,50,55, m])].sort((a,b) => a-b);
