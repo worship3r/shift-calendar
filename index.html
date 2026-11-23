@@ -261,7 +261,6 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 <div class="page" id="setPage"><div class="in">
   <div class="phead"><button class="icon" id="sBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>설정</h2></div>
   <div class="box"><h3>내 조</h3><div class="seg" id="sTeam"></div></div>
-  <div class="box"><h3>근무 모양</h3><div class="seg" id="sShape"><button data-v="box">네모</button><button data-v="round">동그라미</button></div></div>
   <div class="box"><h3>근무 색</h3>
     <div class="pals" id="sPal"></div>
     <div class="pcols" id="sCols"></div>
@@ -619,7 +618,6 @@ document.querySelectorAll('.sheet').forEach(s => s.addEventListener('click', e =
 function openSet(){ drawSet(); drawBk(); drawSc(); document.getElementById('setPage').classList.add('show'); }
 function drawSet(){
   document.getElementById('sTeam').innerHTML = [1,2,3,4].map(t => `<button class="${S.team===t?'on':''}" data-t="${t}">${t}조</button>`).join('');
-  document.querySelectorAll('#sShape button').forEach(b => b.classList.toggle('on', (S.shape||'box')===b.dataset.v));
   drawColors();
   document.getElementById('sTypes').innerHTML = S.types.map((t,i) => `<div class="lt" data-i="${i}">
     <div class="r1"><input type="color" value="${t.color}" data-f="color" aria-label="색"><input class="name" value="${esc(t.name)}" data-f="name" aria-label="이름"></div>
@@ -633,8 +631,7 @@ function drawSet(){
 document.getElementById('btnSet').onclick = openSet;
 document.getElementById('sBack').onclick = () => { document.getElementById('setPage').classList.remove('show'); render(); };
 document.getElementById('sTeam').onclick = e => { const b = e.target.closest('[data-t]'); if (!b) return; S.team = +b.dataset.t; save(); drawSet(); };
-document.getElementById('sShape').onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; S.shape = b.dataset.v; save(false); applyShape(); drawSet(); };
-const applyShape = () => { document.body.classList.toggle('round', S.shape==='round'); applyColors(); };
+const applyShape = () => { document.body.classList.remove('round'); applyColors(); };   // 모양은 네모 하나만
 // ───── 근무 색 ─────
 // 색 하나(기본색)만 고르면 연한 바탕·진한 글자를 자동으로 만듦. 저장은 colA·colB·colC·colR (짧은 글자라 Worker 그대로)
 const PALETTES = [
