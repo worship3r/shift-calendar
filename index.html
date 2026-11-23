@@ -63,19 +63,7 @@ body:not(.round) .wk .circ{width:auto;height:28px;margin:0 3px;align-self:stretc
 .memo{font-size:12px;line-height:14px;text-align:center;padding:0 2px;white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .lv{font-size:11px;line-height:15px;text-align:center;margin:2px 2px 0;border-radius:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.detail{margin:12px 12px 0;padding:14px 16px;border-radius:16px;background:var(--soft)}
-.detail .h{display:flex;align-items:center;gap:10px}
-.detail .dt{font-size:20px;font-weight:700}
-.detail .dt{line-height:1.2}
-.detail .dt small{display:block;font-size:14px;font-weight:400;color:var(--sub)}
-.detail .circ{display:inline-grid;margin:0!important;width:auto!important;min-width:46px;height:32px!important;padding:0 10px;font-size:17px!important}
-body.round .detail .circ{min-width:34px;width:34px!important;height:34px!important;padding:0}
-.detail .ed{margin-left:auto;border:0;background:var(--accent);color:#fff;border-radius:10px;padding:9px 16px;font-size:16px;font-weight:600;flex:none}
-.detail .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.detail .tags span{border-radius:14px;padding:4px 11px;font-size:15px;font-weight:600}
-.detail .mm{margin-top:10px;font-size:17px;line-height:1.5;white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere}
-.detail .nx{margin-top:10px;font-size:14px;color:var(--sub)}
-.syncst{font-size:13px;white-space:nowrap}
+body.round .syncst{font-size:13px;white-space:nowrap}
 .syncst.ok{color:#2b8a3e} .syncst.err{color:var(--sun)}
 .cfield{width:100%;font-size:18px;padding:11px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;font-family:inherit}
 .hashbox{font-family:monospace;font-size:12px;word-break:break-all;background:var(--soft);border-radius:8px;padding:8px;margin-top:8px;color:var(--sub)}
@@ -185,7 +173,6 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 <div class="dows"><div class="su">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="sa">토</div></div>
 <div class="grid" id="grid"></div>
 <div class="bk" id="bkBar"><span id="bkMsg"></span><button id="bkGo">백업하기</button></div>
-<div class="detail" id="detail"></div>
 <div class="foot"><span id="cnt"></span><span id="syncSt" class="syncst"></span></div>
 
 <!-- 날짜 편집 -->
@@ -341,7 +328,6 @@ function render(){
   b.setAttribute('aria-label', all ? '내 달력 보기' : '전체 조 보기');
   document.querySelector('.dows').style.display = all ? 'none' : '';
   all ? renderAll() : renderMy();
-  renderDetail();
 }
 // 전체 조: 주마다 날짜 줄 + 1~4조 줄
 function teamShift(t,Y,M,D){
@@ -404,31 +390,7 @@ function renderMy(){
 
 // ───── 날짜 편집 ─────
 let ed = null;
-// ───── 고른 날 자세히 ─────
-let sel = key(T.y, T.m, T.d);
-function renderDetail(){
-  const [Y,M,D] = sel.split('-').map(Number), m0 = M-1;
-  const hol = holOf(Y,m0,D), day = S.days[sel] || {}, {s} = shiftFor(Y,m0,D);
-  const n0 = dn(Y,m0,D);
-  // 근무날이면 다음 휴무, 휴무날이면 복귀하는 날
-  let k = 1;
-  if (s==='R') while (shiftFor(...fromN(n0+k)).s==='R' && k < 60) k++;
-  else while (shiftFor(...fromN(n0+k)).s!=='R' && k < 60) k++;
-  const [oy,om,od] = fromN(n0+k), ns = shiftFor(oy,om,od).s;
-  const nxText = s==='R' ? `${om+1}/${od} (${DOW[new Date(oy,om,od).getDay()]}) ${LABEL[ns]} 근무로 복귀 · ${k}일 뒤`
-                         : `다음 휴무 ${om+1}/${od} (${DOW[new Date(oy,om,od).getDay()]}) · ${k}일 뒤`;
-  const tags = (hol?[`<span style="background:#fbdcdc;color:var(--sun)">${esc(hol.name)}</span>`]:[])
-    .concat((day.leaves||[]).map(l => { const t = typeById(l.t); return t ? `<span style="background:${t.color};color:${textOn(t.color)}">${esc(t.name)} ${fmtN(l.n)}</span>` : ''; }));
-  const isT = Y===T.y && m0===T.m && D===T.d;
-  document.getElementById('detail').innerHTML = `
-    <div class="h"><span class="circ ${s}">${LABEL[s]}</span>
-      <span class="dt">${M}월 ${D}일<small>${DOW[new Date(Y,m0,D).getDay()]}요일${isT?' · 오늘':''}</small></span>
-      <button class="ed" id="edBtn">편집</button></div>
-    ${tags.length?`<div class="tags">${tags.join('')}</div>`:''}
-    ${day.memo?`<div class="mm">${esc(day.memo)}</div>`:''}
-    <div class="nx">${nxText}</div>`;
-  document.getElementById('edBtn').onclick = () => openDay(sel);
-}
+let sel = null;   // (고른 날 표시는 쓰지 않음)
 function openDay(k){
   const [Y,M,D] = k.split('-').map(Number);
   const day = S.days[k] || {};
@@ -573,14 +535,9 @@ document.getElementById('sImport').onchange = async e => {
 const move = dm => { const t = new Date(cur.y, cur.m+dm, 1); cur = {y:t.getFullYear(), m:t.getMonth()}; render(); };
 document.getElementById('prev').onclick = () => move(-1);
 document.getElementById('next').onclick = () => move(1);
-document.getElementById('goToday').onclick = document.getElementById('ym').onclick = () => { cur = {y:T.y, m:T.m}; sel = key(T.y,T.m,T.d); render(); };
+document.getElementById('goToday').onclick = document.getElementById('ym').onclick = () => { cur = {y:T.y, m:T.m}; render(); };
 document.getElementById('grid').onclick = e => {
-  const c = e.target.closest('[data-k]'); if (!c) return;
-  if (c.dataset.k === sel) return openDay(sel);      // 한 번 더 누르면 편집
-  sel = c.dataset.k;
-  const [Y,M] = sel.split('-').map(Number);
-  if (Y!==cur.y || M-1!==cur.m) cur = {y:Y, m:M-1};
-  render();
+  const c = e.target.closest('[data-k]'); if (c) openDay(c.dataset.k);
 };
 let sx=null, sy=null;
 const g = document.getElementById('grid');
