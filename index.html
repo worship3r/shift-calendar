@@ -75,6 +75,10 @@ body.round .detail .circ{min-width:34px;width:34px!important;height:34px!importa
 .detail .tags span{border-radius:14px;padding:4px 11px;font-size:15px;font-weight:600}
 .detail .mm{margin-top:10px;font-size:17px;line-height:1.5;white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere}
 .detail .nx{margin-top:10px;font-size:14px;color:var(--sub)}
+.syncst{font-size:13px;white-space:nowrap}
+.syncst.ok{color:#2b8a3e} .syncst.err{color:var(--sun)}
+.cfield{width:100%;font-size:18px;padding:11px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;font-family:inherit}
+.hashbox{font-family:monospace;font-size:12px;word-break:break-all;background:var(--soft);border-radius:8px;padding:8px;margin-top:8px;color:var(--sub)}
 .foot{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;color:var(--sub);font-size:14px}
 .foot button{border:1px solid var(--line);background:var(--bg);border-radius:20px;padding:7px 14px;font-size:15px}
 @media (max-width:420px){ .hol{word-break:break-all;font-size:9px;line-height:10px} }
@@ -182,7 +186,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 <div class="grid" id="grid"></div>
 <div class="bk" id="bkBar"><span id="bkMsg"></span><button id="bkGo">백업하기</button></div>
 <div class="detail" id="detail"></div>
-<div class="foot"><span id="cnt"></span></div>
+<div class="foot"><span id="cnt"></span><span id="syncSt" class="syncst"></span></div>
 
 <!-- 날짜 편집 -->
 <div class="sheet" id="daySheet"><div class="panel">
@@ -218,6 +222,9 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
   </div>
   <div class="box"><h3>휴가 종류·갯수</h3><div id="sTypes"></div><button class="add" id="sAdd">+ 휴가 종류 추가</button>
     <div class="small" style="margin-top:8px">갯수를 비우면 기간·갯수 없이 표시만 돼요 (예: 교육, 출장).</div></div>
+  <div class="box"><h3>자동 저장 (GitHub)</h3>
+    <div id="scBox"></div>
+  </div>
   <div class="box"><h3>백업</h3>
     <div class="small" id="sBkInfo" style="margin-bottom:8px"></div>
     <div class="row2"><button id="sShare">카톡·드라이브로 보내기</button></div>
@@ -304,7 +311,7 @@ const SKEY = 'shiftcal-v2';
 let S;
 try { S = JSON.parse(localStorage.getItem(SKEY)); } catch(e) {}
 if (!S || !S.types) S = {team:3, holOff:false, types:DEFAULT_TYPES, days:{}};
-const save = (edit = true) => { if (edit) S.editedAt = Date.now(); try { localStorage.setItem(SKEY, JSON.stringify(S)); } catch(e){} };
+const save = (edit = true) => { if (edit) S.editedAt = Date.now(); try { localStorage.setItem(SKEY, JSON.stringify(S)); } catch(e){} if (edit && typeof syncSoon === 'function') syncSoon(); };
 
 const typeById = id => S.types.find(t => t.id===id);
 const textOn = hex => { const c = parseInt(hex.slice(1),16), r=c>>16, g=(c>>8)&255, b=c&255;
@@ -490,7 +497,7 @@ function closeSheets(){ document.querySelectorAll('.sheet').forEach(s => s.class
 document.querySelectorAll('.sheet').forEach(s => s.addEventListener('click', e => { if (e.target===s) closeSheets(); }));
 
 // ───── 설정 ─────
-function openSet(){ drawSet(); drawBk(); document.getElementById('setPage').classList.add('show'); }
+function openSet(){ drawSet(); drawBk(); drawSc(); document.getElementById('setPage').classList.add('show'); }
 function drawSet(){
   document.getElementById('sTeam').innerHTML = [1,2,3,4].map(t => `<button class="${S.team===t?'on':''}" data-t="${t}">${t}조</button>`).join('');
   document.getElementById('sHolOff').checked = S.holOff;
@@ -546,7 +553,7 @@ function drawBk(){
   const days = S.backupAt ? Math.floor((Date.now()-S.backupAt)/864e5) : null;
   const info = document.getElementById('sBkInfo');
   if (info) info.textContent = S.backupAt ? `마지막 백업: ${new Date(S.backupAt).toLocaleDateString('ko-KR')} (${days}일 전)` : '아직 백업한 적이 없어요.';
-  const need = S.editedAt && (!S.backupAt || S.editedAt > S.backupAt) && (!S.backupAt ? Date.now()-S.editedAt > 864e5 : days >= 7);
+  const need = !syncedNow() && S.editedAt && (!S.backupAt || S.editedAt > S.backupAt) && (!S.backupAt ? Date.now()-S.editedAt > 864e5 : days >= 7);
   document.getElementById('bkMsg').textContent = S.backupAt ? `백업한 지 ${days}일 지났어요` : '아직 백업을 안 했어요';
   document.getElementById('bkBar').classList.toggle('show', !!need);
 }
@@ -557,7 +564,7 @@ document.getElementById('sImport').onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
   try { const d = JSON.parse(await f.text()); if (!d.types || !d.days) throw 0;
     if (!confirm('지금 내용을 백업 파일 내용으로 바꿀까요?')) return;
-    S = d; S.backupAt = Date.now(); save(false); applyShape(); drawSet(); drawBk(); alert('불러왔어요.');
+    S = d; S.backupAt = Date.now(); save(true); applyShape(); drawSet(); drawBk(); alert('불러왔어요.');
   } catch(err){ alert('교대달력 백업 파일이 아니에요.'); }
   e.target.value = '';
 };
@@ -583,10 +590,127 @@ g.addEventListener('touchend', e => { if (sx==null) return;
   if (Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.5) move(dx<0?1:-1); sx=null; });
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState!=='visible') return;
+  if (typeof scPull === 'function') scPull();
   const n = new Date(); if (n.getDate()!==T.d){ T={y:n.getFullYear(), m:n.getMonth(), d:n.getDate()}; render(); }
 });
 
-applyShape(); render(); drawBk();
+// ───── 자동 저장 (GitHub 비공개 저장소, Cloudflare Worker가 대신 저장) ─────
+// 페이지에는 GitHub 토큰이 없습니다. 연결 코드로 만든 값(sc-auth)만 폰에 두고, Worker가 확인한 뒤 저장합니다.
+const WORKER = 'https://mdd-live.worship3r.workers.dev';
+const sc = { sha: '', timer: null, busy: false, again: false, state: '', msg: '' };
+const lsGet = k => { try { return localStorage.getItem(k); } catch(e) { return null; } };
+const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch(e) {} };
+const scAuth = () => lsGet('sc-auth');
+const syncedNow = () => !!scAuth() && +(lsGet('sc-last') || 0) >= (S.editedAt || 0);
+async function sha256b(str){ return new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))); }
+const hex = b => [...b].map(x => x.toString(16).padStart(2,'0')).join('');
+const b64 = b => btoa(String.fromCharCode(...b));
+
+async function scCall(body){
+  const r = await fetch(WORKER + '/scsync', { method:'POST', body: JSON.stringify({ auth: scAuth(), ...body }) });
+  let j = {}; try { j = await r.json(); } catch(e) {}
+  return { status: r.status, ...j };
+}
+function setSt(state, msg){
+  sc.state = state; sc.msg = msg;
+  const el = document.getElementById('syncSt');
+  el.className = 'syncst ' + (state === 'ok' ? 'ok' : state === 'err' ? 'err' : '');
+  el.textContent = scAuth() ? msg : '';
+  const st = document.getElementById('scState'); if (st) st.textContent = msg;
+  drawBk();
+}
+const errMsg = r => r.status === 404 ? 'Cloudflare Worker를 아직 안 바꿨어요'
+  : r.status === 401 ? 'Cloudflare에 확인값이 아직 없어요'
+  : r.status === 503 ? 'Cloudflare 설정이 아직 안 됐어요'
+  : r.status === 502 ? 'GitHub 저장소 권한을 확인해 주세요' : '저장 안 됨 (다시 시도 중)';
+
+// 열 때·다시 볼 때: GitHub 쪽이 더 새 것이면 받아오고, 폰이 더 새 것이면 올림
+async function scPull(first = false){
+  if (!scAuth()) return;
+  try {
+    const r = await scCall({ op:'get' });
+    if (!r.ok) return setSt('err', errMsg(r));
+    sc.sha = r.sha || '';
+    let remote = null; try { remote = r.text ? JSON.parse(r.text) : null; } catch(e) {}
+    // 처음 연결할 때 이 폰에도 내용이 있으면 어느 쪽을 쓸지 물어봄
+    let takeRemote = remote && remote.types && remote.days && (remote.editedAt || 0) > (S.editedAt || 0);
+    if (first && remote && remote.types && remote.days && !takeRemote && S.editedAt) {
+      const when = remote.editedAt ? new Date(remote.editedAt).toLocaleString('ko-KR') : '';
+      takeRemote = confirm(`GitHub에 저장된 내용이 있어요 (${when}).
+
+확인: GitHub 내용을 불러와요 (이 폰에서 쓴 내용은 없어져요)
+취소: 이 폰 내용으로 GitHub를 덮어써요`);
+    }
+    if (takeRemote) {
+      S = remote; save(false); lsSet('sc-last', String(S.editedAt || 0));
+      applyShape(); render(); if (document.getElementById('setPage').classList.contains('show')) drawSet();
+      setSt('ok', '☁ 받아옴');
+    } else if (!remote || (S.editedAt || 0) > (remote.editedAt || 0)) {
+      await scPush();
+    } else { lsSet('sc-last', String(S.editedAt || 0)); setSt('ok', '☁ 저장됨'); }
+  } catch(e) { setSt('err', '인터넷 연결 안 됨'); }
+}
+function syncSoon(){
+  if (!scAuth()) return;
+  clearTimeout(sc.timer); setSt('', '☁ 저장 대기');
+  sc.timer = setTimeout(scPush, 2500);
+}
+async function scPush(){
+  if (!scAuth()) return;
+  if (sc.busy) { sc.again = true; return; }
+  sc.busy = true; setSt('', '☁ 저장 중');
+  const at = S.editedAt || 0;
+  try {
+    let r = await scCall({ op:'put', sha: sc.sha, text: JSON.stringify(S) });
+    if (r.status === 409) {                       // 다른 곳에서 먼저 저장됨: 최신 sha로 다시
+      const g = await scCall({ op:'get' });
+      let remote = null; try { remote = g.text ? JSON.parse(g.text) : null; } catch(e) {}
+      sc.sha = g.sha || '';
+      if (remote && (remote.editedAt || 0) > at) { sc.busy = false; return scPull(); }
+      r = await scCall({ op:'put', sha: sc.sha, text: JSON.stringify(S) });
+    }
+    if (r.ok) { sc.sha = r.sha || sc.sha; lsSet('sc-last', String(at)); setSt('ok', '☁ 저장됨'); }
+    else setSt('err', errMsg(r));
+  } catch(e) { setSt('err', '인터넷 연결 안 됨'); }
+  sc.busy = false;
+  if (sc.again || (S.editedAt || 0) > at) { sc.again = false; if (scAuth() && sc.state === 'ok') scPush(); }
+}
+async function scConnect(code){
+  const auth = b64(await sha256b('sc-sync|' + code));
+  lsSet('sc-auth', auth);
+  drawSc(); await scPull(true);
+}
+async function drawSc(){
+  const box = document.getElementById('scBox'); if (!box) return;
+  if (!scAuth()) {
+    box.innerHTML = `<div class="small" style="margin-bottom:10px">연결 코드를 정해서 넣으면, 바꿀 때마다 몇 초 뒤 GitHub 비공개 저장소에 자동으로 저장돼요. 폰을 바꿔도 같은 코드를 넣으면 그대로 돌아와요.</div>
+      <input class="cfield" id="scCode" type="password" autocomplete="off" placeholder="연결 코드 (8글자 이상)">
+      <div class="row2"><button id="scGo">연결</button></div>`;
+    document.getElementById('scGo').onclick = () => {
+      const v = document.getElementById('scCode').value.trim();
+      if (v.length < 8) return alert('연결 코드는 8글자 이상으로 정해 주세요.');
+      scConnect(v);
+    };
+    return;
+  }
+  const h = hex(await sha256b(scAuth()));
+  box.innerHTML = `<div class="sw" style="margin-bottom:10px"><span>상태</span><b id="scState" style="font-size:15px">${esc(sc.msg || '확인 중')}</b></div>
+    <div class="row2"><button id="scNow">지금 저장</button><button id="scOff">연결 끊기</button></div>
+    <div class="small" style="margin-top:10px">처음 한 번: 아래 확인값을 Cloudflare Worker 비밀값 <b>SC_SYNC_HASH</b>에 넣어 주세요.</div>
+    <div class="hashbox" id="scHash">${h}</div>
+    <div class="row2" style="margin-top:8px"><button id="scCopy">확인값 복사</button></div>`;
+  document.getElementById('scNow').onclick = () => scPush();
+  document.getElementById('scOff').onclick = () => {
+    if (!confirm('이 폰의 자동 저장 연결을 끊을까요? (GitHub에 저장된 내용은 그대로 남아요)')) return;
+    lsSet('sc-auth', null); lsSet('sc-last', null); sc.sha = ''; setSt('', ''); drawSc();
+  };
+  document.getElementById('scCopy').onclick = async () => {
+    try { await navigator.clipboard.writeText(h); alert('복사했어요.'); } catch(e) { alert('복사가 안 돼요. 길게 눌러 직접 복사해 주세요.'); }
+  };
+}
+window.addEventListener('online', () => scPull());
+
+applyShape(); render(); drawBk(); scPull();
 if ('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
