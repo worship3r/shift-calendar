@@ -396,6 +396,7 @@ if (!S || !S.types) S = {team:3, types:DEFAULT_TYPES, days:{}};
 // 휴가 색을 새로 바꿈: 처음 색 그대로인 것만 새 색으로 (직접 바꾼 색은 그대로)
 if (!S.lvColV2){ const OLDC = {"연차": "#f9cbb5", "연중": "#c8f4f6", "교대케어": "#ffd400", "야간케어": "#fff2a8", "검진": "#d7e5ff", "공휴일": "#d9edc8", "교육": "#dedede", "장기": "#f2e2f6", "출장": "#b65fc8", "경조": "#e8ddd6"}, NEWC = {"연차": "#f5c4b5", "연중": "#bfe3da", "교대케어": "#f1d88c", "야간케어": "#c9d3ee", "검진": "#cfe7f2", "공휴일": "#d4e8c4", "교육": "#e2e2e2", "장기": "#ecd3e6", "출장": "#d9cdb8", "경조": "#d7d0e8"};
   S.types.forEach(t => { if (OLDC[t.name] && (t.color||'').toLowerCase() === OLDC[t.name]) t.color = NEWC[t.name]; }); S.lvColV2 = true; }
+if (!S.modernAB){ if ((S.colA||'').toLowerCase() === '#78a9e3' && (S.colB||'').toLowerCase() === '#eeae62'){ S.colA = '#eeae62'; S.colB = '#78a9e3'; } S.modernAB = true; }
 if (!S.lvColV3){ const V2C = {"연차": "#f5c4b5", "연중": "#bfe3da", "교대케어": "#f1d88c", "야간케어": "#c9d3ee", "검진": "#cfe7f2", "공휴일": "#d4e8c4", "교육": "#e2e2e2", "장기": "#ecd3e6", "출장": "#d9cdb8", "경조": "#d7d0e8"}, BASEC = {"연차": "#e07a5f", "연중": "#2f9e8f", "교대케어": "#d4a017", "야간케어": "#c75b7a", "검진": "#4a9fc8", "공휴일": "#6aa84f", "교육": "#8a8f98", "장기": "#a76bb5", "출장": "#b08d57", "경조": "#7d7aa8"};
   S.types.forEach(t => { if (V2C[t.name] && (t.color||'').toLowerCase() === V2C[t.name]) t.color = BASEC[t.name]; }); S.lvColV3 = true; }
 if (!S.repInit){ S.types.forEach(t => { if (t.name === '연차') t.rep = true; }); S.repInit = true; }
@@ -691,7 +692,7 @@ const applyShape = () => { document.body.classList.remove('round'); applyColors(
 // ───── 근무 색 ─────
 // 색 하나(기본색)만 고르면 연한 바탕·진한 글자를 자동으로 만듦. 저장은 colA·colB·colC·colR (짧은 글자라 Worker 그대로)
 const PALETTES = [
-  {name:'모던',    c:{A:'#78a9e3', B:'#eeae62', C:'#9d8cd4', R:'#6b7280'}},
+  {name:'모던',    c:{A:'#eeae62', B:'#78a9e3', C:'#9d8cd4', R:'#6b7280'}},
   {name:'산뜻',    c:{A:'#f4a261', B:'#2a9d8f', C:'#8e7dbe', R:'#e76f51'}},
   {name:'파스텔',  c:{A:'#e3bf62', B:'#7d9bd6', C:'#a19bc4', R:'#e0876c'}}
 ];
