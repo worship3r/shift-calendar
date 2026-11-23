@@ -69,6 +69,8 @@ body.round .stag{border-radius:50%;width:20px;padding:0;color:#fff}
 body.round .stag.A{background:var(--A)} body.round .stag.B{background:var(--B)} body.round .stag.C{background:var(--C)} body.round .stag.R{background:var(--R)}
 .stag.chg{box-shadow:inset 0 0 0 1.5px currentColor}
 .ml{font-size:12px;line-height:14px;padding:0 3px;margin-top:2px;word-break:keep-all;overflow-wrap:anywhere}
+.tn{display:none}
+@media (max-width:420px){ .tw{display:none} .tn{display:inline} }
 .ml b{font-size:11px;color:inherit;font-weight:700;margin-right:3px}
 .mrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
 .tbtn{flex:none;border:1px dashed var(--faint);background:none;border-radius:10px;padding:10px 10px;font-size:15px;color:var(--sub);white-space:nowrap}
@@ -523,7 +525,9 @@ const parseMemo = str => (str||'').split('\n').map(l => l.trim()).filter(Boolean
 const joinMemo = rows => rows.filter(r => r.x.trim())
   .sort((a, b) => (a.t ? 1 : 0) - (b.t ? 1 : 0) || a.t.localeCompare(b.t))   // 시간 없는 것 먼저, 나머지는 시간 순
   .map(r => (r.t ? r.t + ' ' : '') + r.x.trim()).join('\n');
-const hhmm = t => { const [h, m] = t.split(':').map(Number); return h + ':' + String(m).padStart(2,'0'); };   // 달력 표시: 10:00 / 9:20 (통일)
+// 달력 시간 표시: 펼친 화면은 10:00 / 9:20, 접은 화면은 정각이면 10시 (분 있을 때만 9:20)
+const hhmm = t => { const [h, m] = t.split(':').map(Number); const full = h + ':' + String(m).padStart(2,'0');
+  return m ? full : `<span class="tw">${full}</span><span class="tn">${h}시</span>`; };
 function timeSel(t, i){
   const [h, m] = t.split(':').map(Number);
   const mins = [...new Set([0,5,10,15,20,25,30,35,40,45,50,55, m])].sort((a,b) => a-b);
