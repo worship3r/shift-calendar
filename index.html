@@ -17,7 +17,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);
   font-family:system-ui,-apple-system,sans-serif}
-body{max-width:880px;margin:0 auto;padding-bottom:env(safe-area-inset-bottom);overscroll-behavior-y:none}
+body{max-width:1400px;margin:0 auto;padding-bottom:env(safe-area-inset-bottom);overscroll-behavior-y:none}
 button{font-family:inherit;color:inherit}
 /* 머리 */
 .bar{display:flex;align-items:center;gap:4px;padding:10px 8px 6px 12px;padding-top:calc(10px + env(safe-area-inset-top));
@@ -118,9 +118,11 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .btns button{flex:1;font-size:18px;padding:14px 0;border-radius:12px;border:0;font-weight:600}
 .pri{background:var(--accent);color:#fff} .sec{background:var(--soft)}
 /* 휴가 현황 */
-.lsum{margin:14px 12px 0}
+.lsum{margin:14px 12px 0;padding-bottom:14px}
 .lsum .hd{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 8px}
 .lsum .hd b{font-size:16px}
+.lsum .hd .syncst{margin-left:8px;font-weight:400}
+.lsum .hd .r{display:flex;align-items:baseline;gap:4px;min-width:0}
 .lsum .hd button{border:0;background:none;color:var(--accent);font-size:14px;padding:4px 0}
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 @media (min-width:600px){ .tiles{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))} }
@@ -191,7 +193,6 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 <div class="grid" id="grid"></div>
 <div class="bk" id="bkBar"><span id="bkMsg"></span><button id="bkGo">백업하기</button></div>
 <div class="lsum" id="lsum"></div>
-<div class="foot"><span id="cnt"></span><span id="syncSt" class="syncst"></span></div>
 
 <!-- 날짜 편집 -->
 <div class="sheet" id="daySheet"><div class="panel">
@@ -359,18 +360,20 @@ function fitRows(){
   const g = document.getElementById('grid');
   const rows = Math.round(g.children.length / 7) || 5;
   const wide = innerWidth >= 600;
-  const below = document.getElementById('lsum').offsetHeight + document.querySelector('.foot').offsetHeight + 16;
-  const avail = innerHeight - g.getBoundingClientRect().top - window.scrollY - below;
+  const below = document.getElementById('lsum').offsetHeight + 30;
+  const viewH = (window.visualViewport && visualViewport.height) || innerHeight;
+  const avail = Math.min(viewH, innerHeight) - g.getBoundingClientRect().top - window.scrollY - below;
   const h = Math.max(wide ? 70 : 90, Math.min(wide ? 130 : 120, Math.floor(avail / rows)));
   root.style.setProperty('--rowh', h + 'px');
 }
-let fitT; addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(fitRows, 120); });
+let fitT; const refit = () => { clearTimeout(fitT); fitT = setTimeout(fitRows, 120); };
+addEventListener('resize', refit); if (window.visualViewport) visualViewport.addEventListener('resize', refit);
 function renderLsum(){
   const {y,m} = cur, endK = key(y, m+1, 0), startK = key(y, m, 1);
   const list = S.types.filter(t => t.bar && t.total!=null && t.total!=='');
   const el = document.getElementById('lsum');
-  if (!list.length){ el.innerHTML = ''; return; }
-  el.innerHTML = `<div class="hd"><b>${m+1}월까지 남은 휴가</b><button id="lsMore">휴가 현황 ›</button></div>
+  const st = `<span id="syncSt" class="syncst ${sc.state==='ok'?'ok':sc.state==='err'?'err':''}">${scAuth()?esc(sc.msg||''):''}</span>`;
+  el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div>
     <div class="tiles">${list.map(t => {
       const per = periodOf(t, endK);
       const before = per.start && endK < per.start, after = per.end && startK > per.end;
@@ -379,7 +382,7 @@ function renderLsum(){
       return `<div class="tile"><div class="nm"><i style="background:${t.color}"></i>${esc(t.name)}</div>
         <div class="v${left<=0?' zero':''}">${fmtN(left)}<small>/${fmtN(t.total)}</small></div>
         ${fresh?`<div class="s">${+per.start.slice(5,7)}/${+per.start.slice(8)}부터 새 연도</div>`:before?'<div class="s">기간 시작 전</div>':after?'<div class="s">기간 끝남</div>':''}</div>`;
-    }).join('')}</div>`;
+    }).join('')}</div>`.replace('<div class="tiles"></div>', '');
   document.getElementById('lsMore').onclick = openLeave;
 }
 // 전체 조: 주마다 날짜 줄 + 1~4조 줄
@@ -412,7 +415,6 @@ function renderAll(){
   }
   const g = document.getElementById('grid');
   g.innerHTML = h; g.classList.add('all');
-  document.getElementById('cnt').textContent = `노란 줄이 내 조 (${S.team}조)`;
 }
 function renderMy(){
   document.getElementById('grid').classList.remove('all');
@@ -438,7 +440,6 @@ function renderMy(){
     </div>`;
   }
   document.getElementById('grid').innerHTML = h;
-  document.getElementById('cnt').textContent = `${S.team}조 · A ${cnt.A} · B ${cnt.B} · C ${cnt.C} · 휴 ${cnt.R}`;
 }
 
 // ───── 날짜 편집 ─────
@@ -645,7 +646,7 @@ async function scCall(body){
 }
 function setSt(state, msg){
   sc.state = state; sc.msg = msg;
-  const el = document.getElementById('syncSt');
+  const el = document.getElementById('syncSt'); if (!el) { drawBk(); return; }
   el.className = 'syncst ' + (state === 'ok' ? 'ok' : state === 'err' ? 'err' : '');
   el.textContent = scAuth() ? msg : '';
   const st = document.getElementById('scState'); if (st) st.textContent = msg;
