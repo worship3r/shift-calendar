@@ -159,14 +159,14 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .btns button{flex:1;font-size:18px;padding:14px 0;border-radius:12px;border:0;font-weight:600}
 .pri{background:var(--accent);color:#fff} .sec{background:var(--soft)}
 /* 휴가 현황 */
-.lsum{margin:8px 10px 0;padding-bottom:8px;position:relative}
-.lsum .hd{margin:0 2px 6px}
+.lsum{margin:4px 10px 0;padding-bottom:8px;position:relative}
+.lsum .hd{margin:0 2px 4px}
 .lrow2{display:grid;grid-template-columns:repeat(var(--tn,4),1fr);gap:8px}
 .lt2{position:relative;overflow:hidden;border:0;background:var(--soft);border-radius:12px;padding:6px 12px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:6px;text-align:left;font-family:inherit;color:var(--ink);min-width:0;box-shadow:0 1px 2px rgba(0,0,0,.05)}
 .lt2 .n{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--sub);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .lt2 .n i{width:10px;height:10px;border-radius:50%;flex:none}
 .lt2 .v{white-space:nowrap;line-height:1.15;flex:none} .lt2 .v b{font-size:22px} .lt2 .v b.zero{color:var(--sun)} .lt2 .v small{font-size:13px;color:var(--sub);margin-left:1px}
-@media (max-width:420px){ .lt2{flex-direction:column;align-items:flex-start;gap:0} }
+@media (max-width:420px){ .lrow2{display:flex;gap:5px} .lt2{flex:1 1 auto;padding:5px 7px;gap:4px} .lt2 .n{font-size:12px;gap:3px;letter-spacing:-.3px;overflow:visible} .lt2 .n i{width:7px;height:7px} .lt2 .v b{font-size:16px} .lt2 .v small{display:none} }
 @media (max-width:600px){ .lt2{padding:5px 7px;border-radius:10px;gap:3px} .lt2 .n{font-size:12px;gap:3px;overflow:hidden} .lt2 .n i{width:7px;height:7px} .lt2 .v b{font-size:17px} .lt2 .v small{font-size:10.5px} }
 .lsum .hd{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 8px}
 .lsum .hd b{font-size:16px}
