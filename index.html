@@ -118,6 +118,21 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .btns button{flex:1;font-size:18px;padding:14px 0;border-radius:12px;border:0;font-weight:600}
 .pri{background:var(--accent);color:#fff} .sec{background:var(--soft)}
 /* 휴가 현황 */
+.lsum{margin:14px 12px 0}
+.lsum .hd{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 8px}
+.lsum .hd b{font-size:16px}
+.lsum .hd button{border:0;background:none;color:var(--accent);font-size:14px;padding:4px 0}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (min-width:600px){ .tiles{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))} }
+.tile{background:var(--soft);border-radius:14px;padding:10px 12px;min-width:0}
+.tile .nm{font-size:14px;color:var(--sub);display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden}
+.tile .nm i{width:10px;height:10px;border-radius:50%;flex:none}
+.tile .v{font-size:26px;font-weight:700;margin-top:3px;line-height:1.1;white-space:nowrap}
+.tile .v small{font-size:14px;font-weight:400;color:var(--sub);margin-left:2px}
+.tile .v.zero{color:var(--sun)}
+.tile .s{font-size:12px;color:var(--sub);margin-top:2px}
+.lnote{font-size:14px;color:var(--sub);margin:-2px 0 6px}
+.lrow .rem small{display:block;color:var(--sub);font-size:12px}
 .lrow{display:flex;align-items:center;gap:10px;padding:12px 2px;border-bottom:1px solid var(--line)}
 .pill{border-radius:20px;padding:5px 12px;font-weight:700;font-size:16px;white-space:nowrap}
 .lrow .per{flex:1;font-size:13px;color:var(--sub);text-align:right;line-height:1.35}
@@ -145,10 +160,10 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lt input[type=color]{width:40px;height:40px;border:0;padding:0;background:none;border-radius:8px;flex:none}
 .lt .name{flex:1;min-width:0;font-size:17px;padding:8px;border:1px solid var(--line);border-radius:8px}
 .lt .r2{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;margin-top:8px;font-size:14px;color:var(--sub)}
-.lt .r3{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:15px;color:var(--sub)}
+.lt .r3{display:flex;gap:6px;align-items:center;margin-top:8px;font-size:15px;color:var(--sub);white-space:nowrap}
 .lt input[type=date]{width:100%;min-width:0;font-size:15px;padding:7px 4px;border:1px solid var(--line);border-radius:8px;font-family:inherit}
-.lt .tot{width:84px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center}
-.lt .del{margin-left:auto;border:0;background:none;color:var(--sun);font-size:15px;padding:8px}
+.lt .tot{width:70px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center}
+.lt .del{margin-left:auto;border:0;background:none;color:var(--sun);font-size:15px;padding:8px 4px;white-space:nowrap}
 .add{width:100%;border:1px dashed var(--faint);background:none;border-radius:12px;padding:12px;font-size:16px;color:var(--sub)}
 .small{font-size:14px;color:var(--sub);line-height:1.6}
 .row2{display:flex;gap:8px}
@@ -173,6 +188,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 <div class="dows"><div class="su">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="sa">토</div></div>
 <div class="grid" id="grid"></div>
 <div class="bk" id="bkBar"><span id="bkMsg"></span><button id="bkGo">백업하기</button></div>
+<div class="lsum" id="lsum"></div>
 <div class="foot"><span id="cnt"></span><span id="syncSt" class="syncst"></span></div>
 
 <!-- 날짜 편집 -->
@@ -193,6 +209,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 <div class="sheet" id="leaveSheet"><div class="panel">
   <div class="grab"></div>
   <h2>휴가 현황</h2>
+  <div class="lnote">미리 적어둔 휴가까지 모두 뺀 남은 갯수예요.</div>
   <div id="leaveList"></div>
   <div class="btns"><button class="sec" id="lClose">닫기</button><button class="pri" id="lEdit">종류·갯수 편집</button></div>
 </div></div>
@@ -208,7 +225,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
     <div class="small" style="margin-top:10px">대체공휴일·선거일 포함, 2026~2030년까지 들어 있어요.</div>
   </div>
   <div class="box"><h3>휴가 종류·갯수</h3><div id="sTypes"></div><button class="add" id="sAdd">+ 휴가 종류 추가</button>
-    <div class="small" style="margin-top:8px">갯수를 비우면 기간·갯수 없이 표시만 돼요 (예: 교육, 출장).</div></div>
+    <div class="small" style="margin-top:8px">갯수를 비우면 기간·갯수 없이 표시만 돼요 (예: 교육, 출장). '아래 표시'를 켠 종류는 달력 아래에 그 달까지 남은 갯수가 나와요.</div></div>
   <div class="box"><h3>자동 저장 (GitHub)</h3>
     <div id="scBox"></div>
   </div>
@@ -298,6 +315,7 @@ const SKEY = 'shiftcal-v2';
 let S;
 try { S = JSON.parse(localStorage.getItem(SKEY)); } catch(e) {}
 if (!S || !S.types) S = {team:3, holOff:false, types:DEFAULT_TYPES, days:{}};
+if (!S.barInit){ S.types.forEach(t => { if (['연차','연중','교대케어'].includes(t.name)) t.bar = true; }); S.barInit = true; }
 const save = (edit = true) => { if (edit) S.editedAt = Date.now(); try { localStorage.setItem(SKEY, JSON.stringify(S)); } catch(e){} if (edit && typeof syncSoon === 'function') syncSoon(); };
 
 const typeById = id => S.types.find(t => t.id===id);
@@ -328,6 +346,22 @@ function render(){
   b.setAttribute('aria-label', all ? '내 달력 보기' : '전체 조 보기');
   document.querySelector('.dows').style.display = all ? 'none' : '';
   all ? renderAll() : renderMy();
+  renderLsum();
+}
+function renderLsum(){
+  const {y,m} = cur, endK = key(y, m+1, 0), startK = key(y, m, 1);
+  const list = S.types.filter(t => t.bar && t.total!=null && t.total!=='');
+  const el = document.getElementById('lsum');
+  if (!list.length){ el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="hd"><b>${m+1}월까지 남은 휴가</b><button id="lsMore">휴가 현황 ›</button></div>
+    <div class="tiles">${list.map(t => {
+      const before = t.start && endK < t.start, after = t.end && startK > t.end;
+      const left = t.total - usedOf(t, endK);
+      return `<div class="tile"><div class="nm"><i style="background:${t.color}"></i>${esc(t.name)}</div>
+        <div class="v${left<=0?' zero':''}">${fmtN(left)}<small>/${fmtN(t.total)}</small></div>
+        ${before?'<div class="s">기간 시작 전</div>':after?'<div class="s">기간 끝남</div>':''}</div>`;
+    }).join('')}</div>`;
+  document.getElementById('lsMore').onclick = openLeave;
 }
 // 전체 조: 주마다 날짜 줄 + 1~4조 줄
 function teamShift(t,Y,M,D){
@@ -430,11 +464,12 @@ document.getElementById('dSave').onclick = () => {
 document.getElementById('dClose').onclick = () => closeSheets();
 
 // ───── 휴가 현황 ─────
-function usedOf(t){
+function usedOf(t, until){
   let u = 0;
   for (const [k, day] of Object.entries(S.days)){
     if (t.start && k < t.start) continue;
     if (t.end && k > t.end) continue;
+    if (until && k > until) continue;
     for (const l of day.leaves||[]) if (l.t===t.id) u += l.n;
   }
   return u;
@@ -442,11 +477,11 @@ function usedOf(t){
 const shortD = s => s ? s.slice(2).replace(/-/g,'.') : '';
 function openLeave(){
   document.getElementById('leaveList').innerHTML = S.types.map(t => {
-    const u = usedOf(t), has = t.total!=null && t.total!=='';
+    const u = usedOf(t), done = usedOf(t, key(T.y,T.m,T.d)), plan = u - done, has = t.total!=null && t.total!=='';
     return `<div class="lrow">
       <span class="pill" style="background:${t.color};color:${textOn(t.color)}">${esc(t.name)}</span>
       <span class="per">${t.start||t.end?`${shortD(t.start)} – ${shortD(t.end)}`:''}</span>
-      <span class="rem">${has?`<b>${fmtN(t.total-u)}</b> 남음<br><small style="color:var(--sub)">${fmtN(u)} / ${fmtN(t.total)}</small>`:`${u?fmtN(u)+' 사용':'–'}`}</span>
+      <span class="rem">${has?`<b>${fmtN(t.total-u)}</b> 남음<small>사용 ${fmtN(done)}${plan?` · 예정 ${fmtN(plan)}`:''} / ${fmtN(t.total)}</small>`:`${u?`${fmtN(u)}<small>${plan?`예정 ${fmtN(plan)} 포함`:'사용'}</small>`:'–'}`}</span>
     </div>`; }).join('');
   document.getElementById('leaveSheet').classList.add('show');
 }
@@ -468,7 +503,8 @@ function drawSet(){
     <div class="r1"><input type="color" value="${t.color}" data-f="color" aria-label="색"><input class="name" value="${esc(t.name)}" data-f="name" aria-label="이름"></div>
     <div class="r2"><input type="date" value="${t.start||''}" data-f="start" aria-label="시작일"><span>~</span><input type="date" value="${t.end||''}" data-f="end" aria-label="종료일"></div>
     <div class="r3">총 갯수 <input class="tot" type="number" inputmode="decimal" step="0.25" min="0" value="${t.total??''}" data-f="total" placeholder="없음">
-      <button class="del" data-del="${i}">삭제</button></div>
+      <label style="display:flex;align-items:center;gap:6px;margin-left:auto;white-space:nowrap"><input type="checkbox" data-f="bar" ${t.bar?'checked':''} style="width:20px;height:20px">아래 표시</label>
+      <button class="del" data-del="${i}" style="margin-left:0">삭제</button></div>
   </div>`).join('');
 }
 document.getElementById('btnSet').onclick = openSet;
@@ -480,7 +516,8 @@ document.getElementById('sHolOff').onchange = e => { S.holOff = e.target.checked
 document.getElementById('sTypes').addEventListener('input', e => {
   const f = e.target.dataset.f; if (!f) return;
   const t = S.types[+e.target.closest('.lt').dataset.i];
-  if (f==='total') t.total = e.target.value==='' ? null : parseFloat(e.target.value);
+  if (f==='bar') t.bar = e.target.checked;
+  else if (f==='total') t.total = e.target.value==='' ? null : parseFloat(e.target.value);
   else t[f] = e.target.value;
   save();
 });
