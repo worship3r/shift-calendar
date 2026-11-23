@@ -48,6 +48,9 @@ button{font-family:inherit;color:inherit}
 .top{display:flex;align-items:center;gap:4px;padding:3px 5px;min-height:26px}
 .sb{position:relative;overflow:hidden;margin:1px 3px 2px;height:22px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;
   padding-left:5px;font-size:13px;font-weight:700;letter-spacing:.3px;background:linear-gradient(90deg,var(--g1),var(--g2) 85%)}
+.sb.sm{flex:none;margin:0 0 0 auto;height:18px;min-width:20px;padding:0 3px 0 6px;font-size:11px;border-radius:4px;letter-spacing:0}
+.sb.sm::before{width:3px}
+.top .hin + .sb.sm{margin-left:6px}
 .sb::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--ac)}
 .sb.A{--g1:var(--Abg2);--g2:var(--Abg);color:var(--Afg);--ac:var(--A)} .sb.B{--g1:var(--Bbg2);--g2:var(--Bbg);color:var(--Bfg);--ac:var(--B)}
 .sb.C{--g1:var(--Cbg2);--g2:var(--Cbg);color:var(--Cfg);--ac:var(--C)} .sb.R{--g1:var(--Rbg2);--g2:var(--Rbg);color:var(--Rfg);--ac:var(--R)}
@@ -90,21 +93,22 @@ body:not(.round) .wk .circ{width:auto;height:28px;margin:0 3px;align-self:stretc
 .circ.chg{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--ink)}
 .memo{font-size:12px;line-height:14px;text-align:center;padding:0 2px;white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.lv{font-size:11px;line-height:15px;text-align:center;margin:2px 2px 0;border-radius:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lv{font-size:11px;line-height:15px;text-align:center;margin:2px 3px 0;border-radius:4px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.round .syncst{font-size:13px;white-space:nowrap}
 .syncst.ok{color:#2b8a3e} .syncst.err{color:var(--sun)}
 .cfield{width:100%;font-size:18px;padding:11px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;font-family:inherit}
 .hashbox{font-family:monospace;font-size:12px;word-break:break-all;background:var(--soft);border-radius:8px;padding:8px;margin-top:8px;color:var(--sub)}
 .foot{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;color:var(--sub);font-size:14px}
 .foot button{border:1px solid var(--line);background:var(--bg);border-radius:20px;padding:7px 14px;font-size:15px}
-@media (max-width:420px){ .hol{word-break:break-all;font-size:9px;line-height:10px} .ml b{display:block;line-height:12px} .ml{margin-top:3px} }
+@media (max-width:420px){ .hol{word-break:break-all;font-size:9px;line-height:10px} .ml{margin-top:2px;font-size:11px;line-height:13px;padding:0 2px;letter-spacing:-.3px} .ml b{font-size:10.5px;margin-right:2px} }
 @media (min-width:600px){
   body:not(.round) .circ{height:34px;font-size:19px;margin:4px 8px}
   .cell{height:var(--rowh,124px)} .circ{width:42px;height:42px;font-size:19px}
   .memo{font-size:14px;line-height:17px} .lv{font-size:13px;line-height:18px} .hol{font-size:12px;line-height:13px}
   .num{font-size:19px}
   .stag{font-size:14px;line-height:21px;min-width:26px;padding:0 6px} body.round .stag{width:24px;min-width:24px}
-  .sb{height:28px;margin:2px 6px 3px;font-size:16px;border-radius:7px;padding-left:7px} .sb::before{width:7px} body.round .sb{width:28px;height:28px;font-size:14px} .top{padding:4px 8px;min-height:28px}
+  .sb{height:28px;margin:2px 6px 3px;font-size:16px;border-radius:7px;padding-left:7px} .sb::before{width:7px}
+  .sb.sm{height:22px;min-width:56px;margin:0 0 0 auto;font-size:14px;padding-left:10px;border-radius:6px} .sb.sm::before{width:5px} body.round .sb{width:28px;height:28px;font-size:14px} .top{padding:4px 8px;min-height:28px}
   .ml{font-size:14px;line-height:17px;padding:0 6px} .ml b{font-size:13px} .hn{font-size:12px;line-height:14px;padding:0 6px}
 }
 /* 전체 조 */
@@ -164,6 +168,10 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .tile .v small{font-size:14px;font-weight:400;color:var(--sub);margin-left:2px}
 .tile .v.zero{color:var(--sun)}
 .tile .s{font-size:12px;color:var(--sub);margin-top:2px}
+.lline{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--sub);padding:2px 2px 0}
+.lc{display:flex;align-items:baseline;gap:4px;white-space:nowrap}
+.lc i{width:9px;height:9px;border-radius:50%;align-self:center}
+.lc b{color:var(--ink);font-size:17px} .lc b.zero{color:var(--sun)} .lc small{font-size:12px}
 .lnote{font-size:14px;color:var(--sub);margin:-2px 0 6px}
 .lrow .rem small{display:block;color:var(--sub);font-size:12px}
 .lrow{display:flex;align-items:center;gap:10px;padding:12px 2px;border-bottom:1px solid var(--line)}
@@ -345,21 +353,24 @@ const holOf = (y,m,d) => { const k = key(y,m,d); return holidays(+k.slice(0,4))[
 
 // ───── 저장 ─────
 const DEFAULT_TYPES = [
-  {name:'연차',   color:'#f9cbb5', start:'2025-12-18', end:'2026-12-17', total:24},
-  {name:'연중',   color:'#c8f4f6', start:'2026-01-01', end:'2026-12-31', total:6},
-  {name:'교대케어',color:'#ffd400', start:'2026-07-01', end:'2026-12-31', total:2},
-  {name:'야간케어',color:'#fff2a8', start:'2026-07-01', end:'2026-12-31', total:3},
-  {name:'검진',   color:'#d7e5ff', start:'2026-01-01', end:'2026-12-31', total:1.25},
-  {name:'공휴일', color:'#d9edc8', start:'', end:'', total:null},
-  {name:'교육',   color:'#dedede', start:'', end:'', total:null},
-  {name:'장기',   color:'#f2e2f6', start:'2026-07-24', end:'2027-07-23', total:18},
-  {name:'출장',   color:'#b65fc8', start:'', end:'', total:null},
-  {name:'경조',   color:'#e8ddd6', start:'', end:'', total:null}
+  {name:'연차',   color:'#f5c4b5', start:'2025-12-18', end:'2026-12-17', total:24},
+  {name:'연중',   color:'#bfe3da', start:'2026-01-01', end:'2026-12-31', total:6},
+  {name:'교대케어',color:'#f1d88c', start:'2026-07-01', end:'2026-12-31', total:2},
+  {name:'야간케어',color:'#c9d3ee', start:'2026-07-01', end:'2026-12-31', total:3},
+  {name:'검진',   color:'#cfe7f2', start:'2026-01-01', end:'2026-12-31', total:1.25},
+  {name:'공휴일', color:'#d4e8c4', start:'', end:'', total:null},
+  {name:'교육',   color:'#e2e2e2', start:'', end:'', total:null},
+  {name:'장기',   color:'#ecd3e6', start:'2026-07-24', end:'2027-07-23', total:18},
+  {name:'출장',   color:'#d9cdb8', start:'', end:'', total:null},
+  {name:'경조',   color:'#d7d0e8', start:'', end:'', total:null}
 ].map((t,i) => ({id:'t'+i, ...t}));
 const SKEY = 'shiftcal-v2';
 let S;
 try { S = JSON.parse(localStorage.getItem(SKEY)); } catch(e) {}
 if (!S || !S.types) S = {team:3, types:DEFAULT_TYPES, days:{}};
+// 휴가 색을 새로 바꿈: 처음 색 그대로인 것만 새 색으로 (직접 바꾼 색은 그대로)
+if (!S.lvColV2){ const OLDC = {"연차": "#f9cbb5", "연중": "#c8f4f6", "교대케어": "#ffd400", "야간케어": "#fff2a8", "검진": "#d7e5ff", "공휴일": "#d9edc8", "교육": "#dedede", "장기": "#f2e2f6", "출장": "#b65fc8", "경조": "#e8ddd6"}, NEWC = {"연차": "#f5c4b5", "연중": "#bfe3da", "교대케어": "#f1d88c", "야간케어": "#c9d3ee", "검진": "#cfe7f2", "공휴일": "#d4e8c4", "교육": "#e2e2e2", "장기": "#ecd3e6", "출장": "#d9cdb8", "경조": "#d7d0e8"};
+  S.types.forEach(t => { if (OLDC[t.name] && (t.color||'').toLowerCase() === OLDC[t.name]) t.color = NEWC[t.name]; }); S.lvColV2 = true; }
 if (!S.repInit){ S.types.forEach(t => { if (t.name === '연차') t.rep = true; }); S.repInit = true; }
 if (!S.barInit2){ S.types.forEach(t => { if (t.name === '야간케어') t.bar = true; }); S.barInit2 = true; }
 if (!S.barInit){ S.types.forEach(t => { if (['연차','연중','교대케어','야간케어'].includes(t.name)) t.bar = true; }); S.barInit = true; }
@@ -404,7 +415,8 @@ function fitRows(){
   const below = document.getElementById('lsum').offsetHeight + 30;
   const viewH = (window.visualViewport && visualViewport.height) || innerHeight;
   const avail = Math.min(viewH, innerHeight) - g.getBoundingClientRect().top - window.scrollY - below;
-  const h = Math.max(wide ? 70 : 90, Math.min(wide ? 130 : 120, Math.floor(avail / rows)));
+  const six = rows === 6;   // 6주인 달은 근무가 날짜 옆이라 칸을 더 낮게 해도 됨
+  const h = Math.max(wide ? (six ? 60 : 70) : (six ? 70 : 90), Math.min(wide ? 130 : 120, Math.floor(avail / rows)));
   root.style.setProperty('--rowh', h + 'px');
 }
 let fitT; const refit = () => { clearTimeout(fitT); fitT = setTimeout(fitRows, 120); };
@@ -414,6 +426,13 @@ function renderLsum(){
   const list = S.types.filter(t => t.bar && t.total!=null && t.total!=='');
   const el = document.getElementById('lsum');
   const st = `<span id="syncSt" class="syncst ${sc.state==='ok'?'ok':sc.state==='err'?'err':''}">${scAuth()?esc(sc.msg||''):''}</span>`;
+  const compact = S.view !== 'all' && Math.ceil((new Date(y,m,1).getDay() + new Date(y,m+1,0).getDate())/7) === 6;
+  if (compact){
+    el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div>
+      <div class="lline">${list.map(t => { const per = periodOf(t, endK), left = t.total - usedOf(t, endK, per);
+        return `<span class="lc"><i style="background:${t.color}"></i>${esc(t.name)} <b class="${left<=0?'zero':''}">${fmtN(left)}</b><small>/${fmtN(t.total)}</small></span>`; }).join('')}</div>`;
+    document.getElementById('lsMore').onclick = openLeave; return;
+  }
   el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div>
     <div class="tiles" style="--tn:${Math.min(list.length,4)}">${list.map(t => {
       const per = periodOf(t, endK);
@@ -461,7 +480,7 @@ function renderMy(){
   const {y,m} = cur;
   document.getElementById('ym').textContent = `${y}. ${pad(m+1)}`;
   const first = new Date(y,m,1).getDay(), last = new Date(y,m+1,0).getDate();
-  const rows = Math.ceil((first+last)/7);
+  const rows = Math.ceil((first+last)/7), six = rows === 6;   // 6주인 달은 칸이 낮아서 근무를 날짜 옆으로
   const cnt = {A:0,B:0,C:0,R:0};
   let h = '';
   for (let i=0; i<rows*7; i++){
@@ -472,12 +491,13 @@ function renderMy(){
     const isT = Y===T.y && M===T.m && D===T.d;
     const red = w===0 || !!hol;
     h += `<div class="cell${other?' other':''}${isT?' today':''}${hol?' hd':''}" data-k="${k}">
-      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${hol?`<span class="hin">${esc(hol.name)}</span>`:''}</div>
+      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${hol?`<span class="hin">${esc(hol.name)}</span>`:''}${six?`<span class="sb sm ${s}${chg?' chg':''}">${LABEL[s]}</span>`:''}</div>
       ${hol?`<div class="hn">${esc(hol.name)}</div>`:''}
-      <div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>
-      ${parseMemo(day.memo).map(r => `<div class="ml">${r.t?`<b>${hhmm(r.t)}</b>`:''}${esc(r.x)}</div>`).join('')}
+      ${six?'':`<div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>`}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
         return `<div class="lv" style="background:${t.color};color:${textOn(t.color)}">${esc(t.name)} ${fmtN(l.n)}</div>`; }).join('')}
+      ${parseMemo(day.memo).map(r => `<div class="ml">${r.t?`<b>${hhmm(r.t)}</b>`:''}${esc(r.x)}</div>`).join('')}
+
     </div>`;
   }
   document.getElementById('grid').innerHTML = h;
@@ -491,7 +511,7 @@ const parseMemo = str => (str||'').split('\n').map(l => l.trim()).filter(Boolean
 const joinMemo = rows => rows.filter(r => r.x.trim())
   .sort((a, b) => (a.t ? 1 : 0) - (b.t ? 1 : 0) || a.t.localeCompare(b.t))   // 시간 없는 것 먼저, 나머지는 시간 순
   .map(r => (r.t ? r.t + ' ' : '') + r.x.trim()).join('\n');
-const hhmm = t => { const [h, m] = t.split(':').map(Number); return h + '시' + (m ? ' ' + m + '분' : ''); };
+const hhmm = t => { const [h, m] = t.split(':').map(Number); return m ? h + ':' + String(m).padStart(2,'0') : h + '시'; };   // 달력에는 짧게: 10시 / 9:20
 function timeSel(t, i){
   const [h, m] = t.split(':').map(Number);
   const mins = [...new Set([0,5,10,15,20,25,30,35,40,45,50,55, m])].sort((a,b) => a-b);
