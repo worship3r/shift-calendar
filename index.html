@@ -159,7 +159,14 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .btns button{flex:1;font-size:18px;padding:14px 0;border-radius:12px;border:0;font-weight:600}
 .pri{background:var(--accent);color:#fff} .sec{background:var(--soft)}
 /* 휴가 현황 */
-.lsum{margin:10px 12px 0;padding-bottom:10px}
+.lsum{margin:8px 10px 0;padding-bottom:8px;position:relative}
+.lsum .hd{margin:0 2px 6px}
+.lrow2{display:grid;grid-template-columns:repeat(var(--tn,4),1fr);gap:8px}
+.lt2{position:relative;overflow:hidden;border:0;background:var(--soft);border-radius:12px;padding:8px 12px 7px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;font-family:inherit;color:var(--ink);min-width:0;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.lt2 .n{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--sub);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.lt2 .n i{width:10px;height:10px;border-radius:50%;flex:none}
+.lt2 .v{white-space:nowrap;line-height:1.15} .lt2 .v b{font-size:24px} .lt2 .v b.zero{color:var(--sun)} .lt2 .v small{font-size:13px;color:var(--sub);margin-left:1px}
+@media (max-width:600px){ .lt2{padding:6px 8px 5px;border-radius:10px} .lt2 .n{font-size:12.5px;gap:4px} .lt2 .n i{width:8px;height:8px} .lt2 .v b{font-size:19px} .lt2 .v small{font-size:11px} }
 .lsum .hd{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 8px}
 .lsum .hd b{font-size:16px}
 .lsum .hd .syncst{margin-left:8px;font-weight:400}
@@ -231,9 +238,9 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .row2{display:flex;gap:8px}
 .row2 button,.row2 label{flex:1;text-align:center;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:12px 0;font-size:16px}
 /* 메모·휴가 글자: 칸 폭에 맞춰 최대한 크게 (fitRows에서 --mfs·--lfs 계산) */
-.cell .ml{font-size:var(--mfs,12.5px);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cell .ml b{font-size:calc(var(--mfs,12.5px) * .84);margin-right:2px;letter-spacing:-.3px}
-.cell .lv{font-size:var(--lfs,12.5px);line-height:1.42}
+.cell .ml{font-size:var(--mfs,12.5px);line-height:1.25;letter-spacing:-.5px;white-space:normal;word-break:keep-all;overflow-wrap:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cell .ml b{font-size:calc(var(--mfs,12.5px) * .84);margin-right:0;letter-spacing:-.3px}
+.cell .lv{font-size:var(--lfs,11px);line-height:1.3}
 /* 칸이 좁으면 정각은 10시로 짧게 */
 .grid.short .tw{display:none} .grid.short .tn{display:inline}
 </style>
@@ -435,8 +442,8 @@ function fitRows(){
   const g = document.getElementById('grid');
   const rows = Math.round(g.children.length / 7) || 5;
   const cw = g.offsetWidth / 7;   // 칸 폭
-  root.style.setProperty('--mfs', Math.max(11.5, Math.min(17, cw * 0.225)).toFixed(1) + 'px');   // 메모: 한 줄에 '10시 핏토'가 들어가는 크기
-  root.style.setProperty('--lfs', Math.max(11, Math.min(14, cw * 0.17)).toFixed(1) + 'px');     // 휴가는 작게
+  root.style.setProperty('--mfs', Math.max(11.5, Math.min(17, cw * 0.218)).toFixed(1) + 'px');   // 메모: 한 줄에 '10시 핏토'가 들어가는 크기
+  root.style.setProperty('--lfs', Math.max(10, Math.min(12.5, cw * 0.14)).toFixed(1) + 'px');   // 휴가 띠는 작게 (메모 자리 확보)
   g.classList.toggle('short', cw < 95);
   const wide = innerWidth >= 600;
   const below = document.getElementById('lsum').offsetHeight + 14;
@@ -455,9 +462,10 @@ function renderLsum(){
   const st = `<span id="syncSt" class="syncst ${sc.state==='ok'?'ok':sc.state==='err'?'err':''}">${scAuth()?esc(sc.msg||''):''}</span>`;
   const compact = true;   // 남은 휴가는 항상 한 줄 (달력 칸을 크게)
   if (compact){
-    el.innerHTML = `<div class="lline"><b class="lt1">${list.length?`${m+1}월까지`:''}</b>${list.map(t => { const per = periodOf(t, endK), left = t.total - usedOf(t, endK, per);
-        return `<span class="lc"><i style="background:${t.color}"></i>${esc(t.name)} <b class="${left<=0?'zero':''}">${fmtN(left)}</b><small>/${fmtN(t.total)}</small></span>`; }).join('')}${st}<button id="lsMore" class="lmore">현황 ›</button></div>`;
-    document.getElementById('lsMore').onclick = openLeave; return;
+    // 한 줄 네모칸: 왼쪽 색 막대 + 이름 + 큰 숫자 (누르면 휴가 현황)
+    el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2" style="--tn:${Math.max(1, Math.min(list.length,4))}">${list.map(t => { const per = periodOf(t, endK), left = t.total - usedOf(t, endK, per);
+        return `<button class="lt2" title="${m+1}월까지 남은 ${esc(t.name)}"><span class="n"><i style="background:${t.color}"></i>${esc(t.name)}</span><span class="v"><b class="${left<=0?'zero':''}">${fmtN(left)}</b><small>/${fmtN(t.total)}</small></span></button>`; }).join('')}</div>`;
+    el.querySelectorAll('.lt2').forEach(b => b.onclick = openLeave); document.getElementById('lsMore').onclick = openLeave; return;
   }
   el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div>
     <div class="tiles" style="--tn:${Math.min(list.length,4)}">${list.map(t => {
@@ -521,7 +529,7 @@ function renderMy(){
       ${six?'':`<div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>`}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
         return `<div class="lv" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)} ${fmtN(l.n)}</div>`; }).join('')}
-      ${parseMemo(day.memo).map(r => `<div class="ml">${r.t?`<b>${hhmm(r.t)}</b>`:''}${esc(r.x)}</div>`).join('')}
+      ${parseMemo(day.memo).map(r => `<div class="ml">${r.t?`<b>${hhmm(r.t)}</b> `:''}${esc(r.x)}</div>`).join('')}
 
     </div>`;
   }
