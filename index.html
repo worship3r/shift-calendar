@@ -160,11 +160,13 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lsum .hd .r{display:flex;align-items:baseline;gap:4px;min-width:0}
 .lsum .hd button{border:0;background:none;color:var(--accent);font-size:14px;padding:4px 0}
 .tiles{display:grid;grid-template-columns:repeat(var(--tn,3),1fr);gap:8px}
-@media (max-width:420px){ .tile{padding:8px 6px 8px 10px;box-shadow:inset 4px 0 0 var(--c)} .tile .nm i{display:none} .tile .v{font-size:23px} .tile .nm{font-size:13px} .tile .v small{font-size:12px} }
+@media (max-width:420px){ .tile{padding:8px 6px 8px 10px;box-shadow:inset 4px 0 0 var(--c)} .tile .nm i{display:none} .tile .v{font-size:23px} .tile .nm{font-size:13px} .tile .v small{font-size:12px} .tile .sn{font-size:10px;padding-left:3px} }
 .tile{background:var(--soft);border-radius:14px;padding:10px 12px;min-width:0}
 .tile .nm{font-size:14px;color:var(--sub);display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden}
 .tile .nm i{width:10px;height:10px;border-radius:50%;flex:none}
 .tile .v{font-size:26px;font-weight:700;margin-top:3px;line-height:1.1;white-space:nowrap}
+.tile .v{display:flex;align-items:baseline}
+.tile .sn{margin-left:auto;padding-left:6px;font-size:12px;font-weight:400;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .tile .v small{font-size:14px;font-weight:400;color:var(--sub);margin-left:2px}
 .tile .v.zero{color:var(--sun)}
 .tile .s{font-size:12px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -440,8 +442,7 @@ function renderLsum(){
       const left = t.total - usedOf(t, endK, per);
       const fresh = t.rep && per.start >= startK && per.start <= endK;   // 이 달에 새 기간 시작
       return `<div class="tile" style="--c:${t.color}"><div class="nm"><i style="background:${t.color}"></i>${esc(t.name)}</div>
-        <div class="v${left<=0?' zero':''}">${fmtN(left)}<small>/${fmtN(t.total)}</small></div>
-        ${fresh?`<div class="s">${+per.start.slice(5,7)}/${+per.start.slice(8)}부터 새 연도</div>`:before?'<div class="s">시작 전</div>':after?'<div class="s">기간 끝</div>':''}</div>`;
+        <div class="v${left<=0?' zero':''}">${fmtN(left)}<small>/${fmtN(t.total)}</small>${fresh?`<span class="sn">${+per.start.slice(5,7)}/${+per.start.slice(8)} 새로</span>`:before?'<span class="sn">시작 전</span>':after?'<span class="sn">기간 끝</span>':''}</div></div>`;
     }).join('')}</div>`.replace('<div class="tiles"></div>', '');
   document.getElementById('lsMore').onclick = openLeave;
 }
