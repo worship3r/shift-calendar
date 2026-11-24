@@ -253,6 +253,11 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lt .del{margin-left:auto;border:0;background:none;color:var(--sun);font-size:15px;padding:8px 4px;white-space:nowrap}
 .add{width:100%;border:1px dashed var(--faint);background:none;border-radius:12px;padding:12px;font-size:16px;color:var(--sub)}
 .arow{display:flex;gap:8px;align-items:center}
+.aicons{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.aicons button{width:34px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-size:18px;padding:0}
+.aicons button.on{border-color:var(--accent);background:#eef4ff}
+.alist .ic{font-size:20px;width:26px;text-align:center;flex:none}
+.alist .mv{border:0;background:none;color:var(--sub);font-size:16px;width:26px;height:30px;padding:0}
 .arow.wrap{flex-wrap:wrap;row-gap:8px;gap:6px}
 .arow.wrap .rsel{font-size:15px;padding:7px 3px}
 .lunt{display:flex;align-items:center;gap:4px;font-size:14px;color:var(--sub)}
@@ -270,6 +275,8 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .alist .x{background:var(--soft)}
 .cell .ml.an{color:#c2255c;font-weight:600}
 .cell .ml.an::before{content:"◆ ";font-size:.7em}
+.cell .ml.an.hasic::before{content:none}
+.cell .ml.an i{font-style:normal;margin-right:2px}
 .pals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .pal{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:9px 10px;text-align:left;font-size:15px}
 .pal.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
@@ -340,12 +347,13 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 <div class="page" id="annPage"><div class="in">
   <div class="phead"><button class="icon" id="aBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>디데이</h2></div>
   <div class="box"><h3>추가</h3>
-    <input class="cfield" id="aName" maxlength="20" placeholder="예) 엄마 생신, 여행">
+    <div class="aicons" id="aIcons"></div>
+    <input class="cfield" id="aName" maxlength="20" placeholder="예) 엄마 생신, 월급날">
     <div class="arow wrap"><select id="aY" class="rsel"></select><select id="aM" class="rsel"></select><select id="aD" class="rsel"></select>
-      <label class="lunt">음력<input type="checkbox" class="tog" id="aLun"></label>
-      <label class="oncek"><input type="checkbox" id="aOnce">한 번만</label></div>
+      <label class="lunt" id="aLunW">음력<input type="checkbox" class="tog" id="aLun"></label></div>
+    <div class="arow" style="margin-top:8px"><span class="small" style="margin:0">반복</span>
+      <select id="aRep" class="rsel"><option value="y">매년</option><option value="o">한 번</option><option value="m">매월</option><option value="w">매주</option></select></div>
     <div class="row2" style="margin-top:8px"><button id="aAdd">추가</button></div>
-    <div class="small" style="margin-top:8px">그날 달력 칸에 표시되고, 남은 날을 D-day로 보여줘요</div>
   </div>
   <div class="box"><h3>저장한 디데이</h3><div id="aList"></div></div>
 </div></div>
@@ -724,7 +732,7 @@ function renderMy(){
       ${six?'':`<div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>`}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
         return `<div class="lv" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)} ${fmtDH(l.n)}</div>`; }).join('')}
-      ${annOn(k).map(n => `<div class="ml an">${esc(n)}</div>`).join('')}
+      ${annOn(k).map(a => `<div class="ml an${a.icon ? ' hasic' : ''}">${a.icon ? `<i>${esc(a.icon)}</i>` : ''}${esc(a.name)}</div>`).join('')}
       ${parseMemo(day.memo).map(r => `<div class="ml">${r.t?`<b>${hhmm(r.t)}</b> `:''}${esc(r.x)}</div>`).join('')}
 
     </div>`;
@@ -904,52 +912,77 @@ document.getElementById('btnSet').onclick = openSet;
 document.getElementById('sBack').onclick = () => { document.getElementById('setPage').classList.remove('show'); render(); };
 document.getElementById('sTeam').onclick = e => { const b = e.target.closest('[data-t]'); if (!b) return; S.team = +b.dataset.t; save(); drawSet(); };
 
-// ───── 디데이. 저장: S.an0, S.an1 … 매년 "s|월|일|이름", 한 번 "os|년|월|일|이름" (s 양력, l 음력) — 짧은 글자라 Worker 그대로 저장됨
+// ───── 디데이. 저장: S.an0, S.an1 … = "<반복><달력>|년|월|일|아이콘|이름"
+//   반복 y 매년 · o 한 번 · m 매월 · w 매주, 달력 s 양력 · l 음력 (예: "ys|2014|11|30|💍|결혼기념일")
+//   예전 형식("s|월|일|이름", "os|년|월|일|이름")도 읽음. 짧은 글자라 Worker 그대로 저장됨
+const ANN_ICONS = ['🎂','💍','💰','❤️','✈️','📝','🏥','⭐'];
 function getAnn(){
   return Object.keys(S).filter(k => /^an\d+$/.test(k)).sort((a, b) => a.slice(2) - b.slice(2)).map(k => {
     const p = String(S[k]).split('|');
-    if (p[0][0] === 'o'){ const [c, y, m, d, ...n] = p; return {once: true, cal: c[1] === 'l' ? 'l' : 's', y: +y, m: +m, d: +d, name: n.join('|')}; }
-    const [cal, m, d, ...n] = p; return {once: false, cal: cal === 'l' ? 'l' : 's', m: +m, d: +d, name: n.join('|')};
-  }).filter(a => a.m >= 1 && a.m <= 12 && a.d >= 1 && a.d <= 31 && a.name && (!a.once || a.y > 1900));
+    if (p[0].length === 1){ const [cal, m, d, ...n] = p; return {rep: 'y', cal: cal === 'l' ? 'l' : 's', y: 0, m: +m, d: +d, icon: '', name: n.join('|')}; }
+    if (p.length === 5){ const [c, y, m, d, n] = p; return {rep: 'o', cal: c[1] === 'l' ? 'l' : 's', y: +y, m: +m, d: +d, icon: '', name: n}; }
+    const [c, y, m, d, icon, ...n] = p;
+    return {rep: 'yomw'.includes(c[0]) ? c[0] : 'y', cal: c[1] === 'l' ? 'l' : 's', y: +y || 0, m: +m, d: +d, icon: icon || '', name: n.join('|')};
+  }).filter(a => a.m >= 1 && a.m <= 12 && a.d >= 1 && a.d <= 31 && a.name);
 }
 function setAnn(list){
   Object.keys(S).filter(k => /^an\d+$/.test(k)).forEach(k => delete S[k]);
-  list.forEach((a, i) => { const nm = a.name.slice(0, 20).replace(/\|/g, ' ');
-    S['an' + i] = a.once ? `o${a.cal}|${a.y}|${a.m}|${a.d}|${nm}` : `${a.cal}|${a.m}|${a.d}|${nm}`; });
+  list.forEach((a, i) => S['an' + i] = `${a.rep}${a.rep === 'm' || a.rep === 'w' ? 's' : a.cal}|${a.y || 0}|${a.m}|${a.d}|${a.icon || ''}|${a.name.slice(0, 20).replace(/\|/g, ' ')}`);
   annCache = {}; save();
 }
-// 그 해(양력 기준 표시 연도 y)의 날짜: 양력은 그대로(2/29는 평년 2/28), 음력은 계산
+// 그 해의 날짜 (매년·한 번): 양력은 그대로(2/29는 평년 2/28), 음력은 계산
 function annDate(a, y){
-  if (a.once && y !== a.y) return null;
+  if (a.rep === 'o' && y !== a.y) return null;
   if (a.cal === 's'){ const last = new Date(y, a.m, 0).getDate(); return key(y, a.m - 1, Math.min(a.d, last)); }
   let r = lunarToSolar(y, a.m, a.d);
-  if (r && a.d === 30){ const n = lunarToSolar(y, a.m === 12 ? 1 : a.m + 1, 1); if (a.m === 12) { const n2 = lunarToSolar(y + 1, 1, 1); if (n2 && r.join() === n2.join()) r = lunarToSolar(y, a.m, 29); } else if (n && r.join() === n.join()) r = lunarToSolar(y, a.m, 29); }   // 그 달에 30일이 없으면 29일
+  if (r && a.d === 30){ const nx = a.m === 12 ? lunarToSolar(y + 1, 1, 1) : lunarToSolar(y, a.m + 1, 1); if (nx && r.join() === nx.join()) r = lunarToSolar(y, a.m, 29); }   // 30일 없는 달은 29일
   return r ? key(r[0], r[1] - 1, r[2]) : null;
 }
+const annStart = a => a.y ? key(a.y, a.m - 1, Math.min(a.d, new Date(a.y, a.m, 0).getDate())) : '0000-00-00';
 let annCache = {};
+function annYearMap(y){
+  if (annCache[y]) return annCache[y];
+  const map = {};
+  getAnn().forEach((a, i) => { if (a.rep !== 'y' && a.rep !== 'o') return;
+    for (const yy of [y - 1, y]){ const dk = annDate(a, yy); if (dk && +dk.slice(0, 4) === y) (map[dk] = map[dk] || []).push(i); } });
+  return annCache[y] = map;
+}
+// 그날 보여줄 디데이: [{icon, name}]
 function annOn(k){
-  const y = +k.slice(0, 4);
-  if (!annCache[y]){
-    const map = {};
-    for (const yy of [y - 1, y]) for (const a of getAnn()){ const dk = annDate(a, yy); if (dk && +dk.slice(0, 4) === y) (map[dk] = map[dk] || []).push(a.name); }
-    annCache[y] = map;
-  }
-  return annCache[y][k] || [];
+  const list = getAnn(), out = [], [y, m, d] = k.split('-').map(Number);
+  (annYearMap(y)[k] || []).forEach(i => out.push(list[i]));
+  list.forEach(a => {
+    if (a.rep === 'm' && k >= annStart(a) && d === Math.min(a.d, new Date(y, m, 0).getDate())) out.push(a);
+    if (a.rep === 'w' && k >= annStart(a) && (dn(y, m - 1, d) - dn(a.y, a.m - 1, a.d)) % 7 === 0) out.push(a);
+  });
+  return out;
 }
 function annNext(a){
-  const today = key(T.y, T.m, T.d);
-  if (a.once) return annDate(a, a.y);   // 한 번: 지났어도 그 날짜 (목록에서 D+로 보여줌)
-  for (const yy of [T.y - 1, T.y, T.y + 1, T.y + 2]){ const dk = annDate(a, yy); if (dk && dk >= today) return dk; }
+  const today = key(T.y, T.m, T.d), st = annStart(a);
+  if (a.rep === 'o') return annDate(a, a.y);
+  if (a.rep === 'y'){ for (const yy of [T.y - 1, T.y, T.y + 1, T.y + 2]){ const dk = annDate(a, yy); if (dk && dk >= today && dk >= st) return dk; } return null; }
+  const from = st > today ? st : today, [fy, fm, fd] = from.split('-').map(Number);
+  if (a.rep === 'm'){ for (let i = 0; i < 3; i++){ const yy = fy + Math.floor((fm - 1 + i) / 12), mm = (fm - 1 + i) % 12; const dk = key(yy, mm, Math.min(a.d, new Date(yy, mm + 1, 0).getDate())); if (dk >= from) return dk; } }
+  if (a.rep === 'w'){ const diff = dn(fy, fm - 1, fd) - dn(a.y, a.m - 1, a.d); return kOfN(dn(fy, fm - 1, fd) + ((7 - diff % 7) % 7)); }
   return null;
 }
-let aCal = 's', aRep = 'y';
+const WD = ['일','월','화','수','목','금','토'];
+function annWhen(a){
+  if (a.rep === 'o') return `${a.cal === 'l' ? '음력 ' : ''}${a.y}.${a.m}.${a.d}`;
+  if (a.rep === 'm') return `매월 ${a.d}일`;
+  if (a.rep === 'w') return `매주 ${WD[new Date(a.y, a.m - 1, a.d).getDay()]}요일`;
+  const yrs = a.y ? T.y - a.y + (annNext(a) && +annNext(a).slice(0, 4) > T.y ? 1 : 0) : 0;
+  return `매년 ${a.cal === 'l' ? '음력 ' : ''}${a.m}/${a.d}${a.y ? ` · ${a.y}년부터${yrs > 0 ? ` · ${yrs}년째` : ''}` : ''}`;
+}
+let aCal = 's', aRep = 'y', aIcon = '🎂';
 function drawAnnForm(){
+  document.getElementById('aIcons').innerHTML = ANN_ICONS.map(ic => `<button data-ic="${ic}" class="${ic === aIcon ? 'on' : ''}">${ic}</button>`).join('');
   document.getElementById('aLun').checked = aCal === 'l';
-  document.getElementById('aOnce').checked = aRep === 'o';
-  const ySel = document.getElementById('aY'), yv = ySel.value || T.y;
-  ySel.style.display = aRep === 'o' ? '' : 'none';
-  ySel.innerHTML = [...Array(16).keys()].map(i => T.y - 3 + i).map(y => `<option value="${y}"${+yv===y?' selected':''}>${y}년</option>`).join('');
-  const mSel = document.getElementById('aM'), dSel = document.getElementById('aD'), mv = mSel.value || (T.m + 1), dv = dSel.value || T.d;
+  document.getElementById('aRep').value = aRep;
+  document.getElementById('aLunW').style.display = (aRep === 'm' || aRep === 'w') ? 'none' : '';
+  const ySel = document.getElementById('aY'), mSel = document.getElementById('aM'), dSel = document.getElementById('aD');
+  const yv = ySel.value || T.y, mv = mSel.value || (T.m + 1), dv = dSel.value || T.d;
+  ySel.innerHTML = [...Array(91).keys()].map(i => T.y + 10 - i).map(y => `<option value="${y}"${+yv===y?' selected':''}>${y}년</option>`).join('');
   mSel.innerHTML = [...Array(12).keys()].map(i => `<option value="${i+1}"${+mv===i+1?' selected':''}>${i+1}월</option>`).join('');
   dSel.innerHTML = [...Array(aCal === 'l' ? 30 : 31).keys()].map(i => `<option value="${i+1}"${+dv===i+1?' selected':''}>${i+1}일</option>`).join('');
 }
@@ -958,23 +991,26 @@ function drawAnnList(){
   document.getElementById('aList').innerHTML = list.length ? list.map((a, i) => {
     const nx = annNext(a); let dd = '';
     if (nx){ const [y, m, d] = nx.split('-').map(Number), diff = dn(y, m - 1, d) - today; dd = diff === 0 ? 'D-day' : diff > 0 ? 'D-' + diff : 'D+' + (-diff); }
-    const when = a.once ? `${a.y}.${a.m}.${a.d}` : `매년 ${a.m}/${a.d}`;
-    return `<div class="alist"><div class="an1"><b>${esc(a.name)}</b><small>${a.cal === 'l' ? '음력 ' : ''}${when}${nx && (a.once ? a.cal === 'l' : true) ? ` · ${a.once ? '양력' : '다음'} ${nx.slice(2).replace(/-/g, '.')}` : ''}</small></div>
-      <span class="dd">${dd}</span><button class="x" data-adel="${i}" aria-label="지우기">×</button></div>`;
+    return `<div class="alist"><span class="ic">${esc(a.icon || '◆')}</span><div class="an1"><b>${esc(a.name)}</b><small>${annWhen(a)}${nx && a.rep !== 'o' ? ` · 다음 ${+nx.slice(5,7)}/${+nx.slice(8)}` : ''}</small></div>
+      <span class="dd">${dd}</span><button class="mv" data-mv="${i}" data-dir="-1" aria-label="위로">↑</button><button class="mv" data-mv="${i}" data-dir="1" aria-label="아래로">↓</button><button class="x" data-adel="${i}" aria-label="지우기">×</button></div>`;
   }).join('') : '<div class="small">아직 없어요</div>';
 }
 function openAnn(){ drawAnnForm(); drawAnnList(); document.getElementById('annPage').classList.add('show'); }
 document.getElementById('btnAnn').onclick = openAnn;
 document.getElementById('aBack').onclick = () => { document.getElementById('annPage').classList.remove('show'); render(); };
+document.getElementById('aIcons').onclick = e => { const b = e.target.closest('[data-ic]'); if (!b) return; aIcon = b.dataset.ic; drawAnnForm(); };
 document.getElementById('aLun').onchange = e => { aCal = e.target.checked ? 'l' : 's'; drawAnnForm(); };
-document.getElementById('aOnce').onchange = e => { aRep = e.target.checked ? 'o' : 'y'; drawAnnForm(); };
+document.getElementById('aRep').onchange = e => { aRep = e.target.value; drawAnnForm(); };
 document.getElementById('aAdd').onclick = () => {
   const name = document.getElementById('aName').value.trim(); if (!name) return alert('이름을 넣어 주세요.');
-  const list = getAnn(); list.push({once: aRep === 'o', y: +document.getElementById('aY').value, cal: aCal, m: +document.getElementById('aM').value, d: +document.getElementById('aD').value, name});
+  const list = getAnn(); list.push({rep: aRep, cal: (aRep === 'm' || aRep === 'w') ? 's' : aCal, y: +document.getElementById('aY').value, m: +document.getElementById('aM').value, d: +document.getElementById('aD').value, icon: aIcon, name});
   setAnn(list); document.getElementById('aName').value = ''; drawAnnList();
 };
-document.getElementById('aList').onclick = e => { const b = e.target.closest('[data-adel]'); if (!b) return;
-  const list = getAnn(); if (!confirm(`'${list[+b.dataset.adel].name}' 디데이를 지울까요?`)) return; list.splice(+b.dataset.adel, 1); setAnn(list); drawAnnList(); };
+document.getElementById('aList').onclick = e => {
+  const list = getAnn(), del = e.target.closest('[data-adel]'), mv = e.target.closest('[data-mv]');
+  if (del){ if (!confirm(`'${list[+del.dataset.adel].name}' 디데이를 지울까요?`)) return; list.splice(+del.dataset.adel, 1); setAnn(list); drawAnnList(); return; }
+  if (mv){ const i = +mv.dataset.mv, j = i + (+mv.dataset.dir); if (j < 0 || j >= list.length) return; [list[i], list[j]] = [list[j], list[i]]; setAnn(list); drawAnnList(); }
+};
 
 const applyShape = () => { document.body.classList.remove('round'); applyColors(); };   // 모양은 네모 하나만
 // ───── 근무 색 ─────
