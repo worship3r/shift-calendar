@@ -170,8 +170,8 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lrow2.dense .lt2{padding:6px 8px;gap:4px;border-radius:10px}
 .lrow2.dense .lt2 .n{font-size:13px;gap:4px} .lrow2.dense .lt2 .n i{width:8px;height:8px}
 .lrow2.dense .lt2 .v b{font-size:18px} .lrow2.dense .lt2 .v small{font-size:11px}
+/* (5개까지: 설정에서 6개째는 막음) */
 @media (max-width:600px){ .lrow2.dense .lt2 .v small.tot{display:none} .lrow2.dense .lt2{padding:5px 6px;gap:3px} .lrow2.dense .lt2 .n{font-size:12px} .lrow2.dense .lt2 .v b{font-size:16px} }
-@media (max-width:600px){ .lrow2.n6 .lt2 .n i{display:none} .lrow2.n6 .lt2 .n{font-size:11px;letter-spacing:-.4px} .lrow2.n6 .lt2{padding:5px 5px} .lrow2.n6 .lt2 .v b{font-size:15px} }
 @media (max-width:420px){ .lrow2{flex-wrap:wrap} .lrow2.dense .lt2{padding:4px 5px;gap:2px} .lrow2.dense .lt2 .n{font-size:11px;letter-spacing:-.4px} .lrow2.dense .lt2 .n i{width:6px;height:6px} .lrow2.dense .lt2 .v b{font-size:14px} }
 .lt2{position:relative;overflow:hidden;border:0;background:var(--soft);border-radius:12px;padding:6px 12px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:6px;text-align:left;font-family:inherit;color:var(--ink);min-width:0;box-shadow:0 1px 2px rgba(0,0,0,.05)}
 .lt2 .n{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--sub);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -315,7 +315,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
     <label class="sw" style="margin-bottom:12px"><span>새 연도 시작 달은 오늘 기준<small>예) 연차 12/18 시작: 12월 화면에서 오늘이 12/17까지면 올해 잔여, 12/18부터는 내년 잔여</small></span><input type="checkbox" class="tog" id="sRoll"></label>
     <label class="sw" style="margin-bottom:12px"><span>하루 근무시간<small>1시간 휴가 계산 기준 (8시간이면 1시간 = 0.125일)</small></span><input type="number" id="sDayH" min="1" max="24" step="1" style="width:70px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center"></label>
     <div id="sTypes"></div><button class="add" id="sAdd">+ 휴가 종류 추가</button>
-    <div class="small" style="margin-top:8px">갯수를 비우면 기간·갯수 없이 표시만 돼요 (예: 교육, 출장). '아래 표시'를 켠 종류는 달력 아래에 그 달까지 남은 갯수가 나와요. '반복'을 매년으로 하면 해마다, 반기로 하면 6개월마다 새 기간이 시작되고 총 갯수부터 다시 세요 (연차: 12/18부터 쓴 건 다음 해 연차, 교대케어·야간케어: 1~6월·7~12월 따로).</div></div>
+    <div class="small" style="margin-top:8px">갯수를 비우면 기간·갯수 없이 표시만 돼요 (예: 교육, 출장). '아래 표시'를 켠 종류(최대 5개)는 달력 아래에 그 달까지 남은 갯수가 나와요. '반복'을 매년으로 하면 해마다, 반기로 하면 6개월마다 새 기간이 시작되고 총 갯수부터 다시 세요 (연차: 12/18부터 쓴 건 다음 해 연차, 교대케어·야간케어: 1~6월·7~12월 따로).</div></div>
   <div class="box"><h3>자동 저장 (GitHub)</h3>
     <div id="scBox"></div>
   </div>
@@ -518,7 +518,7 @@ function renderLsum(){
   const compact = true;   // 남은 휴가는 항상 한 줄 (달력 칸을 크게)
   if (compact){
     // 한 줄 네모칸: 왼쪽 색 막대 + 이름 + 큰 숫자 (누르면 휴가 현황)
-    el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2${list.length > 4 ? ' dense' : ''}${list.length > 5 ? ' n6' : ''}" style="--tn:${Math.max(1, Math.min(list.length, 6))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
+    el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2${list.length > 4 ? ' dense' : ''}" style="--tn:${Math.max(1, Math.min(list.length, 5))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
         return `<button class="lt2" title="${m+1}월까지 남은 ${esc(t.name)}"><span class="n"><i style="background:${t.color}"></i>${esc(t.name)}</span><span class="v"><b class="${left<=0?'zero':''}">${fmtLeft(left)}</b><small class="tot">/${fmtN(t.total)}</small></span></button>`; }).join('')}</div>`;
     el.querySelectorAll('.lt2').forEach(b => b.onclick = openLeave); document.getElementById('lsMore').onclick = openLeave; return;
   }
@@ -800,7 +800,10 @@ document.getElementById('sDayH').onchange = e => { const v = +e.target.value; if
 document.getElementById('sTypes').addEventListener('input', e => {
   const f = e.target.dataset.f; if (!f) return;
   const t = S.types[+e.target.closest('.lt').dataset.i];
-  if (f==='bar') t.bar = e.target.checked;
+  if (f==='bar'){
+    if (e.target.checked && S.types.filter(x => x.bar && x !== t).length >= 5){ e.target.checked = false; alert('아래 남은 휴가는 5개까지 표시할 수 있어요.'); return; }
+    t.bar = e.target.checked;
+  }
   else if (f==='rep') t.rep = e.target.value === 'year' ? true : e.target.value === 'half' ? 'half' : false;
   else if (f==='total') t.total = e.target.value==='' ? null : parseFloat(e.target.value);
   else t[f] = e.target.value;
