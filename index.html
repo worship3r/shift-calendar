@@ -253,7 +253,11 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lt .del{margin-left:auto;border:0;background:none;color:var(--sun);font-size:15px;padding:8px 4px;white-space:nowrap}
 .add{width:100%;border:1px dashed var(--faint);background:none;border-radius:12px;padding:12px;font-size:16px;color:var(--sub)}
 .arow{display:flex;gap:8px;align-items:center}
-.lunt{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:15px;color:var(--sub)}
+.arow.wrap{flex-wrap:wrap;row-gap:8px;gap:6px}
+.arow.wrap .rsel{font-size:15px;padding:7px 3px}
+.lunt{display:flex;align-items:center;gap:4px;font-size:14px;color:var(--sub)}
+.lunt .tog{width:44px;height:26px} .lunt .tog::after{width:20px;height:20px} .lunt .tog:checked::after{left:21px}
+.oncek{margin-left:auto;gap:4px!important;font-size:14px!important}
 .oncek{display:flex;align-items:center;gap:6px;font-size:15px;white-space:nowrap} .oncek input{width:20px;height:20px}
 .seg.sm{flex:none} .seg.sm button{padding:9px 12px;font-size:15px;flex:none}
 .arow .rsel{font-size:16px;padding:8px}
@@ -337,10 +341,9 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
   <div class="phead"><button class="icon" id="aBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>디데이</h2></div>
   <div class="box"><h3>추가</h3>
     <input class="cfield" id="aName" maxlength="20" placeholder="예) 엄마 생신, 여행">
-    <div class="arow"><select id="aM" class="rsel"></select><select id="aD" class="rsel"></select>
-      <label class="lunt">음력<input type="checkbox" class="tog" id="aLun"></label></div>
-    <div class="arow" style="margin-top:8px"><label class="oncek"><input type="checkbox" id="aOnce">한 번만</label><select id="aY" class="rsel"></select>
-      <span class="small" id="aRepTxt">매년 반복</span></div>
+    <div class="arow wrap"><select id="aY" class="rsel"></select><select id="aM" class="rsel"></select><select id="aD" class="rsel"></select>
+      <label class="lunt">음력<input type="checkbox" class="tog" id="aLun"></label>
+      <label class="oncek"><input type="checkbox" id="aOnce">한 번만</label></div>
     <div class="row2" style="margin-top:8px"><button id="aAdd">추가</button></div>
     <div class="small" style="margin-top:8px">그날 달력 칸에 표시되고, 남은 날을 D-day로 보여줘요</div>
   </div>
@@ -943,7 +946,6 @@ let aCal = 's', aRep = 'y';
 function drawAnnForm(){
   document.getElementById('aLun').checked = aCal === 'l';
   document.getElementById('aOnce').checked = aRep === 'o';
-  document.getElementById('aRepTxt').style.display = aRep === 'o' ? 'none' : '';
   const ySel = document.getElementById('aY'), yv = ySel.value || T.y;
   ySel.style.display = aRep === 'o' ? '' : 'none';
   ySel.innerHTML = [...Array(16).keys()].map(i => T.y - 3 + i).map(y => `<option value="${y}"${+yv===y?' selected':''}>${y}년</option>`).join('');
