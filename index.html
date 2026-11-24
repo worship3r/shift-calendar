@@ -268,7 +268,8 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .arow .rsel{font-size:16px;padding:8px}
 .alist{display:flex;align-items:center;gap:8px;padding:10px 2px;border-bottom:1px solid var(--line)}
 .alist:last-child{border-bottom:0}
-.alist .an1{flex:1;min-width:0}
+.alist .an1{flex:1;min-width:0;cursor:pointer}
+.alist.editing{background:#eef4ff;border-radius:10px}
 .alist .an1 b{display:block;font-size:16px}
 .alist .an1 small{font-size:13px;color:var(--sub)}
 .alist .dd{font-size:15px;font-weight:700;color:#c2255c;white-space:nowrap}
@@ -346,13 +347,13 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 <!-- 설정 -->
 <div class="page" id="annPage"><div class="in">
   <div class="phead"><button class="icon" id="aBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>디데이</h2></div>
-  <div class="box"><h3>추가</h3>
+  <div class="box"><h3 id="aTitle">추가</h3>
     <div class="aicons" id="aIcons"></div>
     <div class="arow" style="margin-bottom:8px"><input class="cfield" id="aName" maxlength="20" placeholder="예) 엄마 생신, 월급날" style="margin:0;flex:1;min-width:0">
       <select id="aRep" class="rsel" aria-label="반복"><option value="y">매년</option><option value="o">한 번</option><option value="m">매월</option><option value="w">매주</option></select></div>
     <div class="arow wrap"><select id="aY" class="rsel"></select><select id="aM" class="rsel"></select><select id="aD" class="rsel"></select>
       <label class="lunt" id="aLunW">음력<input type="checkbox" class="tog" id="aLun"></label></div>
-    <div class="row2" style="margin-top:8px"><button id="aAdd">추가</button></div>
+    <div class="row2" style="margin-top:8px"><button id="aCancel" style="display:none">취소</button><button id="aAdd">추가</button></div>
   </div>
   <div class="box"><h3>저장한 디데이</h3><div id="aList"></div></div>
 </div></div>
@@ -973,7 +974,7 @@ function annWhen(a){
   const yrs = a.y ? T.y - a.y + (annNext(a) && +annNext(a).slice(0, 4) > T.y ? 1 : 0) : 0;
   return `매년 ${a.cal === 'l' ? '음력 ' : ''}${a.m}/${a.d}${a.y ? ` · ${a.y}년부터${yrs > 0 ? ` · ${yrs}년째` : ''}` : ''}`;
 }
-let aCal = 's', aRep = 'y', aIcon = '🎂';
+let aCal = 's', aRep = 'y', aIcon = '🎂', aEdit = null;   // aEdit: 고치는 중인 디데이 번호
 function drawAnnForm(){
   document.getElementById('aIcons').innerHTML = ANN_ICONS.map(ic => `<button data-ic="${ic}" class="${ic === aIcon ? 'on' : ''}">${ic}</button>`).join('');
   document.getElementById('aLun').checked = aCal === 'l';
@@ -990,25 +991,38 @@ function drawAnnList(){
   document.getElementById('aList').innerHTML = list.length ? list.map((a, i) => {
     const nx = annNext(a); let dd = '';
     if (nx){ const [y, m, d] = nx.split('-').map(Number), diff = dn(y, m - 1, d) - today; dd = diff === 0 ? 'D-day' : diff > 0 ? 'D-' + diff : 'D+' + (-diff); }
-    return `<div class="alist"><span class="ic">${esc(a.icon || '◆')}</span><div class="an1"><b>${esc(a.name)}</b><small>${annWhen(a)}${nx && a.rep !== 'o' ? ` · 다음 ${+nx.slice(5,7)}/${+nx.slice(8)}` : ''}</small></div>
+    return `<div class="alist${aEdit === i ? ' editing' : ''}"><span class="ic">${esc(a.icon || '◆')}</span><div class="an1" data-aed="${i}" title="눌러서 고치기"><b>${esc(a.name)}</b><small>${annWhen(a)}${nx && a.rep !== 'o' ? ` · 다음 ${+nx.slice(5,7)}/${+nx.slice(8)}` : ''}</small></div>
       <span class="dd">${dd}</span><button class="mv" data-mv="${i}" data-dir="-1" aria-label="위로">↑</button><button class="mv" data-mv="${i}" data-dir="1" aria-label="아래로">↓</button><button class="x" data-adel="${i}" aria-label="지우기">×</button></div>`;
   }).join('') : '<div class="small">아직 없어요</div>';
 }
-function openAnn(){ drawAnnForm(); drawAnnList(); document.getElementById('annPage').classList.add('show'); }
+function openAnn(){ annFormReset(); drawAnnForm(); drawAnnList(); document.getElementById('annPage').classList.add('show'); }
 document.getElementById('btnAnn').onclick = openAnn;
 document.getElementById('aBack').onclick = () => { document.getElementById('annPage').classList.remove('show'); render(); };
 document.getElementById('aIcons').onclick = e => { const b = e.target.closest('[data-ic]'); if (!b) return; aIcon = b.dataset.ic; drawAnnForm(); };
 document.getElementById('aLun').onchange = e => { aCal = e.target.checked ? 'l' : 's'; drawAnnForm(); };
 document.getElementById('aRep').onchange = e => { aRep = e.target.value; drawAnnForm(); };
+function annFormReset(){ aEdit = null; document.getElementById('aName').value = ''; document.getElementById('aAdd').textContent = '추가';
+  document.getElementById('aTitle').textContent = '추가'; document.getElementById('aCancel').style.display = 'none'; }
+document.getElementById('aCancel').onclick = () => { annFormReset(); drawAnnList(); };
 document.getElementById('aAdd').onclick = () => {
   const name = document.getElementById('aName').value.trim(); if (!name) return alert('이름을 넣어 주세요.');
-  const list = getAnn(); list.push({rep: aRep, cal: (aRep === 'm' || aRep === 'w') ? 's' : aCal, y: +document.getElementById('aY').value, m: +document.getElementById('aM').value, d: +document.getElementById('aD').value, icon: aIcon, name});
-  setAnn(list); document.getElementById('aName').value = ''; drawAnnList();
+  const list = getAnn(), item = {rep: aRep, cal: (aRep === 'm' || aRep === 'w') ? 's' : aCal, y: +document.getElementById('aY').value, m: +document.getElementById('aM').value, d: +document.getElementById('aD').value, icon: aIcon, name};
+  if (aEdit != null && list[aEdit]) list[aEdit] = item; else list.push(item);
+  setAnn(list); annFormReset(); drawAnnList();
 };
 document.getElementById('aList').onclick = e => {
   const list = getAnn(), del = e.target.closest('[data-adel]'), mv = e.target.closest('[data-mv]');
-  if (del){ if (!confirm(`'${list[+del.dataset.adel].name}' 디데이를 지울까요?`)) return; list.splice(+del.dataset.adel, 1); setAnn(list); drawAnnList(); return; }
-  if (mv){ const i = +mv.dataset.mv, j = i + (+mv.dataset.dir); if (j < 0 || j >= list.length) return; [list[i], list[j]] = [list[j], list[i]]; setAnn(list); drawAnnList(); }
+  if (del){ if (!confirm(`'${list[+del.dataset.adel].name}' 디데이를 지울까요?`)) return; list.splice(+del.dataset.adel, 1); setAnn(list); annFormReset(); drawAnnList(); return; }
+  const ed = e.target.closest('[data-aed]');
+  if (ed){   // 눌러서 고치기: 위 칸에 채움
+    const a = list[+ed.dataset.aed]; aEdit = +ed.dataset.aed; aIcon = a.icon || ANN_ICONS[7]; aRep = a.rep; aCal = a.cal;
+    drawAnnForm();
+    document.getElementById('aY').value = a.y || T.y; document.getElementById('aM').value = a.m; document.getElementById('aD').value = a.d;
+    document.getElementById('aName').value = a.name; document.getElementById('aAdd').textContent = '수정';
+    document.getElementById('aTitle').textContent = '고치기'; document.getElementById('aCancel').style.display = '';
+    drawAnnList(); document.getElementById('annPage').scrollTo({top: 0, behavior: 'smooth'}); return;
+  }
+  if (mv){ const i = +mv.dataset.mv, j = i + (+mv.dataset.dir); if (j < 0 || j >= list.length) return; [list[i], list[j]] = [list[j], list[i]]; setAnn(list); annFormReset(); drawAnnList(); }
 };
 
 const applyShape = () => { document.body.classList.remove('round'); applyColors(); };   // 모양은 네모 하나만
