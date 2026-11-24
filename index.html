@@ -108,7 +108,7 @@ body.round .syncst{font-size:13px;white-space:nowrap}
 .hashbox{font-family:monospace;font-size:12px;word-break:break-all;background:var(--soft);border-radius:8px;padding:8px;margin-top:8px;color:var(--sub)}
 .foot{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;color:var(--sub);font-size:14px}
 .foot button{border:1px solid var(--line);background:var(--bg);border-radius:20px;padding:7px 14px;font-size:15px}
-@media (max-width:420px){ .hol{word-break:break-all;font-size:9px;line-height:10px} .ml{margin-top:2px;font-size:13.5px;line-height:16px;padding:0 2px;letter-spacing:-.5px;overflow-wrap:normal;word-break:keep-all;overflow:hidden} .ml b{font-size:13px;margin-right:2px} }
+@media (max-width:420px){ .bar{gap:2px;padding-left:6px;padding-right:4px} .bar .icon{width:34px;height:40px} .bar .icon svg{width:22px;height:22px} .bar .arr{width:22px} .bar .ym{font-size:20px} .todayp{padding:2px 8px;font-size:13px} .hol{word-break:break-all;font-size:9px;line-height:10px} .ml{margin-top:2px;font-size:13.5px;line-height:16px;padding:0 2px;letter-spacing:-.5px;overflow-wrap:normal;word-break:keep-all;overflow:hidden} .ml b{font-size:13px;margin-right:2px} }
 @media (min-width:600px){
   body:not(.round) .circ{height:34px;font-size:19px;margin:4px 8px}
   .cell{height:var(--rowh,124px)} .circ{width:42px;height:42px;font-size:19px}
@@ -243,11 +243,27 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lt .r4{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:14px;color:var(--sub)}
 .lt .r4 input{width:20px;height:20px;flex:none}
 .lt .rsel{font-size:15px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-family:inherit;color:var(--ink)}
+.lt .r1 .rsel{flex:none;max-width:96px}
+.lt .tot.th{width:50px}
+.lt .bl{display:flex;align-items:center;gap:4px;margin-left:auto;white-space:nowrap}
+.lt .bl input{width:20px;height:20px}
 .lt .r3{display:flex;gap:6px;align-items:center;margin-top:8px;font-size:15px;color:var(--sub);white-space:nowrap}
 .lt input[type=date]{width:100%;min-width:0;font-size:15px;padding:7px 4px;border:1px solid var(--line);border-radius:8px;font-family:inherit}
-.lt .tot{width:70px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center}
+.lt .tot{width:54px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center}
 .lt .del{margin-left:auto;border:0;background:none;color:var(--sun);font-size:15px;padding:8px 4px;white-space:nowrap}
 .add{width:100%;border:1px dashed var(--faint);background:none;border-radius:12px;padding:12px;font-size:16px;color:var(--sub)}
+.arow{display:flex;gap:8px;align-items:center}
+.seg.sm{flex:none} .seg.sm button{padding:9px 12px;font-size:15px;flex:none}
+.arow .rsel{font-size:16px;padding:8px}
+.alist{display:flex;align-items:center;gap:8px;padding:10px 2px;border-bottom:1px solid var(--line)}
+.alist:last-child{border-bottom:0}
+.alist .an1{flex:1;min-width:0}
+.alist .an1 b{display:block;font-size:16px}
+.alist .an1 small{font-size:13px;color:var(--sub)}
+.alist .dd{font-size:15px;font-weight:700;color:#c2255c;white-space:nowrap}
+.alist .x{background:var(--soft)}
+.cell .ml.an{color:#c2255c;font-weight:600}
+.cell .ml.an::before{content:"♥ ";font-size:.8em}
 .pals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .pal{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:9px 10px;text-align:left;font-size:15px}
 .pal.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
@@ -274,6 +290,9 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
   <button class="arr" id="next" aria-label="다음 달">›</button>
   <button class="todayp" id="goToday">오늘</button>
   <div class="sp"></div>
+  <button class="icon" id="btnAnn" aria-label="기념일">
+    <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.6A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.4C19 15.6 12 20 12 20z"/></svg>
+  </button>
   <button class="icon" id="btnView" aria-label="전체 조 보기"></button>
   <button class="icon" id="btnLeave" aria-label="휴가 현황">
     <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 15v-3M12 15V9M16 15v-5"/></svg>
@@ -312,18 +331,29 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 </div></div>
 
 <!-- 설정 -->
+<div class="page" id="annPage"><div class="in">
+  <div class="phead"><button class="icon" id="aBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>기념일</h2></div>
+  <div class="box"><h3>추가</h3>
+    <input class="cfield" id="aName" maxlength="20" placeholder="예) 엄마 생신">
+    <div class="arow"><div class="seg sm" id="aCal"><button data-v="s" class="on">양력</button><button data-v="l">음력</button></div>
+      <select id="aM" class="rsel"></select><select id="aD" class="rsel"></select></div>
+    <div class="row2" style="margin-top:8px"><button id="aAdd">추가</button></div>
+    <div class="small" style="margin-top:8px">매년 그날 달력 칸에 표시돼요</div>
+  </div>
+  <div class="box"><h3>저장한 기념일</h3><div id="aList"></div></div>
+</div></div>
 <div class="page" id="setPage"><div class="in">
   <div class="phead"><button class="icon" id="sBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>설정</h2></div>
   <div class="box"><h3>내 조</h3><div class="seg" id="sTeam"></div></div>
   <div class="box"><h3>근무 색</h3>
     <div class="pals" id="sPal"></div>
     <div class="pcols" id="sCols"></div>
-    <div class="small" style="margin-top:8px">미리 만든 색을 고르거나, 아래에서 A·B·C·휴 색을 하나씩 직접 바꿀 수 있어요. 바탕·글자 색은 자동으로 맞춰져요.</div></div>
+    <div class="small" style="margin-top:8px">고르거나 아래에서 직접 바꿔요</div></div>
   <div class="box"><h3>휴가 종류·갯수</h3>
-    <label class="sw" style="margin-bottom:12px"><span>새 연도 시작 달은 오늘 기준<small>예) 연차 12/18 시작: 12월 화면에서 오늘이 12/17까지면 올해 잔여, 12/18부터는 내년 잔여</small></span><input type="checkbox" class="tog" id="sRoll"></label>
-    <label class="sw" style="margin-bottom:12px"><span>하루 근무시간<small>1시간 휴가 계산 기준 (8시간이면 1시간 = 0.125일)</small></span><input type="number" id="sDayH" min="1" max="24" step="1" style="width:70px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center"></label>
+    <label class="sw" style="margin-bottom:12px"><span>새 연도 달은 오늘 기준<small>12월엔 오늘 날짜로 올해·내년 잔여</small></span><input type="checkbox" class="tog" id="sRoll"></label>
+    <label class="sw" style="margin-bottom:12px"><span>하루 근무시간<small>1시간 휴가 계산 기준</small></span><input type="number" id="sDayH" min="1" max="24" step="1" style="width:70px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center"></label>
     <div id="sTypes"></div><button class="add" id="sAdd">+ 휴가 종류 추가</button>
-    <div class="small" style="margin-top:8px">갯수를 비우면 기간·갯수 없이 표시만 돼요 (예: 교육, 출장). '아래 표시'를 켠 종류(최대 5개)는 달력 아래에 그 달까지 남은 갯수가 나와요. '반복'을 매년으로 하면 해마다, 반기로 하면 6개월마다 새 기간이 시작되고 총 갯수부터 다시 세요 (연차: 12/18부터 쓴 건 다음 해 연차, 교대케어·야간케어: 1~6월·7~12월 따로).</div></div>
+    <div class="small" style="margin-top:8px">갯수를 비우면 표시만 · 아래 표시는 최대 5개 · 반복: 매년·반기마다 다시 셈</div></div>
   <div class="box"><h3>자동 저장 (GitHub)</h3>
     <div id="scBox"></div>
   </div>
@@ -331,7 +361,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
     <div class="small" id="sBkInfo" style="margin-bottom:8px"></div>
     <div class="row2"><button id="sShare">카톡·드라이브로 보내기</button></div>
     <div class="row2" style="margin-top:8px"><button id="sExport">파일로 저장</button><label>불러오기<input type="file" id="sImport" accept=".json,application/json" hidden></label></div>
-    <div class="small" style="margin-top:8px">메모·휴가·설정은 이 폰 안에만 저장돼요. 백업 파일을 카톡 '나와의 채팅'이나 구글 드라이브에 보내두면, 폰을 바꾸거나 앱을 지워도 '불러오기'로 그대로 살릴 수 있어요. 바꾼 뒤 7일 넘게 백업을 안 하면 첫 화면에 알려드려요.</div></div>
+    <div class="small" style="margin-top:8px">폰을 바꾸기 전 파일을 카톡·드라이브에 보내두세요</div></div>
 </div></div>
 
 <script>
@@ -350,16 +380,81 @@ const kOfN = n => key(...fromN(n));
 const dowOfN = n => new Date(n*864e5).getUTCDay();
 
 // ───── 공휴일 ─────
-const LUNAR = { // 설날, 추석, 부처님오신날 (양력)
+// ───── 음력 → 양력 (한국 시간 UTC+9 기준 천문 계산: 삭(합삭)과 중기로 달·윤달을 정함) ─────
+const LUNAR_TZ = 9;
+function jdFromDate(dd, mm, yy){
+  const a = Math.floor((14 - mm) / 12), y = yy + 4800 - a, m = mm + 12 * a - 3;
+  return dd + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+}
+function jdToDate(jd){
+  const a = jd + 32044, b = Math.floor((4 * a + 3) / 146097), c = a - Math.floor(b * 146097 / 4);
+  const d = Math.floor((4 * c + 3) / 1461), e = c - Math.floor(1461 * d / 4), m = Math.floor((5 * e + 2) / 153);
+  return [e - Math.floor((153 * m + 2) / 5) + 1, m + 3 - 12 * Math.floor(m / 10), b * 100 + d - 4800 + Math.floor(m / 10)];
+}
+// 합삭 시각 (Meeus, Astronomical Algorithms 49장 전체 식, 오차 수 초). k는 1900년 기준 번호 → Meeus k = k - 1237
+function lunNewMoon(k0){
+  const k = k0 - 1237, T = k / 1236.85, T2 = T*T, T3 = T2*T, T4 = T3*T, dr = Math.PI / 180, sin = x => Math.sin(x * dr);
+  let jde = 2451550.09766 + 29.530588861*k + 0.00015437*T2 - 0.000000150*T3 + 0.00000000073*T4;
+  const E = 1 - 0.002516*T - 0.0000074*T2;
+  const M = 2.5534 + 29.10535670*k - 0.0000014*T2 - 0.00000011*T3;
+  const Mp = 201.5643 + 385.81693528*k + 0.0107582*T2 + 0.00001238*T3 - 0.000000058*T4;
+  const F = 160.7108 + 390.67050284*k - 0.0016118*T2 - 0.00000227*T3 + 0.000000011*T4;
+  const Om = 124.7746 - 1.56375588*k + 0.0020672*T2 + 0.00000215*T3;
+  jde += -0.40720*sin(Mp) + 0.17241*E*sin(M) + 0.01608*sin(2*Mp) + 0.01039*sin(2*F) + 0.00739*E*sin(Mp-M)
+    - 0.00514*E*sin(Mp+M) + 0.00208*E*E*sin(2*M) - 0.00111*sin(Mp-2*F) - 0.00057*sin(Mp+2*F) + 0.00056*E*sin(2*Mp+M)
+    - 0.00042*sin(3*Mp) + 0.00042*E*sin(M+2*F) + 0.00038*E*sin(M-2*F) - 0.00024*E*sin(2*Mp-M) - 0.00017*sin(Om)
+    - 0.00007*sin(Mp+2*M) + 0.00004*sin(2*Mp-2*F) + 0.00004*sin(3*M) + 0.00003*sin(Mp+M-2*F) + 0.00003*sin(2*Mp+2*F)
+    - 0.00003*sin(Mp+M+2*F) + 0.00003*sin(Mp-M+2*F) - 0.00002*sin(Mp-M-2*F) - 0.00002*sin(3*Mp+M) + 0.00002*sin(4*Mp);
+  const A = [[299.77,0.107408,-0.009173,0.000325],[251.88,0.016321,0,0.000165],[251.83,26.651886,0,0.000164],[349.42,36.412478,0,0.000126],
+    [84.66,18.206239,0,0.000110],[141.74,53.303771,0,0.000062],[207.14,2.453732,0,0.000060],[154.84,7.306860,0,0.000056],
+    [34.52,27.261239,0,0.000047],[207.19,0.121824,0,0.000042],[291.34,1.844379,0,0.000040],[161.72,24.198154,0,0.000037],
+    [239.56,25.513099,0,0.000035],[331.55,3.592518,0,0.000023]];
+  for (const [a, b, c, w] of A) jde += w * sin(a + b*k + c*T2);
+  return jde - 70 / 86400;   // TT → UT (ΔT 약 70초)
+}
+function lunSunLong(jdn){
+  const T = (jdn - 2451545.0) / 36525, T2 = T * T, dr = Math.PI / 180;
+  const M = 357.52910 + 35999.05030 * T - 0.0001559 * T2 - 0.00000048 * T * T2;
+  const L0 = 280.46645 + 36000.76983 * T + 0.0003032 * T2;
+  const DL = (1.914600 - 0.004817 * T - 0.000014 * T2) * Math.sin(dr * M) + (0.019993 - 0.000101 * T) * Math.sin(dr * 2 * M) + 0.000290 * Math.sin(dr * 3 * M);
+  let L = (L0 + DL) * dr; L -= Math.PI * 2 * Math.floor(L / (Math.PI * 2)); return L;
+}
+const lunSunSeg = dn => Math.floor(lunSunLong(dn - 0.5 - LUNAR_TZ / 24) / Math.PI * 6);
+const lunNMDay = k => Math.floor(lunNewMoon(k) + 0.5 + LUNAR_TZ / 24);
+function lunMonth11(yy){
+  const k = Math.floor((jdFromDate(31, 12, yy) - 2415021) / 29.530588853);
+  let nm = lunNMDay(k); if (lunSunSeg(nm) >= 9) nm = lunNMDay(k - 1); return nm;
+}
+function lunLeapOffset(a11){
+  const k = Math.floor((a11 - 2415021.076998695) / 29.530588853 + 0.5);
+  let last, i = 1, arc = lunSunSeg(lunNMDay(k + i));
+  do { last = arc; i++; arc = lunSunSeg(lunNMDay(k + i)); } while (arc !== last && i < 14);
+  return i - 1;
+}
+// 음력 (년, 월, 일, 윤달?) → [양력 년, 월, 일]. 그 해에 없는 윤달이면 null
+function lunarToSolar(ly, lm, ld, leap = false){
+  let a11, b11;
+  if (lm < 11){ a11 = lunMonth11(ly - 1); b11 = lunMonth11(ly); } else { a11 = lunMonth11(ly); b11 = lunMonth11(ly + 1); }
+  const k = Math.floor(0.5 + (a11 - 2415021.076998695) / 29.530588853);
+  let off = lm - 11; if (off < 0) off += 12;
+  if (b11 - a11 > 365){
+    const lo = lunLeapOffset(a11); let leapM = lo - 2; if (leapM < 0) leapM += 12;
+    if (leap && lm !== leapM) return null;
+    if (leap || off >= lo) off += 1;
+  } else if (leap) return null;
+  const [d, m, y] = jdToDate(lunNMDay(k + off) + ld - 1);
+  return [y, m, d];
+}
+
+// 그 해 설날·추석·부처님오신날 (표에 없으면 음력 계산). 2026~2036 공개 자료와 계산이 모두 일치함을 확인
+function lunarMD(y){
+  const f = (m, d) => { const r = lunarToSolar(y, m, d); return r ? String(r[1]).padStart(2,'0') + '-' + String(r[2]).padStart(2,'0') : null; };
+  return {s: f(1,1), c: f(8,15), b: f(4,8)};
+}
+const LUNAR = { // 설날, 추석, 부처님오신날 (양력) — 정부 발표로 확인한 해
   2026:{s:'02-17',c:'09-25',b:'05-24'}, 2027:{s:'02-07',c:'09-15',b:'05-13'},
   2028:{s:'01-27',c:'10-03',b:'05-02'}, 2029:{s:'02-13',c:'09-22',b:'05-20'},
-  2030:{s:'02-03',c:'09-12',b:'05-09'},
-  // 2031~2040: 위키백과(추석·부처님오신날 2031~2036)와 timeanddate(2031~2040)로 확인. 2034·2040 설날은 중국 날짜보다 하루 늦음
-  2031:{s:'01-23',c:'10-01',b:'05-28'}, 2032:{s:'02-11',c:'09-19',b:'05-16'},
-  2033:{s:'01-31',c:'09-08',b:'05-06'}, 2034:{s:'02-20',c:'09-27',b:'05-25'},
-  2035:{s:'02-08',c:'09-16',b:'05-15'}, 2036:{s:'01-28',c:'10-04',b:'05-03'},
-  2037:{s:'02-16',c:'09-24',b:'05-22'}, 2038:{s:'02-04',c:'09-13',b:'05-11'},
-  2039:{s:'01-24',c:'10-02',b:'04-30'}, 2040:{s:'02-13',c:'09-20',b:'05-18'}
+  2030:{s:'02-03',c:'09-12',b:'05-09'}
 };
 // 선거일 (공직선거법: 국회 임기만료 50일 전 이후 첫 수요일, 지방 30일 전 이후 첫 수요일, 대선 70일 전 이후 첫 수요일)
 const ELECTION = {'2026-06-03':'지방선거','2028-04-12':'국회의원선거','2030-03-27':'대통령선거','2030-06-05':'지방선거',
@@ -376,7 +471,7 @@ function holidays(y){
    ['08-15','광복절',1],['10-03','개천절',1],['10-09','한글날',1],['12-25','성탄절',1]]
     .forEach(([md,nm,s]) => { add(nOf(md), nm); if (s) subs.push([[nOf(md)], 0]); });
   for (const [k,nm] of Object.entries(ELECTION)) if (+k.slice(0,4)===y) add(nOf(k.slice(5)), nm);
-  const L = LUNAR[y], festOff = new Set();
+  const L = LUNAR[y] || lunarMD(y), festOff = new Set();
   if (L){
     for (const [c, nm] of [['s','설날'],['c','추석']]){
       const d = nOf(L[c]);
@@ -622,6 +717,7 @@ function renderMy(){
       ${six?'':`<div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>`}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
         return `<div class="lv" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)} ${fmtDH(l.n)}</div>`; }).join('')}
+      ${annOn(k).map(n => `<div class="ml an">${esc(n)}</div>`).join('')}
       ${parseMemo(day.memo).map(r => `<div class="ml">${r.t?`<b>${hhmm(r.t)}</b> `:''}${esc(r.x)}</div>`).join('')}
 
     </div>`;
@@ -788,17 +884,80 @@ function drawSet(){
   document.getElementById('sRoll').checked = S.rollToday !== false;
   document.getElementById('sDayH').value = dayH();
   document.getElementById('sTypes').innerHTML = S.types.map((t,i) => `<div class="lt" data-i="${i}">
-    <div class="r1"><input type="color" value="${t.color}" data-f="color" aria-label="색"><input class="name" value="${esc(t.name)}" data-f="name" aria-label="이름"></div>
+    <div class="r1"><input type="color" value="${t.color}" data-f="color" aria-label="색"><input class="name" value="${esc(t.name)}" data-f="name" aria-label="이름">
+      <select data-f="rep" class="rsel" aria-label="반복"><option value=""${!t.rep?' selected':''}>반복X</option><option value="year"${t.rep===true?' selected':''}>매년</option><option value="half"${t.rep==='half'?' selected':''}>반기</option></select></div>
     <div class="r2"><input type="date" value="${t.start||''}" data-f="start" aria-label="시작일"><span>~</span><input type="date" value="${t.end||''}" data-f="end" aria-label="종료일"></div>
-    <label class="r4">반복 <select data-f="rep" class="rsel"><option value=""${!t.rep?' selected':''}>없음</option><option value="year"${t.rep===true?' selected':''}>매년</option><option value="half"${t.rep==='half'?' selected':''}>반기 (6개월)</option></select></label>
-    <div class="r3">총 갯수 <input class="tot" type="number" inputmode="decimal" step="0.25" min="0" value="${t.total??''}" data-f="total" placeholder="없음">
-      <label style="display:flex;align-items:center;gap:6px;margin-left:auto;white-space:nowrap"><input type="checkbox" data-f="bar" ${t.bar?'checked':''} style="width:20px;height:20px">아래 표시</label>
-      <button class="del" data-del="${i}" style="margin-left:0">삭제</button></div>
+    <div class="r3">총 ${(() => { const has = t.total != null && t.total !== ''; const h = has ? Math.round(t.total * dayH() * 100) / 100 : 0, d = Math.floor((h + 1e-9) / dayH()), r = Math.round((h - d * dayH()) * 100) / 100;
+        return `<input class="tot" type="number" inputmode="numeric" min="0" step="1" value="${has ? d : ''}" data-f="totd" placeholder="-" aria-label="일">일 <input class="tot th" type="number" inputmode="numeric" min="0" step="1" value="${has && r ? r : ''}" data-f="toth" placeholder="0" aria-label="시간">시간`; })()}
+      <label class="bl"><input type="checkbox" data-f="bar" ${t.bar?'checked':''}>표시</label>
+      <button class="del" data-del="${i}">삭제</button></div>
   </div>`).join('');
 }
 document.getElementById('btnSet').onclick = openSet;
 document.getElementById('sBack').onclick = () => { document.getElementById('setPage').classList.remove('show'); render(); };
 document.getElementById('sTeam').onclick = e => { const b = e.target.closest('[data-t]'); if (!b) return; S.team = +b.dataset.t; save(); drawSet(); };
+
+// ───── 기념일 (매년). 저장: S.an0, S.an1 … = "s|월|일|이름" (s 양력, l 음력) — 짧은 글자라 Worker 그대로 저장됨
+function getAnn(){
+  return Object.keys(S).filter(k => /^an\d+$/.test(k)).sort((a, b) => a.slice(2) - b.slice(2)).map(k => {
+    const [cal, m, d, ...n] = String(S[k]).split('|'); return {cal: cal === 'l' ? 'l' : 's', m: +m, d: +d, name: n.join('|')};
+  }).filter(a => a.m >= 1 && a.m <= 12 && a.d >= 1 && a.d <= 31 && a.name);
+}
+function setAnn(list){
+  Object.keys(S).filter(k => /^an\d+$/.test(k)).forEach(k => delete S[k]);
+  list.forEach((a, i) => S['an' + i] = `${a.cal}|${a.m}|${a.d}|${a.name.slice(0, 20).replace(/\|/g, ' ')}`);
+  annCache = {}; save();
+}
+// 그 해(양력 기준 표시 연도 y)의 날짜: 양력은 그대로(2/29는 평년 2/28), 음력은 계산
+function annDate(a, y){
+  if (a.cal === 's'){ const last = new Date(y, a.m, 0).getDate(); return key(y, a.m - 1, Math.min(a.d, last)); }
+  let r = lunarToSolar(y, a.m, a.d);
+  if (r && a.d === 30){ const n = lunarToSolar(y, a.m === 12 ? 1 : a.m + 1, 1); if (a.m === 12) { const n2 = lunarToSolar(y + 1, 1, 1); if (n2 && r.join() === n2.join()) r = lunarToSolar(y, a.m, 29); } else if (n && r.join() === n.join()) r = lunarToSolar(y, a.m, 29); }   // 그 달에 30일이 없으면 29일
+  return r ? key(r[0], r[1] - 1, r[2]) : null;
+}
+let annCache = {};
+function annOn(k){
+  const y = +k.slice(0, 4);
+  if (!annCache[y]){
+    const map = {};
+    for (const yy of [y - 1, y]) for (const a of getAnn()){ const dk = annDate(a, yy); if (dk && +dk.slice(0, 4) === y) (map[dk] = map[dk] || []).push(a.name); }
+    annCache[y] = map;
+  }
+  return annCache[y][k] || [];
+}
+function annNext(a){
+  const today = key(T.y, T.m, T.d);
+  for (const yy of [T.y - 1, T.y, T.y + 1, T.y + 2]){ const dk = annDate(a, yy); if (dk && dk >= today) return dk; }
+  return null;
+}
+let aCal = 's';
+function drawAnnForm(){
+  document.querySelectorAll('#aCal button').forEach(b => b.classList.toggle('on', b.dataset.v === aCal));
+  const mSel = document.getElementById('aM'), dSel = document.getElementById('aD'), mv = mSel.value || (T.m + 1), dv = dSel.value || T.d;
+  mSel.innerHTML = [...Array(12).keys()].map(i => `<option value="${i+1}"${+mv===i+1?' selected':''}>${i+1}월</option>`).join('');
+  dSel.innerHTML = [...Array(aCal === 'l' ? 30 : 31).keys()].map(i => `<option value="${i+1}"${+dv===i+1?' selected':''}>${i+1}일</option>`).join('');
+}
+function drawAnnList(){
+  const today = dn(T.y, T.m, T.d), list = getAnn();
+  document.getElementById('aList').innerHTML = list.length ? list.map((a, i) => {
+    const nx = annNext(a); let dd = '';
+    if (nx){ const [y, m, d] = nx.split('-').map(Number), diff = dn(y, m - 1, d) - today; dd = diff === 0 ? 'D-day' : 'D-' + diff; }
+    return `<div class="alist"><div class="an1"><b>${esc(a.name)}</b><small>${a.cal === 'l' ? '음력' : '양력'} ${a.m}/${a.d}${nx ? ` · 다음 ${nx.slice(2).replace(/-/g, '.')}` : ''}</small></div>
+      <span class="dd">${dd}</span><button class="x" data-adel="${i}" aria-label="지우기">×</button></div>`;
+  }).join('') : '<div class="small">아직 없어요</div>';
+}
+function openAnn(){ drawAnnForm(); drawAnnList(); document.getElementById('annPage').classList.add('show'); }
+document.getElementById('btnAnn').onclick = openAnn;
+document.getElementById('aBack').onclick = () => { document.getElementById('annPage').classList.remove('show'); render(); };
+document.getElementById('aCal').onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; aCal = b.dataset.v; drawAnnForm(); };
+document.getElementById('aAdd').onclick = () => {
+  const name = document.getElementById('aName').value.trim(); if (!name) return alert('이름을 넣어 주세요.');
+  const list = getAnn(); list.push({cal: aCal, m: +document.getElementById('aM').value, d: +document.getElementById('aD').value, name});
+  setAnn(list); document.getElementById('aName').value = ''; drawAnnList();
+};
+document.getElementById('aList').onclick = e => { const b = e.target.closest('[data-adel]'); if (!b) return;
+  const list = getAnn(); if (!confirm(`'${list[+b.dataset.adel].name}' 기념일을 지울까요?`)) return; list.splice(+b.dataset.adel, 1); setAnn(list); drawAnnList(); };
+
 const applyShape = () => { document.body.classList.remove('round'); applyColors(); };   // 모양은 네모 하나만
 // ───── 근무 색 ─────
 // 색 하나(기본색)만 고르면 연한 바탕·진한 글자를 자동으로 만듦. 저장은 colA·colB·colC·colR (짧은 글자라 Worker 그대로)
@@ -841,6 +1000,10 @@ document.getElementById('sTypes').addEventListener('input', e => {
   if (f==='bar'){
     if (e.target.checked && S.types.filter(x => x.bar && x !== t).length >= 5){ e.target.checked = false; alert('아래 남은 휴가는 5개까지 표시할 수 있어요.'); return; }
     t.bar = e.target.checked;
+  }
+  else if (f==='totd' || f==='toth'){
+    const card = e.target.closest('.lt'), dv = card.querySelector('[data-f="totd"]').value, hv = card.querySelector('[data-f="toth"]').value;
+    t.total = (dv === '' && hv === '') ? null : (+dv || 0) + (+hv || 0) / dayH();
   }
   else if (f==='rep') t.rep = e.target.value === 'year' ? true : e.target.value === 'half' ? 'half' : false;
   else if (f==='total') t.total = e.target.value==='' ? null : parseFloat(e.target.value);
@@ -1039,7 +1202,7 @@ async function scConnect(code){
 async function drawSc(){
   const box = document.getElementById('scBox'); if (!box) return;
   if (!scAuth()) {
-    box.innerHTML = `<div class="small" style="margin-bottom:10px">연결 코드를 정해서 넣으면, 바꿀 때마다 몇 초 뒤 GitHub 비공개 저장소에 자동으로 저장돼요. 폰을 바꿔도 같은 코드를 넣으면 그대로 돌아와요.</div>
+    box.innerHTML = `<div class="small" style="margin-bottom:10px">연결 코드를 넣으면 바꿀 때마다 GitHub에 자동 저장돼요. 폰을 바꿔도 같은 코드로 돌아와요.</div>
       <input class="cfield" id="scCode" type="password" autocomplete="off" placeholder="연결 코드 (8글자 이상)">
       <div class="row2"><button id="scGo">연결</button></div>`;
     document.getElementById('scGo').onclick = () => {
