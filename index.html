@@ -280,7 +280,8 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .cell .ml.an.hasic::before{content:none}
 .cell .ml.an i{font-style:normal;margin-right:2px}
 /* 디데이 아이콘은 날짜 옆 (접은·펼친 화면 같게) */
-.anic{font-size:17px;line-height:20px;letter-spacing:-2px}
+.anic{font-size:17px;line-height:20px;letter-spacing:-2px;margin-left:auto}
+.hin ~ .anic{margin-left:4px}
 .cell .ml.an i{display:none}
 /* 접은 화면: 이름은 작게 */
 @media (max-width:420px){
@@ -742,7 +743,7 @@ function renderMy(){
     const isT = Y===T.y && M===T.m && D===T.d;
     const red = w===0 || !!hol;
     h += `<div class="cell${other?' other':''}${isT?' today':''}${hol?' hd':''}" data-k="${k}">
-      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${(() => { const ics = annOn(k).map(a => a.icon).filter(Boolean).join(''); return ics ? `<span class="anic">${esc(ics)}</span>` : ''; })()}${hol?`<span class="hin">${esc(hol.name)}</span>`:''}${six?`<span class="sb sm ${s}${chg?' chg':''}">${LABEL[s]}</span>`:''}</div>
+      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${hol?`<span class="hin">${esc(hol.name)}</span>`:''}${(() => { const ics = annOn(k).map(a => a.icon).filter(Boolean).join(''); return ics ? `<span class="anic">${esc(ics)}</span>` : ''; })()}${six?`<span class="sb sm ${s}${chg?' chg':''}">${LABEL[s]}</span>`:''}</div>
       ${hol?`<div class="hn">${esc(hol.name)}</div>`:''}
       ${six?'':`<div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>`}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
