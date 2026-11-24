@@ -285,7 +285,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 /* 접은 화면: 이름은 작게 */
 @media (max-width:420px){
   .anic{font-size:13px}
-  .cell .ml.an{font-size:10.5px;line-height:12.5px;letter-spacing:-.6px;-webkit-line-clamp:2}
+  .cell .ml.an{letter-spacing:-.5px}
 }
 .pals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .pal{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:9px 10px;text-align:left;font-size:15px}
@@ -303,6 +303,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .cell .ml b{font-size:calc(var(--mfs,12.5px) * .84);margin-right:0;letter-spacing:-.3px}
 .cell .lv{font-size:var(--lfs,11px);line-height:1.3}
 /* 칸이 좁으면 정각은 10시로 짧게 */
+.grid.short .cell .ml{display:block;-webkit-line-clamp:unset;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.4px}
 .grid.short .tw{display:none} .grid.short .tn{display:inline}
 </style>
 </head>
@@ -613,8 +614,13 @@ function fitRows(){
   const g = document.getElementById('grid');
   const rows = Math.round(g.children.length / 7) || 5;
   const cw = g.offsetWidth / 7;   // 칸 폭
-  root.style.setProperty('--mfs', Math.max(11.5, Math.min(17, cw * 0.218)).toFixed(1) + 'px');   // 메모: 한 줄에 '10시 핏토'가 들어가는 크기
-  root.style.setProperty('--lfs', Math.max(10, Math.min(12.5, cw * 0.14)).toFixed(1) + 'px');   // 휴가 띠는 작게 (메모 자리 확보)
+  if (cw < 95){   // 접은 화면: 메모·휴가 띠·디데이 이름을 같은 크기로, 메모는 한 줄
+    const f = Math.max(11.5, Math.min(13, cw * 0.19)).toFixed(1) + 'px';
+    root.style.setProperty('--mfs', f); root.style.setProperty('--lfs', f);
+  } else {
+    root.style.setProperty('--mfs', Math.max(11.5, Math.min(17, cw * 0.218)).toFixed(1) + 'px');   // 메모: 한 줄에 '10시 핏토'가 들어가는 크기
+    root.style.setProperty('--lfs', Math.max(10, Math.min(12.5, cw * 0.14)).toFixed(1) + 'px');   // 휴가 띠는 작게 (메모 자리 확보)
+  }
   g.classList.toggle('short', cw < 95);
   const wide = innerWidth >= 600;
   const below = document.getElementById('lsum').offsetHeight + 14;
