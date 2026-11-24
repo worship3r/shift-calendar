@@ -544,7 +544,7 @@ function renderLsum(){
       const f = Math.min(1, Math.max(0, (dK(refK) - dK(per.start) + 1) / (dK(per.end) - dK(per.start) + 1))); expW += (+t.total || 0) * f; });
     const usedP = sumT ? (sumT - sumL) / sumT : 0, expP = sumT ? expW / sumT : 0, gap = usedP - expP;
     const pace = gap < -0.1 ? ['느림','slow'] : gap > 0.1 ? ['빠름','fast'] : ['적정','ok'];
-    const paceHtml = sumT ? `<span class="lpace ${pace[1]}">소진 ${Math.round(usedP*100)}% · 기간 ${Math.round(expP*100)}% 지남 · <b>${pace[0]}</b></span>` : '';
+    const paceHtml = sumT ? `<span class="lpace ${pace[1]}">소진 ${Math.round(usedP*100)}% <b>${pace[0]}</b></span>` : '';
     el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${list.length > 1 ? `<span class="lsumtot">합계 <b>${fmtLeft(sumL)}</b>/${fmtN(sumT)}</span>${paceHtml}` : ''}${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2${list.length > 4 ? ' dense' : ''}" style="--tn:${Math.max(1, Math.min(list.length, 5))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
         return `<button class="lt2${live(t) ? '' : ' gone'}" title="${m+1}월까지 남은 ${esc(t.name)}${live(t) ? '' : ' (기간 끝)'}"><span class="n"><i style="background:${t.color}"></i>${esc(t.name)}</span><span class="v"><b class="${left<=0?'zero':''}">${fmtLeft(left)}</b><small class="tot">/${fmtN(t.total)}</small></span></button>`; }).join('')}</div>`;
     el.querySelectorAll('.lt2').forEach(b => b.onclick = openLeave); document.getElementById('lsMore').onclick = openLeave; fixWrap(); return;
