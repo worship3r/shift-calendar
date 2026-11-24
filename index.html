@@ -167,6 +167,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lrow2{display:grid;grid-template-columns:repeat(var(--tn,4),1fr);gap:8px}
 /* 5~6개: 여백·글자를 줄여 한 줄에 */
 .lrow2.dense{gap:5px}
+.lrow2.wrapgrid{display:grid!important}
 .lrow2.dense .lt2{padding:6px 8px;gap:4px;border-radius:10px}
 .lrow2.dense .lt2 .n{font-size:13px;gap:4px} .lrow2.dense .lt2 .n i{width:8px;height:8px}
 .lrow2.dense .lt2 .v b{font-size:18px} .lrow2.dense .lt2 .v small{font-size:11px}
@@ -496,6 +497,7 @@ function fitRows(){
   const six = rows === 6;   // 6주인 달은 근무가 날짜 옆이라 칸을 더 낮게 해도 됨
   const h = Math.max(wide ? (six ? 60 : 70) : (six ? 70 : 90), Math.min(wide ? 180 : 150, Math.floor(avail / rows)));
   root.style.setProperty('--rowh', h + 'px');
+  fixWrap();
 }
 let fitT; const refit = () => { clearTimeout(fitT); fitT = setTimeout(fitRows, 120); };
 addEventListener('resize', refit); if (window.visualViewport) visualViewport.addEventListener('resize', refit);
@@ -510,6 +512,14 @@ function leftFor(t, startK, endK){
   }
   return {per, left: t.total - usedOf(t, endK, per)};
 }
+// 칸이 다음 줄로 넘어가면, 아랫줄 칸도 윗줄과 같은 폭으로 (늘어나지 않게)
+function fixWrap(){
+  const row = document.querySelector('#lsum .lrow2'); if (!row) return;
+  row.classList.remove('wrapgrid'); row.style.removeProperty('grid-template-columns');
+  const items = [...row.children]; if (items.length < 2) return;
+  const top0 = items[0].offsetTop, first = items.filter(x => Math.abs(x.offsetTop - top0) < 3).length;
+  if (first < items.length){ row.classList.add('wrapgrid'); row.style.gridTemplateColumns = `repeat(${first},1fr)`; }
+}
 function renderLsum(){
   const {y,m} = cur, endK = key(y, m+1, 0), startK = key(y, m, 1);
   const list = S.types.filter(t => t.bar && t.total!=null && t.total!=='');
@@ -520,7 +530,7 @@ function renderLsum(){
     // 한 줄 네모칸: 왼쪽 색 막대 + 이름 + 큰 숫자 (누르면 휴가 현황)
     el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2${list.length > 4 ? ' dense' : ''}" style="--tn:${Math.max(1, Math.min(list.length, 5))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
         return `<button class="lt2" title="${m+1}월까지 남은 ${esc(t.name)}"><span class="n"><i style="background:${t.color}"></i>${esc(t.name)}</span><span class="v"><b class="${left<=0?'zero':''}">${fmtLeft(left)}</b><small class="tot">/${fmtN(t.total)}</small></span></button>`; }).join('')}</div>`;
-    el.querySelectorAll('.lt2').forEach(b => b.onclick = openLeave); document.getElementById('lsMore').onclick = openLeave; return;
+    el.querySelectorAll('.lt2').forEach(b => b.onclick = openLeave); document.getElementById('lsMore').onclick = openLeave; fixWrap(); return;
   }
   el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div>
     <div class="tiles" style="--tn:${Math.min(list.length,4)}">${list.map(t => {
