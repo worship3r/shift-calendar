@@ -615,9 +615,10 @@ function fitRows(){
   const g = document.getElementById('grid');
   const rows = Math.round(g.children.length / 7) || 5;
   const cw = g.offsetWidth / 7;   // 칸 폭
-  if (cw < 95){   // 접은 화면: 메모·휴가 띠·디데이 이름을 같은 크기로, 메모는 한 줄
+  if (cw < 95){   // 접은 화면: 메모·디데이 이름은 같은 크기로 한 줄, 휴가 띠는 예전 크기
     const f = Math.max(12, Math.min(14.5, cw * 0.215)).toFixed(1) + 'px';   // 한 줄 기준 최대
-    root.style.setProperty('--mfs', f); root.style.setProperty('--lfs', f);
+    root.style.setProperty('--mfs', f);
+    root.style.setProperty('--lfs', Math.max(10, Math.min(12.5, cw * 0.14)).toFixed(1) + 'px');   // 휴가 띠는 예전 크기 그대로
   } else {
     root.style.setProperty('--mfs', Math.max(11.5, Math.min(17, cw * 0.218)).toFixed(1) + 'px');   // 메모: 한 줄에 '10시 핏토'가 들어가는 크기
     root.style.setProperty('--lfs', Math.max(10, Math.min(12.5, cw * 0.14)).toFixed(1) + 'px');   // 휴가 띠는 작게 (메모 자리 확보)
