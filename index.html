@@ -164,6 +164,8 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 /* 휴가 현황 */
 .lsum{margin:4px 10px 0;padding-bottom:8px;position:relative}
 .lsum .hd{margin:0 2px 4px}
+.lsumtot{margin-left:10px;font-size:14px;color:var(--sub);font-weight:400} .lsumtot b{font-size:15px;color:var(--ink)} .lsumtot .u{font-size:.7em;color:var(--sub)}
+@media (max-width:600px){ .lsumtot{display:none} }
 .lrow2{display:grid;grid-template-columns:repeat(var(--tn,4),1fr);gap:8px}
 /* 5~6개: 여백·글자를 줄여 한 줄에 */
 .lrow2.dense{gap:5px}
@@ -528,7 +530,9 @@ function renderLsum(){
   const compact = true;   // 남은 휴가는 항상 한 줄 (달력 칸을 크게)
   if (compact){
     // 한 줄 네모칸: 왼쪽 색 막대 + 이름 + 큰 숫자 (누르면 휴가 현황)
-    el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2${list.length > 4 ? ' dense' : ''}" style="--tn:${Math.max(1, Math.min(list.length, 5))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
+    // 펼친 화면에서만: 보이는 휴가들의 남은 갯수 합계 / 총 갯수 합계
+    const sumL = list.reduce((a, t) => a + leftFor(t, startK, endK).left, 0), sumT = list.reduce((a, t) => a + (+t.total || 0), 0);
+    el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${list.length > 1 ? `<span class="lsumtot">합계 <b>${fmtLeft(sumL)}</b>/${fmtN(sumT)}</span>` : ''}${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2${list.length > 4 ? ' dense' : ''}" style="--tn:${Math.max(1, Math.min(list.length, 5))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
         return `<button class="lt2" title="${m+1}월까지 남은 ${esc(t.name)}"><span class="n"><i style="background:${t.color}"></i>${esc(t.name)}</span><span class="v"><b class="${left<=0?'zero':''}">${fmtLeft(left)}</b><small class="tot">/${fmtN(t.total)}</small></span></button>`; }).join('')}</div>`;
     el.querySelectorAll('.lt2').forEach(b => b.onclick = openLeave); document.getElementById('lsMore').onclick = openLeave; fixWrap(); return;
   }
