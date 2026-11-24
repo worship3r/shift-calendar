@@ -263,7 +263,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .alist .dd{font-size:15px;font-weight:700;color:#c2255c;white-space:nowrap}
 .alist .x{background:var(--soft)}
 .cell .ml.an{color:#c2255c;font-weight:600}
-.cell .ml.an::before{content:"♥ ";font-size:.8em}
+.cell .ml.an::before{content:"◆ ";font-size:.7em}
 .pals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .pal{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:9px 10px;text-align:left;font-size:15px}
 .pal.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
@@ -290,8 +290,8 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
   <button class="arr" id="next" aria-label="다음 달">›</button>
   <button class="todayp" id="goToday">오늘</button>
   <div class="sp"></div>
-  <button class="icon" id="btnAnn" aria-label="기념일">
-    <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.6A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.4C19 15.6 12 20 12 20z"/></svg>
+  <button class="icon" id="btnAnn" aria-label="디데이">
+    <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17M10.2 12.6v5.2h1.6a2.6 2.6 0 0 0 0-5.2z"/></svg>
   </button>
   <button class="icon" id="btnView" aria-label="전체 조 보기"></button>
   <button class="icon" id="btnLeave" aria-label="휴가 현황">
@@ -332,15 +332,16 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 
 <!-- 설정 -->
 <div class="page" id="annPage"><div class="in">
-  <div class="phead"><button class="icon" id="aBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>기념일</h2></div>
+  <div class="phead"><button class="icon" id="aBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>디데이</h2></div>
   <div class="box"><h3>추가</h3>
-    <input class="cfield" id="aName" maxlength="20" placeholder="예) 엄마 생신">
-    <div class="arow"><div class="seg sm" id="aCal"><button data-v="s" class="on">양력</button><button data-v="l">음력</button></div>
-      <select id="aM" class="rsel"></select><select id="aD" class="rsel"></select></div>
+    <input class="cfield" id="aName" maxlength="20" placeholder="예) 엄마 생신, 여행">
+    <div class="arow" style="margin-bottom:8px"><div class="seg sm" id="aRep"><button data-v="y" class="on">매년</button><button data-v="o">한 번</button></div>
+      <div class="seg sm" id="aCal"><button data-v="s" class="on">양력</button><button data-v="l">음력</button></div></div>
+    <div class="arow"><select id="aY" class="rsel"></select><select id="aM" class="rsel"></select><select id="aD" class="rsel"></select></div>
     <div class="row2" style="margin-top:8px"><button id="aAdd">추가</button></div>
-    <div class="small" style="margin-top:8px">매년 그날 달력 칸에 표시돼요</div>
+    <div class="small" style="margin-top:8px">그날 달력 칸에 표시되고, 남은 날을 D-day로 보여줘요</div>
   </div>
-  <div class="box"><h3>저장한 기념일</h3><div id="aList"></div></div>
+  <div class="box"><h3>저장한 디데이</h3><div id="aList"></div></div>
 </div></div>
 <div class="page" id="setPage"><div class="in">
   <div class="phead"><button class="icon" id="sBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>설정</h2></div>
@@ -897,19 +898,23 @@ document.getElementById('btnSet').onclick = openSet;
 document.getElementById('sBack').onclick = () => { document.getElementById('setPage').classList.remove('show'); render(); };
 document.getElementById('sTeam').onclick = e => { const b = e.target.closest('[data-t]'); if (!b) return; S.team = +b.dataset.t; save(); drawSet(); };
 
-// ───── 기념일 (매년). 저장: S.an0, S.an1 … = "s|월|일|이름" (s 양력, l 음력) — 짧은 글자라 Worker 그대로 저장됨
+// ───── 디데이. 저장: S.an0, S.an1 … 매년 "s|월|일|이름", 한 번 "os|년|월|일|이름" (s 양력, l 음력) — 짧은 글자라 Worker 그대로 저장됨
 function getAnn(){
   return Object.keys(S).filter(k => /^an\d+$/.test(k)).sort((a, b) => a.slice(2) - b.slice(2)).map(k => {
-    const [cal, m, d, ...n] = String(S[k]).split('|'); return {cal: cal === 'l' ? 'l' : 's', m: +m, d: +d, name: n.join('|')};
-  }).filter(a => a.m >= 1 && a.m <= 12 && a.d >= 1 && a.d <= 31 && a.name);
+    const p = String(S[k]).split('|');
+    if (p[0][0] === 'o'){ const [c, y, m, d, ...n] = p; return {once: true, cal: c[1] === 'l' ? 'l' : 's', y: +y, m: +m, d: +d, name: n.join('|')}; }
+    const [cal, m, d, ...n] = p; return {once: false, cal: cal === 'l' ? 'l' : 's', m: +m, d: +d, name: n.join('|')};
+  }).filter(a => a.m >= 1 && a.m <= 12 && a.d >= 1 && a.d <= 31 && a.name && (!a.once || a.y > 1900));
 }
 function setAnn(list){
   Object.keys(S).filter(k => /^an\d+$/.test(k)).forEach(k => delete S[k]);
-  list.forEach((a, i) => S['an' + i] = `${a.cal}|${a.m}|${a.d}|${a.name.slice(0, 20).replace(/\|/g, ' ')}`);
+  list.forEach((a, i) => { const nm = a.name.slice(0, 20).replace(/\|/g, ' ');
+    S['an' + i] = a.once ? `o${a.cal}|${a.y}|${a.m}|${a.d}|${nm}` : `${a.cal}|${a.m}|${a.d}|${nm}`; });
   annCache = {}; save();
 }
 // 그 해(양력 기준 표시 연도 y)의 날짜: 양력은 그대로(2/29는 평년 2/28), 음력은 계산
 function annDate(a, y){
+  if (a.once && y !== a.y) return null;
   if (a.cal === 's'){ const last = new Date(y, a.m, 0).getDate(); return key(y, a.m - 1, Math.min(a.d, last)); }
   let r = lunarToSolar(y, a.m, a.d);
   if (r && a.d === 30){ const n = lunarToSolar(y, a.m === 12 ? 1 : a.m + 1, 1); if (a.m === 12) { const n2 = lunarToSolar(y + 1, 1, 1); if (n2 && r.join() === n2.join()) r = lunarToSolar(y, a.m, 29); } else if (n && r.join() === n.join()) r = lunarToSolar(y, a.m, 29); }   // 그 달에 30일이 없으면 29일
@@ -927,12 +932,17 @@ function annOn(k){
 }
 function annNext(a){
   const today = key(T.y, T.m, T.d);
+  if (a.once) return annDate(a, a.y);   // 한 번: 지났어도 그 날짜 (목록에서 D+로 보여줌)
   for (const yy of [T.y - 1, T.y, T.y + 1, T.y + 2]){ const dk = annDate(a, yy); if (dk && dk >= today) return dk; }
   return null;
 }
-let aCal = 's';
+let aCal = 's', aRep = 'y';
 function drawAnnForm(){
   document.querySelectorAll('#aCal button').forEach(b => b.classList.toggle('on', b.dataset.v === aCal));
+  document.querySelectorAll('#aRep button').forEach(b => b.classList.toggle('on', b.dataset.v === aRep));
+  const ySel = document.getElementById('aY'), yv = ySel.value || T.y;
+  ySel.style.display = aRep === 'o' ? '' : 'none';
+  ySel.innerHTML = [...Array(16).keys()].map(i => T.y - 3 + i).map(y => `<option value="${y}"${+yv===y?' selected':''}>${y}년</option>`).join('');
   const mSel = document.getElementById('aM'), dSel = document.getElementById('aD'), mv = mSel.value || (T.m + 1), dv = dSel.value || T.d;
   mSel.innerHTML = [...Array(12).keys()].map(i => `<option value="${i+1}"${+mv===i+1?' selected':''}>${i+1}월</option>`).join('');
   dSel.innerHTML = [...Array(aCal === 'l' ? 30 : 31).keys()].map(i => `<option value="${i+1}"${+dv===i+1?' selected':''}>${i+1}일</option>`).join('');
@@ -941,8 +951,9 @@ function drawAnnList(){
   const today = dn(T.y, T.m, T.d), list = getAnn();
   document.getElementById('aList').innerHTML = list.length ? list.map((a, i) => {
     const nx = annNext(a); let dd = '';
-    if (nx){ const [y, m, d] = nx.split('-').map(Number), diff = dn(y, m - 1, d) - today; dd = diff === 0 ? 'D-day' : 'D-' + diff; }
-    return `<div class="alist"><div class="an1"><b>${esc(a.name)}</b><small>${a.cal === 'l' ? '음력' : '양력'} ${a.m}/${a.d}${nx ? ` · 다음 ${nx.slice(2).replace(/-/g, '.')}` : ''}</small></div>
+    if (nx){ const [y, m, d] = nx.split('-').map(Number), diff = dn(y, m - 1, d) - today; dd = diff === 0 ? 'D-day' : diff > 0 ? 'D-' + diff : 'D+' + (-diff); }
+    const when = a.once ? `${a.y}.${a.m}.${a.d}` : `매년 ${a.m}/${a.d}`;
+    return `<div class="alist"><div class="an1"><b>${esc(a.name)}</b><small>${a.cal === 'l' ? '음력 ' : ''}${when}${nx && (a.once ? a.cal === 'l' : true) ? ` · ${a.once ? '양력' : '다음'} ${nx.slice(2).replace(/-/g, '.')}` : ''}</small></div>
       <span class="dd">${dd}</span><button class="x" data-adel="${i}" aria-label="지우기">×</button></div>`;
   }).join('') : '<div class="small">아직 없어요</div>';
 }
@@ -950,13 +961,14 @@ function openAnn(){ drawAnnForm(); drawAnnList(); document.getElementById('annPa
 document.getElementById('btnAnn').onclick = openAnn;
 document.getElementById('aBack').onclick = () => { document.getElementById('annPage').classList.remove('show'); render(); };
 document.getElementById('aCal').onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; aCal = b.dataset.v; drawAnnForm(); };
+document.getElementById('aRep').onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; aRep = b.dataset.v; drawAnnForm(); };
 document.getElementById('aAdd').onclick = () => {
   const name = document.getElementById('aName').value.trim(); if (!name) return alert('이름을 넣어 주세요.');
-  const list = getAnn(); list.push({cal: aCal, m: +document.getElementById('aM').value, d: +document.getElementById('aD').value, name});
+  const list = getAnn(); list.push({once: aRep === 'o', y: +document.getElementById('aY').value, cal: aCal, m: +document.getElementById('aM').value, d: +document.getElementById('aD').value, name});
   setAnn(list); document.getElementById('aName').value = ''; drawAnnList();
 };
 document.getElementById('aList').onclick = e => { const b = e.target.closest('[data-adel]'); if (!b) return;
-  const list = getAnn(); if (!confirm(`'${list[+b.dataset.adel].name}' 기념일을 지울까요?`)) return; list.splice(+b.dataset.adel, 1); setAnn(list); drawAnnList(); };
+  const list = getAnn(); if (!confirm(`'${list[+b.dataset.adel].name}' 디데이를 지울까요?`)) return; list.splice(+b.dataset.adel, 1); setAnn(list); drawAnnList(); };
 
 const applyShape = () => { document.body.classList.remove('round'); applyColors(); };   // 모양은 네모 하나만
 // ───── 근무 색 ─────
