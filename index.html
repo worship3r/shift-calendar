@@ -279,6 +279,14 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .cell .ml.an::before{content:"◆ ";font-size:.7em}
 .cell .ml.an.hasic::before{content:none}
 .cell .ml.an i{font-style:normal;margin-right:2px}
+.anic{display:none}
+/* 접은 화면: 디데이 아이콘은 날짜 옆, 이름은 작게 */
+@media (max-width:420px){
+  .anic{display:inline;font-size:13px;line-height:20px;letter-spacing:-2px}
+  .cell .ml.an i{display:none}
+  .cell .ml.an.hasic::before{content:none}
+  .cell .ml.an{font-size:10.5px;line-height:12.5px;letter-spacing:-.6px;-webkit-line-clamp:2}
+}
 .pals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .pal{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:9px 10px;text-align:left;font-size:15px}
 .pal.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
@@ -728,7 +736,7 @@ function renderMy(){
     const isT = Y===T.y && M===T.m && D===T.d;
     const red = w===0 || !!hol;
     h += `<div class="cell${other?' other':''}${isT?' today':''}${hol?' hd':''}" data-k="${k}">
-      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${hol?`<span class="hin">${esc(hol.name)}</span>`:''}${six?`<span class="sb sm ${s}${chg?' chg':''}">${LABEL[s]}</span>`:''}</div>
+      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${(() => { const ics = annOn(k).map(a => a.icon).filter(Boolean).join(''); return ics ? `<span class="anic">${esc(ics)}</span>` : ''; })()}${hol?`<span class="hin">${esc(hol.name)}</span>`:''}${six?`<span class="sb sm ${s}${chg?' chg':''}">${LABEL[s]}</span>`:''}</div>
       ${hol?`<div class="hn">${esc(hol.name)}</div>`:''}
       ${six?'':`<div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>`}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
