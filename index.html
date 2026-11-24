@@ -279,12 +279,12 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .cell .ml.an::before{content:"◆ ";font-size:.7em}
 .cell .ml.an.hasic::before{content:none}
 .cell .ml.an i{font-style:normal;margin-right:2px}
-.anic{display:none}
-/* 접은 화면: 디데이 아이콘은 날짜 옆, 이름은 작게 */
+/* 디데이 아이콘은 날짜 옆 (접은·펼친 화면 같게) */
+.anic{font-size:17px;line-height:20px;letter-spacing:-2px}
+.cell .ml.an i{display:none}
+/* 접은 화면: 이름은 작게 */
 @media (max-width:420px){
-  .anic{display:inline;font-size:13px;line-height:20px;letter-spacing:-2px}
-  .cell .ml.an i{display:none}
-  .cell .ml.an.hasic::before{content:none}
+  .anic{font-size:13px}
   .cell .ml.an{font-size:10.5px;line-height:12.5px;letter-spacing:-.6px;-webkit-line-clamp:2}
 }
 .pals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
