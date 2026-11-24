@@ -15,7 +15,9 @@
   --sun:#d63b3b; --sat:#3d6fd6; --accent:#2f6fec; --todaybg:#eaf2ff;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{overflow-x:hidden;margin:0;background:var(--bg);color:var(--ink);
+html{overflow-x:hidden}
+body{overflow-x:clip}
+html,body{margin:0;background:var(--bg);color:var(--ink);
   font-family:system-ui,-apple-system,sans-serif}
 body{max-width:1400px;margin:0 auto;padding-bottom:env(safe-area-inset-bottom);overscroll-behavior-y:none}
 button{font-family:inherit;color:inherit}
