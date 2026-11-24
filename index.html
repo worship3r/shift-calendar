@@ -165,7 +165,8 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lsum{margin:4px 10px 0;padding-bottom:8px;position:relative}
 .lsum .hd{margin:0 2px 4px}
 .lsumtot{margin-left:10px;font-size:14px;color:var(--sub);font-weight:400} .lsumtot b{font-size:15px;color:var(--ink)} .lsumtot .u{font-size:.7em;color:var(--sub)}
-@media (max-width:600px){ .lsumtot{display:none} }
+.lpace{margin-left:10px;font-size:13px;color:var(--sub)} .lpace b{font-weight:700} .lpace.slow b{color:#3d7be0} .lpace.ok b{color:#2b8a3e} .lpace.fast b{color:var(--sun)}
+@media (max-width:600px){ .lpace{display:none} .lsumtot{margin-left:6px;font-size:12.5px} .lsumtot b{font-size:13.5px} .lsum .hd .r b{font-size:15px} }
 .lrow2{display:grid;grid-template-columns:repeat(var(--tn,4),1fr);gap:8px}
 /* 5~6개: 여백·글자를 줄여 한 줄에 */
 .lrow2.dense{gap:5px}
@@ -536,7 +537,15 @@ function renderLsum(){
     const todayK = key(T.y, T.m, T.d), refK = (y === T.y && m === T.m) ? todayK : endK;
     const live = t => { const per = leftFor(t, startK, endK).per; return !(per.end && per.end < refK) && !(per.start && per.start > refK); };
     const sumL = list.filter(live).reduce((a, t) => a + leftFor(t, startK, endK).left, 0), sumT = list.filter(live).reduce((a, t) => a + (+t.total || 0), 0);
-    el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${list.length > 1 ? `<span class="lsumtot">합계 <b>${fmtLeft(sumL)}</b>/${fmtN(sumT)}</span>` : ''}${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2${list.length > 4 ? ' dense' : ''}" style="--tn:${Math.max(1, Math.min(list.length, 5))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
+    // 소진 속도 (펼친 화면): 쓴 비율 vs 기간이 지난 비율 (휴가별 총 갯수로 가중)
+    const dK = k => { const [a,b,c] = k.split('-').map(Number); return dn(a, b-1, c); };
+    let expW = 0;
+    list.filter(live).forEach(t => { const per = leftFor(t, startK, endK).per; if (!per.start || !per.end) return;
+      const f = Math.min(1, Math.max(0, (dK(refK) - dK(per.start) + 1) / (dK(per.end) - dK(per.start) + 1))); expW += (+t.total || 0) * f; });
+    const usedP = sumT ? (sumT - sumL) / sumT : 0, expP = sumT ? expW / sumT : 0, gap = usedP - expP;
+    const pace = gap < -0.1 ? ['느림','slow'] : gap > 0.1 ? ['빠름','fast'] : ['적정','ok'];
+    const paceHtml = sumT ? `<span class="lpace ${pace[1]}">소진 ${Math.round(usedP*100)}% · 기간 ${Math.round(expP*100)}% 지남 · <b>${pace[0]}</b></span>` : '';
+    el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${list.length > 1 ? `<span class="lsumtot">합계 <b>${fmtLeft(sumL)}</b>/${fmtN(sumT)}</span>${paceHtml}` : ''}${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2${list.length > 4 ? ' dense' : ''}" style="--tn:${Math.max(1, Math.min(list.length, 5))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
         return `<button class="lt2${live(t) ? '' : ' gone'}" title="${m+1}월까지 남은 ${esc(t.name)}${live(t) ? '' : ' (기간 끝)'}"><span class="n"><i style="background:${t.color}"></i>${esc(t.name)}</span><span class="v"><b class="${left<=0?'zero':''}">${fmtLeft(left)}</b><small class="tot">/${fmtN(t.total)}</small></span></button>`; }).join('')}</div>`;
     el.querySelectorAll('.lt2').forEach(b => b.onclick = openLeave); document.getElementById('lsMore').onclick = openLeave; fixWrap(); return;
   }
