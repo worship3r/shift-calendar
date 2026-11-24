@@ -348,11 +348,10 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
   <div class="phead"><button class="icon" id="aBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>디데이</h2></div>
   <div class="box"><h3>추가</h3>
     <div class="aicons" id="aIcons"></div>
-    <input class="cfield" id="aName" maxlength="20" placeholder="예) 엄마 생신, 월급날">
+    <div class="arow" style="margin-bottom:8px"><input class="cfield" id="aName" maxlength="20" placeholder="예) 엄마 생신, 월급날" style="margin:0;flex:1;min-width:0">
+      <select id="aRep" class="rsel" aria-label="반복"><option value="y">매년</option><option value="o">한 번</option><option value="m">매월</option><option value="w">매주</option></select></div>
     <div class="arow wrap"><select id="aY" class="rsel"></select><select id="aM" class="rsel"></select><select id="aD" class="rsel"></select>
       <label class="lunt" id="aLunW">음력<input type="checkbox" class="tog" id="aLun"></label></div>
-    <div class="arow" style="margin-top:8px"><span class="small" style="margin:0">반복</span>
-      <select id="aRep" class="rsel"><option value="y">매년</option><option value="o">한 번</option><option value="m">매월</option><option value="w">매주</option></select></div>
     <div class="row2" style="margin-top:8px"><button id="aAdd">추가</button></div>
   </div>
   <div class="box"><h3>저장한 디데이</h3><div id="aList"></div></div>
