@@ -253,8 +253,9 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lt .del{margin-left:auto;border:0;background:none;color:var(--sun);font-size:15px;padding:8px 4px;white-space:nowrap}
 .add{width:100%;border:1px dashed var(--faint);background:none;border-radius:12px;padding:12px;font-size:16px;color:var(--sub)}
 .arow{display:flex;gap:8px;align-items:center}
-.aicons{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
-.aicons button{width:34px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-size:18px;padding:0}
+.aicons{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:10px}
+.aicons button{width:30px;height:34px;border-radius:9px;border:1.5px solid var(--line);background:var(--bg);font-size:17px;padding:0}
+@media (min-width:421px){ .aicons{gap:5px} .aicons button{width:38px;height:38px;font-size:19px} }
 .aicons button.on{border-color:var(--accent);background:#eef4ff}
 .alist .ic{font-size:20px;width:26px;text-align:center;flex:none}
 .alist .mv{border:0;background:none;color:var(--sub);font-size:16px;width:26px;height:30px;padding:0}
@@ -915,7 +916,7 @@ document.getElementById('sTeam').onclick = e => { const b = e.target.closest('[d
 // ───── 디데이. 저장: S.an0, S.an1 … = "<반복><달력>|년|월|일|아이콘|이름"
 //   반복 y 매년 · o 한 번 · m 매월 · w 매주, 달력 s 양력 · l 음력 (예: "ys|2014|11|30|💍|결혼기념일")
 //   예전 형식("s|월|일|이름", "os|년|월|일|이름")도 읽음. 짧은 글자라 Worker 그대로 저장됨
-const ANN_ICONS = ['🎂','💍','💰','❤️','✈️','📝','🏥','⭐'];
+const ANN_ICONS = ['🎂','🎁','💍','💰','❤️','✈️','📝','🏥','⭐'];   // 🎂 우리 생일, 🎁 부모님 생신
 function getAnn(){
   return Object.keys(S).filter(k => /^an\d+$/.test(k)).sort((a, b) => a.slice(2) - b.slice(2)).map(k => {
     const p = String(S[k]).split('|');
@@ -1015,7 +1016,7 @@ document.getElementById('aList').onclick = e => {
   if (del){ if (!confirm(`'${list[+del.dataset.adel].name}' 디데이를 지울까요?`)) return; list.splice(+del.dataset.adel, 1); setAnn(list); annFormReset(); drawAnnList(); return; }
   const ed = e.target.closest('[data-aed]');
   if (ed){   // 눌러서 고치기: 위 칸에 채움
-    const a = list[+ed.dataset.aed]; aEdit = +ed.dataset.aed; aIcon = a.icon || ANN_ICONS[7]; aRep = a.rep; aCal = a.cal;
+    const a = list[+ed.dataset.aed]; aEdit = +ed.dataset.aed; aIcon = a.icon || ANN_ICONS[ANN_ICONS.length - 1]; aRep = a.rep; aCal = a.cal;
     drawAnnForm();
     document.getElementById('aY').value = a.y || T.y; document.getElementById('aM').value = a.m; document.getElementById('aD').value = a.d;
     document.getElementById('aName').value = a.name; document.getElementById('aAdd').textContent = '수정';
