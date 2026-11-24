@@ -164,7 +164,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .btns button{flex:1;font-size:18px;padding:14px 0;border-radius:12px;border:0;font-weight:600}
 .pri{background:var(--accent);color:#fff} .sec{background:var(--soft)}
 /* 휴가 현황 */
-.lsum{margin:4px 10px 0;padding-bottom:8px;position:relative}
+.lsum{margin:14px 10px 0;padding-bottom:4px;position:relative}
 .lsum .hd{margin:0 2px 4px}
 .lsumtot{margin-left:10px;font-size:14px;color:var(--sub);font-weight:400} .lsumtot b{font-size:15px;color:var(--ink)} .lsumtot .u{font-size:.7em;color:var(--sub)}
 .lpace{margin-left:10px;font-size:14px;color:var(--sub);font-weight:400} .lpace b{font-size:15px;color:var(--ink);font-weight:700} .lpace small{font-size:14px;color:var(--sub);margin-left:3px}
@@ -633,7 +633,7 @@ function fitRows(){
   }
   g.classList.toggle('short', cw < 95);
   const wide = innerWidth >= 600;
-  const below = document.getElementById('lsum').offsetHeight + 14;
+  const below = document.getElementById('lsum').offsetHeight + 14 + 4;   // 위 간격 14 + 맨 아래 살짝
   const viewH = (window.visualViewport && visualViewport.height) || innerHeight;
   const avail = Math.min(viewH, innerHeight) - g.getBoundingClientRect().top - window.scrollY - below;
   const six = rows === 6;   // 6주인 달은 근무가 날짜 옆이라 칸을 더 낮게 해도 됨
