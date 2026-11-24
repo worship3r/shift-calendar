@@ -169,6 +169,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lrow2{display:grid;grid-template-columns:repeat(var(--tn,4),1fr);gap:8px}
 /* 5~6개: 여백·글자를 줄여 한 줄에 */
 .lrow2.dense{gap:5px}
+.lt2.gone{opacity:.45}
 .lrow2.wrapgrid{display:grid!important}
 .lrow2.dense .lt2{padding:6px 8px;gap:4px;border-radius:10px}
 .lrow2.dense .lt2 .n{font-size:13px;gap:4px} .lrow2.dense .lt2 .n i{width:8px;height:8px}
@@ -531,9 +532,12 @@ function renderLsum(){
   if (compact){
     // 한 줄 네모칸: 왼쪽 색 막대 + 이름 + 큰 숫자 (누르면 휴가 현황)
     // 펼친 화면에서만: 보이는 휴가들의 남은 갯수 합계 / 총 갯수 합계
-    const sumL = list.reduce((a, t) => a + leftFor(t, startK, endK).left, 0), sumT = list.reduce((a, t) => a + (+t.total || 0), 0);
+    // 기간이 끝났거나 아직 시작 안 한 휴가(예: 장기 27.07.23 지나면)는 합계에서 뺌. 기준일 = 이번 달이면 오늘, 아니면 그 달 말일
+    const todayK = key(T.y, T.m, T.d), refK = (y === T.y && m === T.m) ? todayK : endK;
+    const live = t => { const per = leftFor(t, startK, endK).per; return !(per.end && per.end < refK) && !(per.start && per.start > refK); };
+    const sumL = list.filter(live).reduce((a, t) => a + leftFor(t, startK, endK).left, 0), sumT = list.filter(live).reduce((a, t) => a + (+t.total || 0), 0);
     el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${list.length > 1 ? `<span class="lsumtot">합계 <b>${fmtLeft(sumL)}</b>/${fmtN(sumT)}</span>` : ''}${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2${list.length > 4 ? ' dense' : ''}" style="--tn:${Math.max(1, Math.min(list.length, 5))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
-        return `<button class="lt2" title="${m+1}월까지 남은 ${esc(t.name)}"><span class="n"><i style="background:${t.color}"></i>${esc(t.name)}</span><span class="v"><b class="${left<=0?'zero':''}">${fmtLeft(left)}</b><small class="tot">/${fmtN(t.total)}</small></span></button>`; }).join('')}</div>`;
+        return `<button class="lt2${live(t) ? '' : ' gone'}" title="${m+1}월까지 남은 ${esc(t.name)}${live(t) ? '' : ' (기간 끝)'}"><span class="n"><i style="background:${t.color}"></i>${esc(t.name)}</span><span class="v"><b class="${left<=0?'zero':''}">${fmtLeft(left)}</b><small class="tot">/${fmtN(t.total)}</small></span></button>`; }).join('')}</div>`;
     el.querySelectorAll('.lt2').forEach(b => b.onclick = openLeave); document.getElementById('lsMore').onclick = openLeave; fixWrap(); return;
   }
   el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div>
