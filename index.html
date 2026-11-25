@@ -80,6 +80,12 @@ body.round .stag.A{background:var(--A)} body.round .stag.B{background:var(--B)} 
 .tsel .tx{border:0;background:none;color:var(--sub);font-size:16px;width:24px;height:30px}
 .mrow .mx{flex:1;min-width:0;font-size:17px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--soft);font-family:inherit;color:var(--ink)}
 .mrow .x{background:var(--soft)}
+.mrow .mv{flex:none;display:flex;gap:2px}
+.mrow .mv button{width:30px;height:40px;border:1px solid var(--line);border-radius:8px;background:var(--soft);color:var(--sub);font-size:16px;padding:0}
+.mrow .mv button:disabled{opacity:.3}
+.mord{font-size:13px;color:var(--sub);margin:-2px 2px 8px}
+.mord button{border:0;background:none;color:var(--ink);font-size:13px;text-decoration:underline;padding:4px}
+@media (max-width:420px){ .mrow{gap:4px} .mrow .mv button{width:26px} }
 .addm{width:100%;border:1px dashed var(--faint);background:none;border-radius:10px;padding:10px;font-size:15px;color:var(--sub)}
 .num{font-size:18px;font-weight:500;line-height:21px;flex:none}
 .num.su{color:var(--sun)} .num.sa{color:var(--sat)}
@@ -774,8 +780,9 @@ const parseMemo = str => (str||'').split('\n').map(l => l.trim()).filter(Boolean
   const m = l.match(/^(\d{1,2}):(\d{2})\s+(.*)$/);
   return m ? {t: m[1].padStart(2,'0') + ':' + m[2], x: m[3]} : {t: '', x: l};
 });
-const joinMemo = rows => rows.filter(r => r.x.trim())
-  .sort((a, b) => (a.t ? 1 : 0) - (b.t ? 1 : 0) || a.t.localeCompare(b.t))   // 시간 없는 것 먼저, 나머지는 시간 순
+// 기본은 시간 순(시간 없는 것 먼저). manual이면 사용자가 ↑↓로 정한 순서 그대로
+const memoSort = rows => [...rows].sort((a, b) => (a.t ? 1 : 0) - (b.t ? 1 : 0) || a.t.localeCompare(b.t));
+const joinMemo = (rows, manual = false) => (manual ? rows : memoSort(rows)).filter(r => r.x.trim())
   .map(r => (r.t ? r.t + ' ' : '') + r.x.trim()).join('\n');
 // 달력 시간 표시: 펼친 화면은 10:00 / 9:20, 접은 화면은 정각이면 10시 (분 있을 때만 9:20)
 const hhmm = t => { const [h, m] = t.split(':').map(Number); const full = h + ':' + String(m).padStart(2,'0');
@@ -792,7 +799,9 @@ function drawMemos(){
   document.getElementById('dMemos').innerHTML = ed.memos.map((r, i) => `<div class="mrow">
     ${r.t ? timeSel(r.t, i) : `<button class="tbtn" data-addt="${i}">+ 시간</button>`}
     <input class="mx" value="${esc(r.x)}" data-i="${i}" placeholder="${i ? '' : '예) 병원'}" aria-label="메모">
-    <button class="x" data-del="${i}" aria-label="이 줄 지우기">×</button></div>`).join('');
+    ${ed.memos.length > 1 ? `<span class="mv"><button data-up="${i}" aria-label="위로"${i ? '' : ' disabled'}>↑</button><button data-dn="${i}" aria-label="아래로"${i < ed.memos.length - 1 ? '' : ' disabled'}>↓</button></span>` : ''}
+    <button class="x" data-del="${i}" aria-label="이 줄 지우기">×</button></div>`).join('')
+    + (ed.memos.length > 1 ? `<div class="mord">${ed.manual ? '직접 정한 순서로 저장돼요 <button id="mSortT">시간순으로</button>' : '저장하면 시간순으로 정리돼요 · ↑↓로 직접 바꿀 수 있어요'}</div>` : '');
 }
 document.getElementById('dMemos').addEventListener('input', e => {
   const i = e.target.dataset.i; if (i == null) return;
@@ -807,7 +816,12 @@ document.getElementById('dMemos').addEventListener('click', e => {
   const a = e.target.closest('[data-addt]'), c = e.target.closest('[data-clrt]'), b = e.target.closest('[data-del]');
   if (a) { ed.memos[+a.dataset.addt].t = String(new Date().getHours()).padStart(2,'0') + ':00'; drawMemos(); return; }   // 지금 시각의 '시'만 (18:40 → 18시)
   if (c) { ed.memos[+c.dataset.clrt].t = ''; drawMemos(); return; }
-  if (b) { ed.memos.splice(+b.dataset.del, 1); drawMemos(); }
+  if (b) { ed.memos.splice(+b.dataset.del, 1); drawMemos(); return; }
+  const u = e.target.closest('[data-up]'), d = e.target.closest('[data-dn]');
+  if (u || d) { const i = +(u ? u.dataset.up : d.dataset.dn), j = u ? i - 1 : i + 1;
+    if (j < 0 || j >= ed.memos.length) return;
+    [ed.memos[i], ed.memos[j]] = [ed.memos[j], ed.memos[i]]; ed.manual = true; drawMemos(); return; }
+  if (e.target.id === 'mSortT') { ed.memos = memoSort(ed.memos); ed.manual = false; drawMemos(); }
 });
 document.getElementById('dAddMemo').onclick = () => {
   ed.memos.push({t:'', x:''}); drawMemos();
@@ -821,6 +835,7 @@ function openDay(k){
   const [Y,M,D] = k.split('-').map(Number);
   const day = S.days[k] || {};
   ed = {k, Y, M:M-1, D, shift: day.shift || null, leaves: (day.leaves||[]).map(l=>({...l})), memos: parseMemo(day.memo)};
+  ed.manual = joinMemo(ed.memos, true) !== joinMemo(ed.memos);   // 저장된 순서가 시간순과 다르면 직접 정한 순서
   const hol = holOf(Y,M-1,D);
   document.getElementById('dTitle').innerHTML = `${M}월 ${D}일 (${DOW[new Date(Y,M-1,D).getDay()]})` + (hol?` <span class="tag">${esc(hol.name)}</span>`:'');
   drawEd(); drawMemos();
@@ -854,7 +869,7 @@ document.getElementById('dLeaves').onclick = e => {
   if (q){ const l = ed.leaves[+q.dataset.i]; l.n = q.dataset.q === 'day' ? 1 : Math.round(+q.dataset.q * unit * 1000) / 1000; drawEd(); }
 };
 document.getElementById('dSave').onclick = () => {
-  const memo = joinMemo(ed.memos);
+  const memo = joinMemo(ed.memos, ed.manual);
   const leaves = ed.leaves.filter(l => l.n>0);
   if (!memo && !leaves.length && !ed.shift) delete S.days[ed.k];
   else S.days[ed.k] = {memo, leaves, shift: ed.shift};
