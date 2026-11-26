@@ -1409,7 +1409,9 @@ const bkName = () => `교대달력_백업_${key(T.y,T.m,T.d)}.json`;
 const bkBlob = () => new Blob([JSON.stringify(S,null,1)], {type:'application/json'});
 function markBackup(){ S.backupAt = Date.now(); save(false); drawBk(); }
 // 파일 저장: 폴더를 고를 수 있는 기기(PC 크롬·엣지 등)는 저장 창에서 폴더 선택(마지막 폴더 기억), 안 되는 기기는 다운로드 폴더
-const canPick = () => typeof window.showSaveFilePicker === 'function';
+// 폰(안드로이드 크롬 앱)은 폴더 고르는 창은 떠도 실제 쓰기가 실패해 0B 파일만 남음(2026-11-27 확인) → 폰은 다운로드만, 폴더 선택은 PC만
+const isPhone = () => /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+const canPick = () => typeof window.showSaveFilePicker === 'function' && !isPhone();
 // 한 번 누르면 파일 하나만: 폴더를 골랐으면 그 파일로만 저장하고(오류가 나도 다운로드로 또 받지 않음), 고르는 창이 아예 안 되는 기기만 다운로드
 let writing = false;
 async function writeFile(blob, name){
@@ -1441,7 +1443,8 @@ async function shareFile(){
   } else saveFile();
 }
 function drawBk(){
-  const days = S.backupAt ? Math.floor((Date.now()-S.backupAt)/864e5) : null;
+  // 며칠 전: 시간 차가 아니라 날짜로 셈 (어제 밤 백업을 오늘 보면 '1일 전')
+  const days = S.backupAt ? (() => { const b = new Date(S.backupAt); return dn(T.y, T.m, T.d) - dn(b.getFullYear(), b.getMonth(), b.getDate()); })() : null;
   const info = document.getElementById('sBkInfo');
   if (info) info.textContent = S.backupAt ? `마지막 ${new Date(S.backupAt).toLocaleDateString('ko-KR')} (${days ? days + '일 전' : '오늘'})` : '아직 안 했어요';
   const need = !syncedNow() && S.editedAt && (!S.backupAt || S.editedAt > S.backupAt) && (!S.backupAt ? Date.now()-S.editedAt > 864e5 : days >= 7);
