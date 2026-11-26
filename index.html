@@ -872,14 +872,34 @@ function drawEd(){
     `<button class="chip" data-t="${t.id}"><span class="d" style="background:${t.color}"></span>${esc(t.name)}</button>`).join('');
 }
 document.getElementById('dShift').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; ed.shift = b.dataset.s || null; drawEd(); };
+// 이 날 이 휴가를 n일로 하면 그 기간 총 개수를 넘는지 확인하고, 넘으면 한 번 물어봄 (막지는 않음 — 회사에서 더 받는 경우도 있어서)
+function leaveOk(tid, n){
+  const t = typeById(tid); if (!t || t.total == null || !(t.total >= 0)) return true;
+  const per = periodOf(t, ed.k);
+  if ((per.start && ed.k < per.start) || (per.end && ed.k > per.end)) return true;
+  ed.warned = ed.warned || {};
+  if (ed.warned[tid]) return true;   // 이번 편집에서 이미 물어봤으면 다시 묻지 않음
+  const mine = ((S.days[ed.k] || {}).leaves || []).filter(l => l.t === tid).reduce((a, l) => a + l.n, 0);
+  const others = usedOf(t, null, per) - mine, left = t.total - others;
+  if (others + n <= t.total + 1e-9) return true;
+  const c = t.name.charCodeAt(t.name.length - 1), eun = c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 ? '은' : '는';
+  const range = per.start && per.end ? ` (${shortD(per.start)}~${shortD(per.end)})` : '';
+  const msg = left <= 1e-9
+    ? `${t.name}${eun} 이 기간${range} ${fmtDH(t.total)}을 이미 다 잡아 놨어요.\n그래도 넣을까요?`
+    : `${t.name}${eun} 이 기간${range} ${fmtDH(left)} 남았어요.\n${fmtDH(n)}을 넣으면 ${fmtDH(others + n - t.total)} 넘어요. 그래도 넣을까요?`;
+  if (!confirm(msg)) return false;
+  ed.warned[tid] = true; return true;
+}
 document.getElementById('dTypes').onclick = e => { const b = e.target.closest('[data-t]'); if (!b) return;
-  if (!ed.leaves.some(l => l.t===b.dataset.t)) ed.leaves.push({t:b.dataset.t, n:1}); drawEd(); };
+  if (!ed.leaves.some(l => l.t===b.dataset.t) && leaveOk(b.dataset.t, 1)) ed.leaves.push({t:b.dataset.t, n:1}); drawEd(); };
 document.getElementById('dLeaves').onclick = e => {
   const del = e.target.closest('[data-del]'), st = e.target.closest('[data-step]'), q = e.target.closest('[data-q]');
   if (del){ ed.leaves.splice(+del.dataset.del,1); drawEd(); return; }
   const unit = 1 / dayH();   // 1시간 = 하루의 1/8
-  if (st){ const l = ed.leaves[+st.dataset.i]; l.n = Math.max(unit, Math.round((l.n + (+st.dataset.step) * unit) * 1000) / 1000); drawEd(); return; }
-  if (q){ const l = ed.leaves[+q.dataset.i]; l.n = q.dataset.q === 'day' ? 1 : Math.round(+q.dataset.q * unit * 1000) / 1000; drawEd(); }
+  if (st){ const l = ed.leaves[+st.dataset.i], v = Math.max(unit, Math.round((l.n + (+st.dataset.step) * unit) * 1000) / 1000);
+    if (v <= l.n || leaveOk(l.t, v)) l.n = v; drawEd(); return; }
+  if (q){ const l = ed.leaves[+q.dataset.i], v = q.dataset.q === 'day' ? 1 : Math.round(+q.dataset.q * unit * 1000) / 1000;
+    if (v <= l.n || leaveOk(l.t, v)) l.n = v; drawEd(); }
 };
 document.getElementById('dSave').onclick = () => {
   const memo = joinMemo(ed.memos, ed.manual);
