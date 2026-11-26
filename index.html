@@ -408,6 +408,9 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 :is(#setPage,.pop) .abrow{padding:8px 0}
 :is(#setPage,.pop) .abrow button{border:0;background:var(--soft);font-weight:600}
 .sheet.pop{z-index:30}
+.abmore{display:none} .abmore.open{display:block}
+.abmore .abrow:first-child{border-top:1px solid var(--line);padding-top:8px}
+.abtog{width:100%;border:0;background:none;color:var(--sub);font:inherit;font-size:13.5px;padding:8px 0 2px;text-align:center;cursor:pointer}
 .pop .panel .box{background:var(--bg);padding:0;box-shadow:none;margin:8px 0 0}
 .pop .panel .box.list{padding:0}
 :is(#setPage) .sw.go{width:100%;border:0;background:none;text-align:left;font:inherit;color:var(--ink);cursor:pointer;gap:10px}
@@ -1472,17 +1475,24 @@ function autoBackup(){
   if (!o[today] && S.days && Object.keys(S.days).length) o[today] = {at: Date.now(), text: JSON.stringify(S)};
   autoPut(o);
 }
+let autoOpen = false;
 function drawAuto(){
   const el = document.getElementById('sAuto'); if (!el) return;
   const o = autoGet(), ks = Object.keys(o).sort().reverse();
-  el.innerHTML = ks.length ? ks.map(k => { const [y, m, d] = k.split('-').map(Number), at = new Date(o[k].at);
+  // 최근 3개만 보이고, 나머지는 '이전 N개 더 보기'로 펼침 (보관은 14일 그대로)
+  const row = k => { const [y, m, d] = k.split('-').map(Number), at = new Date(o[k].at);
     return `<div class="abrow"><span class="abd">${m}/${d} <i>${DOW[new Date(y, m-1, d).getDay()]}</i></span><span class="abt">${pad(at.getHours())}:${pad(at.getMinutes())}</span>
-      <button data-ab="${k}">되돌리기</button><button data-abf="${k}">저장</button></div>`; }).join('')
+      <button data-ab="${k}">되돌리기</button><button data-abf="${k}">저장</button></div>`; };
+  const more = ks.length - 3;
+  el.innerHTML = ks.length ? ks.slice(0, 3).map(row).join('')
+      + (more > 0 ? `<div class="abmore${autoOpen ? ' open' : ''}">${ks.slice(3).map(row).join('')}</div>
+        <button class="abtog" data-abtog="1">${autoOpen ? '접기 ‹' : `이전 ${more}개 더 보기 ›`}</button>` : '')
     : '<div class="small">오늘 것부터 하루 1개씩 쌓여요</div>';
   const n = document.getElementById('sPickNote');
   if (n) n.textContent = canPick() ? '파일로 저장: 저장할 폴더를 고를 수 있어요 (마지막 폴더 기억)' : '파일로 저장: 이 기기는 다운로드 폴더에 저장돼요 (내 파일 앱에서 옮길 수 있어요)';
 }
 document.getElementById('sAuto').addEventListener('click', e => {
+  if (e.target.closest('[data-abtog]')) { autoOpen = !autoOpen; drawAuto(); return; }
   const r = e.target.closest('[data-ab]'), f = e.target.closest('[data-abf]'), o = autoGet();
   if (r){ const k = r.dataset.ab; let d; try { d = JSON.parse(o[k].text); } catch(err) { return alert('이 백업을 읽을 수 없어요.'); }
     const [, m, dd] = k.split('-').map(Number);
