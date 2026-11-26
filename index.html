@@ -328,6 +328,7 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .hin ~ .anic{margin-left:4px}
 /* 접은 화면: 휴일에 아이콘(디데이·운동)이 있으면 휴일 이름은 숨김 (분홍 띠·빨간 날짜로 휴일 표시, 이름은 편집 창 제목에) */
 .grid.short .cell.hd .top:has(.anic) .hin{display:none}
+.grid.short .cell.hd .top:has(.anic) .anic{margin-left:auto}   /* 이름 숨긴 뒤에도 아이콘은 오른쪽 끝 */
 .cell .ml.an i{display:none}
 /* 접은 화면: 이름은 작게 */
 @media (max-width:420px){
@@ -896,7 +897,9 @@ function renderMy(){
       ${hol?`<div class="hn">${holNm(hol.name)}</div>`:''}
       ${six?'':`<div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>`}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
-        if (isCnt(t)){ const per = periodOf(t, k), nth = Math.round(usedOf(t, k, per));
+        if (isCnt(t)){ const per = periodOf(t, k), inPer = !(per.start && k < per.start) && !(per.end && k > per.end);
+          // 기간 안이면 그 기간에서 몇 번째, 기간 밖(시작 전·만료 뒤)이면 기간 상관없이 그날까지 몇 번째 (0회차 방지)
+          const nth = Math.max(1, Math.round(inPer ? usedOf(t, k, per) : usedOf(t, k, {start: '', end: ''})));
           const tm = ctmGet(day)[t.id];
           return `<div class="lv cnt" style="color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)}<span class="cw"> </span>${nth}<span class="cw">회차</span>${tm ? ' ' + ctmTxt(tm) : ''}</div>`; }
         return `<div class="lv" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)} ${fmtDH(l.n)}</div>`; }).join('')}
@@ -1022,6 +1025,15 @@ function leaveOk(tid, n){
 }
 document.getElementById('dTypes').onclick = e => { if (e.target.closest('[data-ex]')) { ed.ex = !ed.ex; drawEd(); return; }
   const b = e.target.closest('[data-t]'); if (!b) return;
+  // 횟수권(PT 등)은 설정한 기간(시작일~만료일) 밖 날짜에는 못 넣음
+  const ct = typeById(b.dataset.t);
+  if (isCnt(ct) && !ed.leaves.some(l => l.t === ct.id)){
+    const per = periodOf(ct, ed.k);
+    if ((per.start && ed.k < per.start) || (per.end && ed.k > per.end)){
+      alert(`${ct.name} 기간(${shortD(per.start) || '처음'} ~ ${shortD(per.end) || '끝'}) 밖의 날짜예요.\n기간을 바꾸려면 설정 → 휴가 종류에서 ${ct.name} 날짜를 고쳐 주세요.`);
+      return;
+    }
+  }
   if (!ed.leaves.some(l => l.t===b.dataset.t) && leaveOk(b.dataset.t, 1)) ed.leaves.push({t:b.dataset.t, n:1}); drawEd(); };
 document.getElementById('dLeaves').addEventListener('change', e => {
   const h = e.target.closest('[data-cth]'), m = e.target.closest('[data-ctmm]'); if (!h && !m) return;
