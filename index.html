@@ -359,6 +359,60 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .grid.short .cell .ml,.grid.short .cell .lv{margin-top:1px}
 .grid.short .cell .ml{display:block;-webkit-line-clamp:unset;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.7px;padding:0 1px}
 .grid.short .tw{display:none} .grid.short .tn{display:inline}
+/* ── 설정 화면 리비전: 한 가지 카드·줄·입력 모양으로 통일 ── */
+:is(#setPage,.pop) .in{padding-bottom:56px}
+:is(#setPage,.pop) .phead h2{font-size:22px}
+:is(#setPage,.pop) h3.sec{font-size:13.5px;font-weight:600;color:var(--sub);margin:22px 6px 8px;letter-spacing:.2px}
+:is(#setPage,.pop) .box{margin-top:0;margin-bottom:10px;border-radius:18px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:is(#setPage,.pop) .box.list{padding:4px 14px}
+:is(#setPage,.pop) .sw{padding:12px 0;font-size:16px;margin:0}
+:is(#setPage,.pop) .box.list .sw + .sw{border-top:1px solid var(--line)}
+:is(#setPage,.pop) .sw small{font-size:12.5px;margin-top:2px}
+:is(#setPage,.pop) .note{font-size:12.5px;color:var(--sub);line-height:1.55;margin-top:10px}
+:is(#setPage,.pop) .box.list .note{margin:0 0 12px}
+:is(#setPage,.pop) .unit{display:flex;align-items:center;gap:6px;color:var(--sub);font-size:14px;white-space:nowrap}
+:is(#setPage,.pop) .nin{width:72px;height:40px;font-size:17px;border:0;border-radius:10px;background:var(--soft);text-align:center;font-family:inherit;color:var(--ink)}
+:is(#setPage,.pop) .seg button{border:0;background:var(--soft);border-radius:12px;padding:11px 0;font-size:17px;color:var(--ink)}
+:is(#setPage,.pop) .seg button.on{background:var(--ink);color:#fff}
+:is(#setPage,.pop) .pals button{border-radius:12px}
+:is(#setPage,.pop) .row2 button,:is(#setPage,.pop) .row2 label{border:0;background:var(--soft);border-radius:12px;padding:12px 0;font-size:15.5px;font-weight:600;color:var(--ink)}
+:is(#setPage,.pop) .cfield{border:0;background:var(--soft);border-radius:12px;font-size:16px}
+:is(#setPage,.pop) .add{border:0;background:var(--soft);border-radius:12px;padding:12px;font-size:15.5px;font-weight:600;color:var(--sub)}
+/* 휴가 종류 카드 */
+:is(#setPage,.pop) .box.plain{background:none;padding:0;box-shadow:none}
+:is(#setPage,.pop) .box.plain .note{margin:8px 6px 0}
+:is(#setPage,.pop) .box.plain .add{background:var(--bg);box-shadow:0 1px 3px rgba(0,0,0,.04);border-radius:18px;padding:14px}
+:is(#setPage,.pop) .lt{border:0;background:var(--bg);border-radius:18px;padding:14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:is(#setPage,.pop) .lt input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+:is(#setPage,.pop) .lt input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
+:is(#setPage,.pop) .lt input[type=color]{width:36px;height:36px;border-radius:50%;overflow:hidden}
+:is(#setPage,.pop) .lt .name,:is(#setPage,.pop) .lt .rsel,:is(#setPage,.pop) .lt input[type=date],:is(#setPage,.pop) .lt .tot{border:0;background:var(--soft);border-radius:10px;height:38px}
+:is(#setPage,.pop) .lt .name{font-size:16.5px;font-weight:600;padding:0 10px}
+:is(#setPage,.pop) .lt .rsel{font-size:14.5px;padding:0 8px}
+:is(#setPage,.pop) .lt .r2,:is(#setPage,.pop) .lt .r3{margin-top:8px}
+:is(#setPage,.pop) .lt .r3{font-size:14.5px}
+:is(#setPage,.pop) .lt .tot{font-size:16px;padding:0}
+:is(#setPage,.pop) .lt .r4{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:13.5px}
+:is(#setPage,.pop) .lt .r4 .mv{border:0;background:var(--soft);width:32px;height:30px;border-radius:8px}
+:is(#setPage,.pop) .lt .r4 .bl{font-size:13.5px;color:var(--ink)}
+:is(#setPage,.pop) .lt .r4 .bl input{width:18px;height:18px;accent-color:var(--ink)}
+:is(#setPage,.pop) .lt .del{font-size:13.5px;padding:6px 2px}
+/* 자동 저장 */
+:is(#setPage,.pop) .sw.st{padding:0 0 12px} :is(#setPage,.pop) .sw.st b{font-size:15px}
+:is(#setPage,.pop) details.hd2{margin-top:12px}
+:is(#setPage,.pop) details.hd2 summary{font-size:13.5px;color:var(--sub);cursor:pointer;padding:4px 0}
+/* 백업 */
+:is(#setPage,.pop) .bkh{margin-bottom:6px} :is(#setPage,.pop) .bkh b{font-size:15.5px}
+:is(#setPage,.pop) .hr{height:1px;background:var(--line);margin:12px 0}
+:is(#setPage,.pop) .abrow{padding:8px 0}
+:is(#setPage,.pop) .abrow button{border:0;background:var(--soft);font-weight:600}
+.sheet.pop{z-index:30}
+.pop .panel .box{background:var(--bg);padding:0;box-shadow:none;margin:8px 0 0}
+.pop .panel .box.list{padding:0}
+:is(#setPage) .sw.go{width:100%;border:0;background:none;text-align:left;font:inherit;color:var(--ink);cursor:pointer;gap:10px}
+:is(#setPage) .sw.go > span:first-child{flex:1}
+:is(#setPage) .sw.go .chev{font-style:normal;color:var(--faint);font-size:22px;line-height:1}
+.cprev{display:flex;gap:3px} .cprev i{width:16px;height:16px;border-radius:5px;display:block}
 </style>
 </head>
 <body>
@@ -423,30 +477,56 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 </div></div>
 <div class="page" id="setPage"><div class="in">
   <div class="phead"><button class="icon" id="sBack" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>설정</h2></div>
-  <div class="box"><h3>내 조</h3><div class="seg" id="sTeam"></div></div>
-  <div class="box"><h3>근무 색</h3>
-    <div class="pals" id="sPal"></div>
-    <div class="pcols" id="sCols"></div>
-    <div class="small" style="margin-top:8px">고르거나 아래에서 직접 바꿔요</div></div>
-  <div class="box"><h3>휴가 종류·갯수</h3>
-    <label class="sw" style="margin-bottom:12px"><span>새 연도 달은 오늘 기준<small>12월엔 오늘 날짜로 올해·내년 잔여</small></span><input type="checkbox" class="tog" id="sRoll"></label>
-    <label class="sw" style="margin-bottom:12px"><span>하루 근무시간<small>1시간 휴가 계산 기준</small></span><input type="number" id="sDayH" min="1" max="24" step="1" style="width:70px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center"></label>
+
+  <h3 class="sec">내 조</h3>
+  <div class="box"><div class="seg" id="sTeam"></div></div>
+
+  <h3 class="sec">휴가 종류</h3>
+  <div class="box plain">
     <div id="sTypes"></div><button class="add" id="sAdd">+ 휴가 종류 추가</button>
-    <div class="small" style="margin-top:8px">갯수를 비우면 표시만 · 아래 표시는 최대 5개 · 반복: 매년·반기마다 다시 셈</div></div>
-  <div class="box"><h3>운동</h3>
-    <label class="sw" style="margin-bottom:12px"><span>운동 횟수 표시<small>휴가 현황 옆에 이번 달 횟수</small></span><input type="checkbox" class="tog" id="sExOn"></label>
-    <label class="sw"><span>올해 목표<small>비우면 목표 없이 횟수만</small></span><span><input type="number" id="sExGoal" min="0" step="1" inputmode="numeric" placeholder="-" style="width:80px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center"> 회</span></label>
-    <div class="small" style="margin-top:8px">날짜를 눌러 '운동함'을 켜면 세요</div></div>
-  <div class="box"><h3>자동 저장 (GitHub)</h3>
-    <div id="scBox"></div>
+    <div class="note">갯수를 비우면 표시만 · 아래 표시는 최대 5개 · 반복: 매년·반기마다 다시 셈</div></div>
+
+  <h3 class="sec">운동</h3>
+  <div class="box list">
+    <label class="sw"><span>운동 횟수 표시<small>휴가 현황 옆에 이번 달 횟수</small></span><input type="checkbox" class="tog" id="sExOn"></label>
+    <label class="sw"><span>올해 목표<small>비우면 목표 없이 횟수만</small></span><span class="unit"><input type="number" class="nin" id="sExGoal" min="0" step="1" inputmode="numeric" placeholder="-">회</span></label>
+    <div class="note">날짜를 눌러 '운동함'을 켜면 세요</div></div>
+
+  <h3 class="sec">자동 저장 (GitHub)</h3>
+  <div class="box"><div id="scBox"></div></div>
+
+  <h3 class="sec">백업</h3>
+  <div class="box">
+    <div class="bkh"><b>자동 백업</b><span>앱을 연 날 하루 1개 · 14일 보관</span></div>
+    <div id="sAuto"></div>
+    <div class="hr"></div>
+    <div class="bkh"><b>직접 백업</b><span id="sBkInfo"></span></div>
+    <div class="row2"><button id="sExport">파일로 저장</button><label>불러오기<input type="file" id="sImport" accept=".json,application/json" hidden></label></div>
+    <div class="note" id="sPickNote"></div>
+    <div class="note">폰을 바꿀 땐 자동 저장(GitHub)으로 그대로 옮겨져요</div></div>
+
+  <h3 class="sec">기타</h3>
+  <div class="box list">
+    <button class="sw go" id="sOpenBasis"><span>휴가 계산 기준<small id="sBasisSum"></small></span><i class="chev">›</i></button>
+    <button class="sw go" id="sOpenColor"><span>근무 색<small id="sColName"></small></span><span class="cprev" id="sColPrev"></span><i class="chev">›</i></button>
   </div>
-  <div class="box"><h3>백업</h3>
-    <div class="bkc"><div class="bkh"><b>자동 백업</b><span>앱을 연 날 하루 1개 · 14일 보관</span></div>
-      <div id="sAuto"></div></div>
-    <div class="bkc"><div class="bkh"><b>직접 백업</b><span id="sBkInfo"></span></div>
-      <div class="row2"><button id="sExport">파일로 저장</button><label>불러오기<input type="file" id="sImport" accept=".json,application/json" hidden></label></div>
-      <div class="small" id="sPickNote" style="margin-top:6px"></div></div>
-    <div class="small">폰을 바꿀 땐 자동 저장(GitHub)으로 그대로 옮겨져요</div></div>
+</div></div>
+
+<div class="sheet pop" id="basisSheet"><div class="panel">
+  <h2>휴가 계산 기준</h2>
+  <div class="box list">
+    <label class="sw"><span>새 연도 달은 오늘 기준<small>12월엔 오늘 날짜로 올해·내년 잔여</small></span><input type="checkbox" class="tog" id="sRoll"></label>
+    <label class="sw"><span>하루 근무시간<small>1시간 휴가 계산 기준</small></span><span class="unit"><input type="number" class="nin" id="sDayH" min="1" max="24" step="1">시간</span></label>
+  </div>
+  <div class="btns"><button class="pri" data-done>완료</button></div>
+</div></div>
+<div class="sheet pop" id="colorSheet"><div class="panel">
+  <h2>근무 색</h2>
+  <div class="pals" id="sPal"></div>
+  <div class="pcols" id="sCols"></div>
+  <div class="note">고르거나 색을 눌러 직접 바꿔요</div>
+  <div class="btns"><button class="pri" data-done>완료</button></div>
+</div></div>
 </div></div>
 
 <script>
@@ -1071,7 +1151,7 @@ function closeSheets(){ document.querySelectorAll('.sheet').forEach(s => s.class
 document.querySelectorAll('.sheet').forEach(s => s.addEventListener('click', e => { if (e.target===s) closeSheets(); }));
 
 // ───── 설정 ─────
-function openSet(){ drawSet(); drawBk(); drawSc(); drawAuto(); document.getElementById('setPage').classList.add('show'); }
+function openSet(){ drawEtc(); drawSet(); drawBk(); drawSc(); drawAuto(); document.getElementById('setPage').classList.add('show'); }
 function drawSet(){
   document.getElementById('sTeam').innerHTML = [1,2,3,4].map(t => `<button class="${S.team===t?'on':''}" data-t="${t}">${t}조</button>`).join('');
   drawColors();
@@ -1263,10 +1343,21 @@ document.getElementById('sCols').addEventListener('input', e => { const k = e.ta
   S['col'+k] = e.target.value; applyColors(); });
 document.getElementById('sCols').addEventListener('change', e => { if (e.target.dataset.k) { save(); drawColors(); } });
 
-document.getElementById('sRoll').onchange = e => { S.rollToday = e.target.checked; save(); };
+document.getElementById('sRoll').onchange = e => { S.rollToday = e.target.checked; save(); drawEtc(); };
+// 기타: 휴가 계산 기준·근무 색 요약과 팝업
+function drawEtc(){
+  const b = document.getElementById('sBasisSum'); if (b) b.textContent = `새 연도 달 ${S.rollToday !== false ? '오늘 기준' : '월말 기준'} · 하루 ${dayH()}시간`;
+  const cur = ['A','B','C','R'].map(shiftCol), pi = PALETTES.findIndex(p => Object.values(p.c).join() === cur.join());
+  const n = document.getElementById('sColName'); if (n) n.textContent = pi >= 0 ? PALETTES[pi].name : '직접 고른 색';
+  const pv = document.getElementById('sColPrev'); if (pv) pv.innerHTML = cur.map(c => `<i style="background:${c}"></i>`).join('');
+}
+document.getElementById('sOpenBasis').onclick = () => document.getElementById('basisSheet').classList.add('show');
+document.getElementById('sOpenColor').onclick = () => { drawColors(); document.getElementById('colorSheet').classList.add('show'); };
+document.querySelectorAll('.pop [data-done]').forEach(b => b.onclick = () => { b.closest('.sheet').classList.remove('show'); drawEtc(); });
+document.querySelectorAll('.sheet.pop').forEach(sh => sh.addEventListener('click', e => { if (e.target === sh) drawEtc(); }));
 document.getElementById('sExOn').onchange = e => { S.exOn = e.target.checked; save(); };
 document.getElementById('sExGoal').onchange = e => { const v = Math.round(+e.target.value); if (v > 0) S.exGoal = v; else { delete S.exGoal; e.target.value = ''; } save(); };
-document.getElementById('sDayH').onchange = e => { const v = +e.target.value; if (v >= 1 && v <= 24){ S.dayH = v; save(); } else e.target.value = dayH(); };
+document.getElementById('sDayH').onchange = e => { const v = +e.target.value; if (v >= 1 && v <= 24){ S.dayH = v; save(); drawSet(); } else e.target.value = dayH(); drawEtc(); };
 document.getElementById('sTypes').addEventListener('input', e => {
   const f = e.target.dataset.f; if (!f) return;
   const t = S.types[+e.target.closest('.lt').dataset.i];
@@ -1529,7 +1620,7 @@ async function scConnect(code){
 async function drawSc(){
   const box = document.getElementById('scBox'); if (!box) return;
   if (!scAuth()) {
-    box.innerHTML = `<div class="small" style="margin-bottom:10px">연결 코드를 넣으면 바꿀 때마다 GitHub에 자동 저장돼요. 폰을 바꿔도 같은 코드로 돌아와요.</div>
+    box.innerHTML = `<div class="note" style="margin:0 0 10px">연결 코드를 넣으면 바꿀 때마다 GitHub에 자동 저장돼요. 폰을 바꿔도 같은 코드로 돌아와요.</div>
       <input class="cfield" id="scCode" type="password" autocomplete="off" placeholder="연결 코드 (8글자 이상)">
       <div class="row2"><button id="scGo">연결</button></div>`;
     document.getElementById('scGo').onclick = () => {
@@ -1540,11 +1631,12 @@ async function drawSc(){
     return;
   }
   const h = hex(await sha256b(scAuth()));
-  box.innerHTML = `<div class="sw" style="margin-bottom:10px"><span>상태</span><b id="scState" style="font-size:15px">${esc(sc.full || '확인 중')}</b></div>
+  box.innerHTML = `<div class="sw st"><span>상태</span><b id="scState">${esc(sc.full || '확인 중')}</b></div>
     <div class="row2"><button id="scNow">지금 저장</button><button id="scOff">연결 끊기</button></div>
-    <div class="small" style="margin-top:10px">처음 한 번: 아래 확인값을 Cloudflare Worker 비밀값 <b>SC_SYNC_HASH</b>에 넣어 주세요.</div>
-    <div class="hashbox" id="scHash">${h}</div>
-    <div class="row2" style="margin-top:8px"><button id="scCopy">확인값 복사</button></div>`;
+    <details class="hd2"><summary>Cloudflare 설정용 확인값</summary>
+      <div class="note">처음 한 번: 아래 확인값을 Cloudflare Worker 비밀값 <b>SC_SYNC_HASH</b>에 넣어 주세요.</div>
+      <div class="hashbox" id="scHash">${h}</div>
+      <div class="row2" style="margin-top:8px"><button id="scCopy">확인값 복사</button></div></details>`;
   document.getElementById('scNow').onclick = () => scPush();
   document.getElementById('scOff').onclick = () => {
     if (!confirm('이 폰의 자동 저장 연결을 끊을까요? (GitHub에 저장된 내용은 그대로 남아요)')) return;
