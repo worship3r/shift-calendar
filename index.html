@@ -1410,16 +1410,27 @@ const bkBlob = () => new Blob([JSON.stringify(S,null,1)], {type:'application/jso
 function markBackup(){ S.backupAt = Date.now(); save(false); drawBk(); }
 // 파일 저장: 폴더를 고를 수 있는 기기(PC 크롬·엣지 등)는 저장 창에서 폴더 선택(마지막 폴더 기억), 안 되는 기기는 다운로드 폴더
 const canPick = () => typeof window.showSaveFilePicker === 'function';
+// 한 번 누르면 파일 하나만: 폴더를 골랐으면 그 파일로만 저장하고(오류가 나도 다운로드로 또 받지 않음), 고르는 창이 아예 안 되는 기기만 다운로드
+let writing = false;
 async function writeFile(blob, name){
-  if (canPick()){
-    try {
-      const h = await showSaveFilePicker({suggestedName: name, id: 'scbackup', startIn: 'documents',
-        types: [{description: '교대달력 백업', accept: {'application/json': ['.json']}}]});
-      const w = await h.createWritable(); await w.write(blob); await w.close(); return true;
-    } catch(e){ if (e && e.name === 'AbortError') return false; }   // 취소면 그만, 다른 오류면 다운로드로
-  }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = name; a.click(); return true;
+  if (writing) return false; writing = true;
+  try {
+    if (canPick()){
+      let h = null;
+      try {
+        h = await showSaveFilePicker({suggestedName: name, id: 'scbackup', startIn: 'documents',
+          types: [{description: '교대달력 백업', accept: {'application/json': ['.json']}}]});
+      } catch(e){ if (e && e.name === 'AbortError') return false; }   // 취소면 그만, 창이 안 열리면 아래 다운로드로
+      if (h){
+        try { const w = await h.createWritable(); await w.write(blob); await w.close(); return true; }
+        catch(e){ alert('고른 폴더에 저장하지 못했어요. 다시 시도하거나 다른 폴더를 골라 주세요.'); return false; }
+      }
+    }
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    return true;
+  } finally { setTimeout(() => { writing = false; }, 800); }
 }
 async function saveFile(){ if (await writeFile(bkBlob(), bkName())) markBackup(); }
 async function shareFile(){
