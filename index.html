@@ -84,6 +84,10 @@ body.round .stag.A{background:var(--A)} body.round .stag.B{background:var(--B)} 
 .tsel .tx{border:0;background:none;color:var(--sub);font-size:16px;width:24px;height:30px}
 .mrow .mx{flex:1;min-width:0;font-size:17px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--soft);font-family:inherit;color:var(--ink)}
 .mrow .x{background:var(--soft)}
+.abh{font-size:15px;margin:14px 0 6px} .abh small{font-weight:400;color:var(--sub);font-size:12.5px;margin-left:4px}
+.abrow{display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid var(--line)}
+.abrow .abd{flex:1;font-size:15px} .abrow .abd small{display:block;font-size:12px;color:var(--sub)}
+.abrow button{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:6px 10px;font:inherit;font-size:13.5px;color:var(--ink)}
 .lv.cnt{background:#fff!important;border:1px solid var(--ac);box-shadow:none}
 .lsum .hd .cti{display:flex;gap:4px;margin:0 8px 0 auto;align-items:center;flex:none;align-self:center}
 .lsum .hd .cti .ct{padding:2px 8px;font-size:12.5px;border-radius:9px}
@@ -313,6 +317,8 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .anic{display:inline-flex;gap:1px;margin-left:auto;align-items:center}
 .anic .dsv{width:18px;height:18px;stroke-width:2}
 .hin ~ .anic{margin-left:4px}
+/* 접은 화면: 휴일에 아이콘(디데이·운동)이 있으면 휴일 이름은 숨김 (분홍 띠·빨간 날짜로 휴일 표시, 이름은 편집 창 제목에) */
+.grid.short .cell.hd .top:has(.anic) .hin{display:none}
 .cell .ml.an i{display:none}
 /* 접은 화면: 이름은 작게 */
 @media (max-width:420px){
@@ -427,9 +433,11 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
   </div>
   <div class="box"><h3>백업</h3>
     <div class="small" id="sBkInfo" style="margin-bottom:8px"></div>
-    <div class="row2"><button id="sShare">카톡·드라이브로 보내기</button></div>
-    <div class="row2" style="margin-top:8px"><button id="sExport">파일로 저장</button><label>불러오기<input type="file" id="sImport" accept=".json,application/json" hidden></label></div>
-    <div class="small" style="margin-top:8px">폰을 바꾸기 전 파일을 카톡·드라이브에 보내두세요</div></div>
+    <div class="row2"><button id="sExport">파일로 저장</button><label>불러오기<input type="file" id="sImport" accept=".json,application/json" hidden></label></div>
+    <div class="small" id="sPickNote" style="margin-top:6px"></div>
+    <h4 class="abh">자동 백업 <small>앱을 연 날마다 · 최근 14일</small></h4>
+    <div id="sAuto"></div>
+    <div class="small" style="margin-top:8px">자동 백업은 이 폰 안에만 있어요 · 폰을 바꿀 땐 자동 저장(GitHub)이나 파일로 저장</div></div>
 </div></div>
 
 <script>
@@ -1034,7 +1042,7 @@ function closeSheets(){ document.querySelectorAll('.sheet').forEach(s => s.class
 document.querySelectorAll('.sheet').forEach(s => s.addEventListener('click', e => { if (e.target===s) closeSheets(); }));
 
 // ───── 설정 ─────
-function openSet(){ drawSet(); drawBk(); drawSc(); document.getElementById('setPage').classList.add('show'); }
+function openSet(){ drawSet(); drawBk(); drawSc(); drawAuto(); document.getElementById('setPage').classList.add('show'); }
 function drawSet(){
   document.getElementById('sTeam').innerHTML = [1,2,3,4].map(t => `<button class="${S.team===t?'on':''}" data-t="${t}">${t}조</button>`).join('');
   drawColors();
@@ -1259,11 +1267,20 @@ document.getElementById('sAdd').onclick = () => {
 const bkName = () => `교대달력_백업_${key(T.y,T.m,T.d)}.json`;
 const bkBlob = () => new Blob([JSON.stringify(S,null,1)], {type:'application/json'});
 function markBackup(){ S.backupAt = Date.now(); save(false); drawBk(); }
-function saveFile(){
+// 파일 저장: 폴더를 고를 수 있는 기기(PC 크롬·엣지 등)는 저장 창에서 폴더 선택(마지막 폴더 기억), 안 되는 기기는 다운로드 폴더
+const canPick = () => typeof window.showSaveFilePicker === 'function';
+async function writeFile(blob, name){
+  if (canPick()){
+    try {
+      const h = await showSaveFilePicker({suggestedName: name, id: 'scbackup', startIn: 'documents',
+        types: [{description: '교대달력 백업', accept: {'application/json': ['.json']}}]});
+      const w = await h.createWritable(); await w.write(blob); await w.close(); return true;
+    } catch(e){ if (e && e.name === 'AbortError') return false; }   // 취소면 그만, 다른 오류면 다운로드로
+  }
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(bkBlob()); a.download = bkName(); a.click();
-  markBackup();
+  a.href = URL.createObjectURL(blob); a.download = name; a.click(); return true;
 }
+async function saveFile(){ if (await writeFile(bkBlob(), bkName())) markBackup(); }
 async function shareFile(){
   const file = new File([bkBlob()], bkName(), {type:'application/json'});
   if (navigator.canShare && navigator.canShare({files:[file]})){
@@ -1280,8 +1297,44 @@ function drawBk(){
   document.getElementById('bkBar').classList.toggle('show', !!need);
 }
 document.getElementById('sExport').onclick = saveFile;
-document.getElementById('sShare').onclick = shareFile;
-document.getElementById('bkGo').onclick = shareFile;
+document.getElementById('bkGo').onclick = saveFile;
+
+// ───── 자동 백업: 앱을 연 날마다 그날 처음 상태를 이 폰 안(localStorage 'shiftcal-auto')에 하루 1개, 14일 지나면 자동 삭제
+// S 안에 넣지 않아서 GitHub 자동 저장에는 안 올라감
+const AUTO_KEY = 'shiftcal-auto', AUTO_DAYS = 14;
+function autoGet(){ try { const o = JSON.parse(localStorage.getItem(AUTO_KEY) || '{}'); return o && typeof o === 'object' ? o : {}; } catch(e) { return {}; } }
+function autoPut(o){
+  // 저장공간이 모자라면 오래된 것부터 지우고 다시
+  const ks = Object.keys(o).sort();
+  while (true){
+    try { localStorage.setItem(AUTO_KEY, JSON.stringify(o)); return; }
+    catch(e){ if (ks.length <= 1) return; delete o[ks.shift()]; }
+  }
+}
+function autoBackup(){
+  const today = key(T.y, T.m, T.d), cut = key(T.y, T.m, T.d - AUTO_DAYS + 1), o = autoGet();
+  for (const k of Object.keys(o)) if (k < cut) delete o[k];   // 14일 지난 것 삭제
+  if (!o[today] && S.days && Object.keys(S.days).length) o[today] = {at: Date.now(), text: JSON.stringify(S)};
+  autoPut(o);
+}
+function drawAuto(){
+  const el = document.getElementById('sAuto'); if (!el) return;
+  const o = autoGet(), ks = Object.keys(o).sort().reverse();
+  el.innerHTML = ks.length ? ks.map(k => { const [y, m, d] = k.split('-').map(Number), kb = Math.max(1, Math.round((o[k].text || '').length / 1024));
+    return `<div class="abrow"><span class="abd">${m}/${d} (${DOW[new Date(y, m-1, d).getDay()]})<small>${new Date(o[k].at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'})} · ${kb}KB</small></span>
+      <button data-ab="${k}">되돌리기</button><button data-abf="${k}">파일</button></div>`; }).join('')
+    : '<div class="small">오늘 것부터 하루 1개씩 쌓여요</div>';
+  const n = document.getElementById('sPickNote');
+  if (n) n.textContent = canPick() ? '파일로 저장: 저장할 폴더를 고를 수 있어요 (마지막 폴더 기억)' : '파일로 저장: 이 기기는 다운로드 폴더에 저장돼요 (내 파일 앱에서 옮길 수 있어요)';
+}
+document.getElementById('sAuto').addEventListener('click', e => {
+  const r = e.target.closest('[data-ab]'), f = e.target.closest('[data-abf]'), o = autoGet();
+  if (r){ const k = r.dataset.ab; let d; try { d = JSON.parse(o[k].text); } catch(err) { return alert('이 백업을 읽을 수 없어요.'); }
+    const [, m, dd] = k.split('-').map(Number);
+    if (!confirm(`${m}/${dd} 아침 상태로 되돌릴까요?\n그 뒤에 쓴 메모·휴가는 없어져요. (지금 상태는 파일로 먼저 저장해 두면 안전해요)`)) return;
+    S = d; save(true); applyShape(); render(); drawSet(); drawBk(); drawAuto(); alert('되돌렸어요.'); }
+  if (f){ const k = f.dataset.abf; writeFile(new Blob([o[k].text], {type:'application/json'}), `교대달력_자동백업_${k}.json`); }
+});
 document.getElementById('sImport').onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
   try { const d = JSON.parse(await f.text()); if (!d.types || !d.days) throw 0;
@@ -1339,7 +1392,9 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState!=='visible') return;
   if (typeof scPull === 'function') scPull();
   const n = new Date(); if (n.getDate()!==T.d){ T={y:n.getFullYear(), m:n.getMonth(), d:n.getDate()}; render(); }
+  autoBackup();   // 날이 바뀐 뒤 다시 열면 그날 자동 백업
 });
+setTimeout(autoBackup, 1500);   // 앱을 연 날 자동 백업 (하루 1개, 14일 지난 것 삭제)
 
 // ───── 자동 저장 (GitHub 비공개 저장소, Cloudflare Worker가 대신 저장) ─────
 // 페이지에는 GitHub 토큰이 없습니다. 연결 코드로 만든 값(sc-auth)만 폰에 두고, Worker가 확인한 뒤 저장합니다.
