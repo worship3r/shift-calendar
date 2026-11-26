@@ -62,6 +62,10 @@ body.round .sb{width:22px;margin:1px auto 2px;border-radius:50%;box-shadow:none;
 body.round .sb.A{background:var(--A)} body.round .sb.B{background:var(--B)} body.round .sb.C{background:var(--C)} body.round .sb.R{background:var(--R)}
 .hin{font-size:12px;line-height:14px;color:var(--sun);font-weight:600;min-width:0;margin-left:auto;text-align:right;word-break:keep-all}
 .cell.hd .top,.cell.hd .hn{background:#fae3e3}
+.hs{display:none}
+.grid.short .hf{display:none} .grid.short .hs{display:inline}
+.grid.short .hin{white-space:normal;overflow:visible;line-height:13px;overflow-wrap:anywhere}
+.grid.short .cell .top{padding-left:3px;padding-right:3px;gap:2px}
 @media (max-width:420px){ .hin{display:none} }
 @media (min-width:421px){ .hn{display:none} }
 .hn{font-size:10px;line-height:12px;color:var(--sun);padding:0 4px 2px;font-weight:600;word-break:keep-all;overflow-wrap:anywhere}
@@ -501,6 +505,13 @@ const LUNAR = { // 설날, 추석, 부처님오신날 (양력) — 정부 발표
   2030:{s:'02-03',c:'09-12',b:'05-09'}
 };
 // 선거일 (공직선거법: 국회 임기만료 50일 전 이후 첫 수요일, 지방 30일 전 이후 첫 수요일, 대선 70일 전 이후 첫 수요일)
+// 접은 화면(칸 폭 95px 미만)에서만 쓰는 짧은 공휴일 이름. 날짜 계산과 데이터는 그대로이고 칸에 보이는 글자만 바뀜.
+// 펼친 화면·편집 창 제목은 원래 이름. 여기 없는 긴 이름은 접은 화면에서 두 줄로 접힘(.grid.short .hin).
+const HOL_SHORT = {'부처님오신날':'석탄일', '대체공휴일':'대체휴일', '기독탄신일':'성탄절', '국회의원선거':'총선', '대통령선거':'대선'};
+// 접은 화면 이름이 4글자 이상이면 가운데에 줄바꿈 자리(wbr)를 넣어, 안 들어갈 때 '대체/휴일'처럼 반반 두 줄로 접힘
+const holNm = n => { const s = HOL_SHORT[n] || n, h = Math.ceil(s.length / 2);
+  const sh = s.length >= 4 ? esc(s.slice(0, h)) + '<wbr>' + esc(s.slice(h)) : esc(s);
+  return `<span class="hf">${esc(n)}</span><span class="hs">${sh}</span>`; };
 const ELECTION = {'2026-06-03':'지방선거','2028-04-12':'국회의원선거','2030-03-27':'대통령선거','2030-06-05':'지방선거',
   '2032-04-14':'국회의원선거','2034-05-31':'지방선거','2035-03-28':'대통령선거','2036-04-09':'국회의원선거',
   '2038-06-02':'지방선거','2040-03-28':'대통령선거','2040-04-11':'국회의원선거'};
@@ -512,7 +523,9 @@ function holidays(y){
   const nOf = md => dn(y, +md.slice(0,2)-1, +md.slice(3));
   const subs = [];         // [n, 명절여부]
   [['01-01','신정',0],['03-01','삼일절',1],['05-05','어린이날',1],['06-06','현충일',0],
-   ['08-15','광복절',1],['10-03','개천절',1],['10-09','한글날',1],['12-25','성탄절',1]]
+   ['08-15','광복절',1],['10-03','개천절',1],['10-09','한글날',1],['12-25','성탄절',1],
+   // 2026년부터 법정 공휴일(공휴일법 2026년 1·3월 개정, 관공서 공휴일 규정 2026-04-28 의결), 대체공휴일 적용
+   ...(y >= 2026 ? [['05-01','노동절',1],['07-17','제헌절',1]] : [])]
     .forEach(([md,nm,s]) => { add(nOf(md), nm); if (s) subs.push([[nOf(md)], 0]); });
   for (const [k,nm] of Object.entries(ELECTION)) if (+k.slice(0,4)===y) add(nOf(k.slice(5)), nm);
   const L = LUNAR[y] || lunarMD(y), festOff = new Set();
@@ -762,8 +775,8 @@ function renderMy(){
     const isT = Y===T.y && M===T.m && D===T.d;
     const red = w===0 || !!hol;
     h += `<div class="cell${other?' other':''}${isT?' today':''}${hol?' hd':''}" data-k="${k}">
-      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${hol?`<span class="hin">${esc(hol.name)}</span>`:''}${(() => { const ics = annOn(k).map(a => a.icon).filter(Boolean).map(ic => icSvg(ic)).join(''); return ics ? `<span class="anic">${ics}</span>` : ''; })()}${six?`<span class="sb sm ${s}${chg?' chg':''}">${LABEL[s]}</span>`:''}</div>
-      ${hol?`<div class="hn">${esc(hol.name)}</div>`:''}
+      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${hol?`<span class="hin">${holNm(hol.name)}</span>`:''}${(() => { const ics = annOn(k).map(a => a.icon).filter(Boolean).map(ic => icSvg(ic)).join(''); return ics ? `<span class="anic">${ics}</span>` : ''; })()}${six?`<span class="sb sm ${s}${chg?' chg':''}">${LABEL[s]}</span>`:''}</div>
+      ${hol?`<div class="hn">${holNm(hol.name)}</div>`:''}
       ${six?'':`<div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>`}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
         return `<div class="lv" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)} ${fmtDH(l.n)}</div>`; }).join('')}
