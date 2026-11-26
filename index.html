@@ -84,6 +84,22 @@ body.round .stag.A{background:var(--A)} body.round .stag.B{background:var(--B)} 
 .tsel .tx{border:0;background:none;color:var(--sub);font-size:16px;width:24px;height:30px}
 .mrow .mx{flex:1;min-width:0;font-size:17px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--soft);font-family:inherit;color:var(--ink)}
 .mrow .x{background:var(--soft)}
+.lv.cnt{background:#fff!important;border:1px solid var(--ac);box-shadow:none}
+.lsum .hd .cti{display:flex;gap:4px;margin:0 8px 0 auto;align-items:center;flex:none;align-self:center}
+.lsum .hd .cti .ct{padding:2px 8px;font-size:12.5px;border-radius:9px}
+.lsum .hd .cti .ct b{font-size:14.5px} .lsum .hd .cti .ct small{font-size:11px}
+.lsum .hd .cti .ct small.dd{color:var(--sun);margin-left:3px}
+.lsum .hd .cti .ct.ex{gap:2px}
+.lsum .hd .cti .ct small.yg{margin-left:3px;color:var(--sub)}
+@media (max-width:600px){ .lsum .hd .cti .ct small.yg{display:none} }   /* 접은 화면은 이번 달 횟수만, 올해/목표는 펼친 화면만 */
+.pill.exp{background:#e6f4ea;color:#2b7a3d;--ac:#2f9e44;display:inline-flex;align-items:center;gap:3px}
+.pill.exp .dsv{width:15px;height:15px}
+.ct{border:0;background:var(--soft);border-radius:10px;padding:4px 10px;display:flex;align-items:baseline;gap:4px;font:inherit;font-size:13px;color:var(--sub);box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.ct i{width:7px;height:7px;border-radius:50%;align-self:center}
+.ct b{font-size:16px;color:var(--ink)} .ct b.zero{color:var(--sun)} .ct small{font-size:11.5px}
+.ct .dsv{width:15px;height:15px;align-self:center}
+.chip.exc .dsv{width:16px;height:16px;vertical-align:-3px;margin-right:3px}
+.chip.exc.on{background:#e6f4ea;border-color:#2f9e44;color:#2b7a3d}
 .mrow .mv{flex:none;display:flex;gap:2px}
 .mrow .mv button{width:30px;height:40px;border:1px solid var(--line);border-radius:8px;background:var(--soft);color:var(--sub);font-size:16px;padding:0}
 .mrow .mv button:disabled{opacity:.3}
@@ -402,6 +418,10 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
     <label class="sw" style="margin-bottom:12px"><span>하루 근무시간<small>1시간 휴가 계산 기준</small></span><input type="number" id="sDayH" min="1" max="24" step="1" style="width:70px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center"></label>
     <div id="sTypes"></div><button class="add" id="sAdd">+ 휴가 종류 추가</button>
     <div class="small" style="margin-top:8px">갯수를 비우면 표시만 · 아래 표시는 최대 5개 · 반복: 매년·반기마다 다시 셈</div></div>
+  <div class="box"><h3>운동</h3>
+    <label class="sw" style="margin-bottom:12px"><span>운동 횟수 표시<small>휴가 현황 옆에 이번 달 횟수</small></span><input type="checkbox" class="tog" id="sExOn"></label>
+    <label class="sw"><span>올해 목표<small>비우면 목표 없이 횟수만</small></span><span><input type="number" id="sExGoal" min="0" step="1" inputmode="numeric" placeholder="-" style="width:80px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center"> 회</span></label>
+    <div class="small" style="margin-top:8px">날짜를 눌러 '운동함'을 켜면 세요</div></div>
   <div class="box"><h3>자동 저장 (GitHub)</h3>
     <div id="scBox"></div>
   </div>
@@ -687,7 +707,7 @@ function fixWrap(){
 }
 function renderLsum(){
   const {y,m} = cur, endK = key(y, m+1, 0), startK = key(y, m, 1);
-  const list = S.types.filter(t => t.bar && t.total!=null && t.total!=='');
+  const list = S.types.filter(t => t.bar && !isCnt(t) && t.total!=null && t.total!=='');
   const el = document.getElementById('lsum');
   const st = `<span id="syncSt" class="syncst ${sc.state==='ok'?'ok':sc.state==='err'?'err':''}">${scAuth()?esc(sc.msg||''):''}</span>`;
   const compact = true;   // 남은 휴가는 항상 한 줄 (달력 칸을 크게)
@@ -714,9 +734,9 @@ function renderLsum(){
       if (tier) ptHtml = `<span class="lpt" title="연차 ${Math.round(pct*100)}% 사용 (${shortD(per.start)}~${shortD(per.end)})">연차 ${tier}% 달성</span>`;
     }
     const paceHtml = sumT ? `<span class="lpace ${pace[1]}">소진 <b>${Math.round(usedP*100)}%</b> <small>${pace[0]}</small></span>` : '';
-    el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${list.length > 1 ? `<span class="lsumtot">합계 <b>${fmtLeft(sumL)}</b>/${fmtN(sumT)}</span>${paceHtml}` : ''}${ptHtml}${st}</span><button id="lsMore">휴가 현황 ›</button></div><div class="lrow2${list.length > 4 ? ' dense' : ''}" style="--tn:${Math.max(1, Math.min(list.length, 5))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
+    el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${list.length > 1 ? `<span class="lsumtot">합계 <b>${fmtLeft(sumL)}</b>/${fmtN(sumT)}</span>${paceHtml}` : ''}${ptHtml}${st}</span>${cntRow(y, m, startK, endK)}<button id="lsMore">휴가 현황 ›</button></div><div class="lrow2${list.length > 4 ? ' dense' : ''}" style="--tn:${Math.max(1, Math.min(list.length, 5))}">${list.map(t => { const {left} = leftFor(t, startK, endK);
         return `<button class="lt2${live(t) ? '' : ' gone'}" title="${m+1}월까지 남은 ${esc(t.name)}${live(t) ? '' : ' (기간 끝)'}"><span class="n"><i style="background:${t.color}"></i>${esc(t.name)}</span><span class="v"><b class="${left<=0?'zero':''}">${fmtLeft(left)}</b><small class="tot">/${fmtN(t.total)}</small></span></button>`; }).join('')}</div>`;
-    el.querySelectorAll('.lt2').forEach(b => b.onclick = openLeave); document.getElementById('lsMore').onclick = openLeave; fixWrap(); return;
+    el.querySelectorAll('.lt2,.ct').forEach(b => b.onclick = openLeave); document.getElementById('lsMore').onclick = openLeave; fixWrap(); return;
   }
   el.innerHTML = `<div class="hd"><span class="r"><b>${list.length?`${m+1}월까지 남은 휴가`:''}</b>${st}</span><button id="lsMore">휴가 현황 ›</button></div>
     <div class="tiles" style="--tn:${Math.min(list.length,4)}">${list.map(t => {
@@ -775,10 +795,12 @@ function renderMy(){
     const isT = Y===T.y && M===T.m && D===T.d;
     const red = w===0 || !!hol;
     h += `<div class="cell${other?' other':''}${isT?' today':''}${hol?' hd':''}" data-k="${k}">
-      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${hol?`<span class="hin">${holNm(hol.name)}</span>`:''}${(() => { const ics = annOn(k).map(a => a.icon).filter(Boolean).map(ic => icSvg(ic)).join(''); return ics ? `<span class="anic">${ics}</span>` : ''; })()}${six?`<span class="sb sm ${s}${chg?' chg':''}">${LABEL[s]}</span>`:''}</div>
+      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${hol?`<span class="hin">${holNm(hol.name)}</span>`:''}${(() => { const ics = annOn(k).map(a => a.icon).filter(Boolean).map(ic => icSvg(ic)).join(''); const all = ics + (day.ex ? EX_SVG : ''); return all ? `<span class="anic">${all}</span>` : ''; })()}${six?`<span class="sb sm ${s}${chg?' chg':''}">${LABEL[s]}</span>`:''}</div>
       ${hol?`<div class="hn">${holNm(hol.name)}</div>`:''}
       ${six?'':`<div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>`}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
+        if (isCnt(t)){ const per = periodOf(t, k), nth = Math.round(usedOf(t, k, per));
+          return `<div class="lv cnt" style="color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)} ${nth}회차</div>`; }
         return `<div class="lv" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)} ${fmtDH(l.n)}</div>`; }).join('')}
       ${annOn(k).map(a => `<div class="ml an${a.icon ? ' hasic' : ''}">${a.icon ? `<i>${esc(a.icon)}</i>` : ''}${esc(a.name)}</div>`).join('')}
       ${parseMemo(day.memo).map(r => `<div class="ml">${r.t?`<b>${hhmm(r.t)}</b> `:''}${esc(r.x)}</div>`).join('')}
@@ -847,7 +869,7 @@ let sel = null;   // (고른 날 표시는 쓰지 않음)
 function openDay(k){
   const [Y,M,D] = k.split('-').map(Number);
   const day = S.days[k] || {};
-  ed = {k, Y, M:M-1, D, shift: day.shift || null, leaves: (day.leaves||[]).map(l=>({...l})), memos: parseMemo(day.memo)};
+  ed = {k, Y, M:M-1, D, shift: day.shift || null, leaves: (day.leaves||[]).map(l=>({...l})), memos: parseMemo(day.memo), ex: !!day.ex};
   ed.manual = joinMemo(ed.memos, true) !== joinMemo(ed.memos);   // 저장된 순서가 시간순과 다르면 직접 정한 순서
   const hol = holOf(Y,M-1,D);
   document.getElementById('dTitle').innerHTML = `${M}월 ${D}일 (${DOW[new Date(Y,M-1,D).getDay()]})` + (hol?` <span class="tag">${esc(hol.name)}</span>`:'');
@@ -861,6 +883,12 @@ function drawEd(){
     `<button class="chip${!ed.shift?' on':''}" data-s="">원래대로 (${LABEL[base]})</button>` +
     ['A','B','C','R'].map(s => `<button class="chip${ed.shift===s?' on':''}" data-s="${s}">${LABEL[s]}</button>`).join('');
   document.getElementById('dLeaves').innerHTML = ed.leaves.map((l,i) => { const t = typeById(l.t); if (!t) return '';
+    if (isCnt(t)) return `<div class="sel" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">
+      <span class="nm">${esc(t.name)}</span>
+      <button class="x" data-step="-1" data-i="${i}" aria-label="1회 빼기">−</button>
+      <b class="lvval">${Math.round(l.n)}회</b>
+      <button class="x" data-step="1" data-i="${i}" aria-label="1회 더하기">+</button>
+      <button class="x" data-del="${i}" aria-label="빼기">×</button></div>`;
     return `<div class="sel" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">
       <span class="nm">${esc(t.name)}</span>
       <button class="x" data-step="-1" data-i="${i}" aria-label="1시간 빼기">−</button>
@@ -869,7 +897,8 @@ function drawEd(){
       <button class="x" data-del="${i}" aria-label="빼기">×</button></div>
       <div class="qh">${[1,2,4].map(h => `<button data-q="${h}" data-i="${i}">${h}시간</button>`).join('')}<button data-q="day" data-i="${i}">하루</button></div>`; }).join('');
   document.getElementById('dTypes').innerHTML = S.types.map(t =>
-    `<button class="chip" data-t="${t.id}"><span class="d" style="background:${t.color}"></span>${esc(t.name)}</button>`).join('');
+    `<button class="chip" data-t="${t.id}"><span class="d" style="background:${t.color}"></span>${esc(t.name)}</button>`).join('')
+    + `<button class="chip exc${ed.ex ? ' on' : ''}" data-ex="1">${EX_SVG}운동함</button>`;
 }
 document.getElementById('dShift').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; ed.shift = b.dataset.s || null; drawEd(); };
 // 이 날 이 휴가를 n일로 하면 그 기간 총 개수를 넘는지 확인하고, 넘으면 한 번 물어봄 (막지는 않음 — 회사에서 더 받는 경우도 있어서)
@@ -885,17 +914,19 @@ function leaveOk(tid, n){
   const c = t.name.charCodeAt(t.name.length - 1), eun = c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 ? '은' : '는';
   const range = per.start && per.end ? ` (${shortD(per.start)}~${shortD(per.end)})` : '';
   const msg = left <= 1e-9
-    ? `${t.name}${eun} 이 기간${range} ${fmtDH(t.total)}을 이미 다 잡아 놨어요.\n그래도 넣을까요?`
-    : `${t.name}${eun} 이 기간${range} ${fmtDH(left)} 남았어요.\n${fmtDH(n)}을 넣으면 ${fmtDH(others + n - t.total)} 넘어요. 그래도 넣을까요?`;
+    ? (isCnt(t) ? `${t.name}${eun} 이 기간${range} ${fmtN(t.total)}회를 다 썼어요.\n그래도 넣을까요?` : `${t.name}${eun} 이 기간${range} ${fmtDH(t.total)}을 이미 다 잡아 놨어요.\n그래도 넣을까요?`)
+    : (isCnt(t) ? `${t.name}${eun} ${Math.round(left)}회 남았는데 ${Math.round(n)}회를 넣으면 넘어요.\n그래도 넣을까요?` : `${t.name}${eun} 이 기간${range} ${fmtDH(left)} 남았어요.\n${fmtDH(n)}을 넣으면 ${fmtDH(others + n - t.total)} 넘어요. 그래도 넣을까요?`);
   if (!confirm(msg)) return false;
   ed.warned[tid] = true; return true;
 }
-document.getElementById('dTypes').onclick = e => { const b = e.target.closest('[data-t]'); if (!b) return;
+document.getElementById('dTypes').onclick = e => { if (e.target.closest('[data-ex]')) { ed.ex = !ed.ex; drawEd(); return; }
+  const b = e.target.closest('[data-t]'); if (!b) return;
   if (!ed.leaves.some(l => l.t===b.dataset.t) && leaveOk(b.dataset.t, 1)) ed.leaves.push({t:b.dataset.t, n:1}); drawEd(); };
 document.getElementById('dLeaves').onclick = e => {
   const del = e.target.closest('[data-del]'), st = e.target.closest('[data-step]'), q = e.target.closest('[data-q]');
   if (del){ ed.leaves.splice(+del.dataset.del,1); drawEd(); return; }
-  const unit = 1 / dayH();   // 1시간 = 하루의 1/8
+  const lt = (st || q) && ed.leaves[+(st || q).dataset.i];
+  const unit = lt && isCnt(typeById(lt.t)) ? 1 : 1 / dayH();   // 1시간 = 하루의 1/8, 횟수권은 1회
   if (st){ const l = ed.leaves[+st.dataset.i], v = Math.max(unit, Math.round((l.n + (+st.dataset.step) * unit) * 1000) / 1000);
     if (v <= l.n || leaveOk(l.t, v)) l.n = v; drawEd(); return; }
   if (q){ const l = ed.leaves[+q.dataset.i], v = q.dataset.q === 'day' ? 1 : Math.round(+q.dataset.q * unit * 1000) / 1000;
@@ -904,8 +935,8 @@ document.getElementById('dLeaves').onclick = e => {
 document.getElementById('dSave').onclick = () => {
   const memo = joinMemo(ed.memos, ed.manual);
   const leaves = ed.leaves.filter(l => l.n>0);
-  if (!memo && !leaves.length && !ed.shift) delete S.days[ed.k];
-  else S.days[ed.k] = {memo, leaves, shift: ed.shift};
+  if (!memo && !leaves.length && !ed.shift && !ed.ex) delete S.days[ed.k];
+  else { S.days[ed.k] = {memo, leaves, shift: ed.shift}; if (ed.ex) S.days[ed.k].ex = 1; }
   save(); closeSheets(); render();
 };
 document.getElementById('dClose').onclick = () => closeSheets();
@@ -943,6 +974,34 @@ function usedOf(t, until, per){
   return u;
 }
 const shortD = s => s ? s.slice(2).replace(/-/g,'.') : '';
+// 횟수권(PT 등): kind 'cnt'. 양은 '회' 단위, 휴가 합계·소진에는 안 들어감
+const isCnt = t => !!t && t.kind === 'cnt';
+const fmtAmt = (t, n) => isCnt(t) ? Math.round(n) + '회' : fmtDH(n);
+const EX_SVG = '<svg class="dsv exi" viewBox="0 0 24 24" style="color:#2f9e44" aria-hidden="true"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>';
+// 운동: 그 해 횟수, 목표 대비 (기준일까지 지난 비율과 비교)
+const exYear = y => Object.entries(S.days).filter(([k, d]) => d.ex && +k.slice(0, 4) === y).length;
+function exGoalInfo(y, refK){
+  const goal = +S.exGoal; if (!(goal > 0)) return null;
+  const n = exYear(y), [ry, rm, rd] = refK.split('-').map(Number);
+  const f = ry < y ? 0 : ry > y ? 1 : (dn(ry, rm - 1, rd) - dn(y, 0, 1) + 1) / (dn(y + 1, 0, 1) - dn(y, 0, 1));
+  const exp = goal * f, gap = n - exp;
+  return {n, goal, pct: n / goal, exp, pace: gap < -goal * 0.05 ? '느림' : gap > goal * 0.05 ? '빠름' : '적정'};
+}
+// 이번 달 횟수권·운동 줄
+function cntRow(y, m, startK, endK){
+  const todayK = key(T.y, T.m, T.d), refK = (y === T.y && m === T.m) ? todayK : endK;
+  const chips = S.types.filter(t => isCnt(t) && t.bar && t.total != null && t.total !== '').map(t => {
+    const per = periodOf(t, refK);
+    if ((per.end && per.end < refK) || (per.start && per.start > refK)) return '';
+    const left = t.total - usedOf(t, null, per);
+    let dd = null; if (per.end){ const [a, b, c] = per.end.split('-').map(Number); dd = dn(a, b - 1, c) - dn(T.y, T.m, T.d); }
+    return `<button class="ct"><i style="background:${t.color}"></i>${esc(t.name)} <b class="${left<=0?'zero':''}">${Math.round(left)}</b><small>/${fmtN(t.total)}</small>${dd!=null && dd >= 0 && dd <= 30 ? `<small class="dd">D-${dd}</small>` : ''}</button>`;
+  }).join('');
+  const exN = Object.entries(S.days).filter(([k, d]) => d.ex && k >= startK && k <= endK).length;
+  const g = exGoalInfo(y, refK);
+  const ex = exN || S.exOn || g ? `<button class="ct ex" title="${m+1}월 운동 ${exN}회${g ? ` · ${y}년 ${g.n}/${g.goal}회 (${Math.round(g.pct*100)}%, ${g.pace})` : ''}">${EX_SVG}<b>${exN}</b><small>회</small>${g ? `<small class="yg">· ${g.n}/${g.goal}</small>` : ''}</button>` : '';
+  return chips || ex ? `<span class="cti">${chips}${ex}</span>` : '';
+}
 function openLeave(){
   const today = key(T.y,T.m,T.d);
   const rows = [];
@@ -956,8 +1015,14 @@ function openLeave(){
     return `<div class="lrow">
       <span class="pill" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)}</span>
       <span class="per">${isNext?`<b style="color:var(--accent)">${t.rep==='half'?'다음 반기':'다음 해'}</b><br>`:''}${per.start||per.end?`${shortD(per.start)} – ${shortD(per.end)}`:''}</span>
-      <span class="rem">${has?`<b>${fmtDH(t.total-u)}</b> 남음<small>사용 ${fmtDH(done)}${plan?` · 예정 ${fmtDH(plan)}`:''} / ${fmtN(t.total)}</small>`:`${u?`${fmtDH(u)}<small>${plan?`예정 ${fmtDH(plan)} 포함`:'사용'}</small>`:'–'}`}</span>
+      <span class="rem">${has?`<b>${fmtAmt(t,t.total-u)}</b> 남음<small>사용 ${fmtAmt(t,done)}${plan?` · 예정 ${fmtAmt(t,plan)}`:''} / ${fmtN(t.total)}${isCnt(t)?'회':''}</small>`:`${u?`${fmtAmt(t,u)}<small>${plan?`예정 ${fmtAmt(t,plan)} 포함`:'사용'}</small>`:'–'}`}</span>
     </div>`; }).join('');
+  const g = exGoalInfo(T.y, today), exN = exYear(T.y);
+  if (g || S.exOn || exN) document.getElementById('leaveList').insertAdjacentHTML('beforeend', `<div class="lrow">
+      <span class="pill exp">${EX_SVG}운동</span>
+      <span class="per">${T.y}년</span>
+      <span class="rem">${g ? `<b>${g.n}</b> / ${g.goal}회<small>${Math.round(g.pct*100)}% · 지금까지 목표 ${Math.round(g.exp)}회 · ${g.pace}</small>` : `<b>${exN}</b>회<small>목표는 설정에서</small>`}</span>
+    </div>`);
   document.getElementById('leaveSheet').classList.add('show');
 }
 document.getElementById('btnLeave').onclick = openLeave;
@@ -975,11 +1040,14 @@ function drawSet(){
   drawColors();
   document.getElementById('sRoll').checked = S.rollToday !== false;
   document.getElementById('sDayH').value = dayH();
+  document.getElementById('sExOn').checked = !!S.exOn;
+  document.getElementById('sExGoal').value = +S.exGoal > 0 ? S.exGoal : '';
   document.getElementById('sTypes').innerHTML = S.types.map((t,i) => `<div class="lt" data-i="${i}">
     <div class="r1"><input type="color" value="${t.color}" data-f="color" aria-label="색"><input class="name" value="${esc(t.name)}" data-f="name" aria-label="이름">
+      <select data-f="kind" class="rsel" aria-label="종류"><option value=""${!isCnt(t)?' selected':''}>휴가</option><option value="cnt"${isCnt(t)?' selected':''}>횟수권</option></select>
       <select data-f="rep" class="rsel" aria-label="반복"><option value=""${!t.rep?' selected':''}>반복X</option><option value="year"${t.rep===true?' selected':''}>매년</option><option value="half"${t.rep==='half'?' selected':''}>반기</option></select></div>
     <div class="r2"><input type="date" value="${t.start||''}" data-f="start" aria-label="시작일"><span>~</span><input type="date" value="${t.end||''}" data-f="end" aria-label="종료일"></div>
-    <div class="r3">총 ${(() => { const has = t.total != null && t.total !== ''; const h = has ? Math.round(t.total * dayH() * 100) / 100 : 0, d = Math.floor((h + 1e-9) / dayH()), r = Math.round((h - d * dayH()) * 100) / 100;
+    <div class="r3">총 ${isCnt(t) ? `<input class="tot" type="number" inputmode="numeric" min="0" step="1" value="${t.total != null && t.total !== '' ? t.total : ''}" data-f="totc" placeholder="-" aria-label="횟수">회` : (() => { const has = t.total != null && t.total !== ''; const h = has ? Math.round(t.total * dayH() * 100) / 100 : 0, d = Math.floor((h + 1e-9) / dayH()), r = Math.round((h - d * dayH()) * 100) / 100;
         return `<input class="tot" type="number" inputmode="numeric" min="0" step="1" value="${has ? d : ''}" data-f="totd" placeholder="-" aria-label="일">일 <input class="tot th" type="number" inputmode="numeric" min="0" step="1" value="${has && r ? r : ''}" data-f="toth" placeholder="0" aria-label="시간">시간`; })()}
       <label class="bl"><input type="checkbox" data-f="bar" ${t.bar?'checked':''}>표시</label>
       <button class="del" data-del="${i}">삭제</button></div>
@@ -1155,18 +1223,22 @@ document.getElementById('sCols').addEventListener('input', e => { const k = e.ta
 document.getElementById('sCols').addEventListener('change', e => { if (e.target.dataset.k) { save(); drawColors(); } });
 
 document.getElementById('sRoll').onchange = e => { S.rollToday = e.target.checked; save(); };
+document.getElementById('sExOn').onchange = e => { S.exOn = e.target.checked; save(); };
+document.getElementById('sExGoal').onchange = e => { const v = Math.round(+e.target.value); if (v > 0) S.exGoal = v; else { delete S.exGoal; e.target.value = ''; } save(); };
 document.getElementById('sDayH').onchange = e => { const v = +e.target.value; if (v >= 1 && v <= 24){ S.dayH = v; save(); } else e.target.value = dayH(); };
 document.getElementById('sTypes').addEventListener('input', e => {
   const f = e.target.dataset.f; if (!f) return;
   const t = S.types[+e.target.closest('.lt').dataset.i];
   if (f==='bar'){
-    if (e.target.checked && S.types.filter(x => x.bar && x !== t).length >= 5){ e.target.checked = false; alert('아래 남은 휴가는 5개까지 표시할 수 있어요.'); return; }
+    if (e.target.checked && !isCnt(t) && S.types.filter(x => x.bar && !isCnt(x) && x !== t).length >= 5){ e.target.checked = false; alert('아래 남은 휴가는 5개까지 표시할 수 있어요.'); return; }
     t.bar = e.target.checked;
   }
   else if (f==='totd' || f==='toth'){
     const card = e.target.closest('.lt'), dv = card.querySelector('[data-f="totd"]').value, hv = card.querySelector('[data-f="toth"]').value;
     t.total = (dv === '' && hv === '') ? null : (+dv || 0) + (+hv || 0) / dayH();
   }
+  else if (f==='kind'){ if (e.target.value === 'cnt') t.kind = 'cnt'; else delete t.kind; save(); drawSet(); return; }
+  else if (f==='totc') t.total = e.target.value === '' ? null : Math.max(0, Math.round(+e.target.value));
   else if (f==='rep') t.rep = e.target.value === 'year' ? true : e.target.value === 'half' ? 'half' : false;
   else if (f==='total') t.total = e.target.value==='' ? null : parseFloat(e.target.value);
   else t[f] = e.target.value;
