@@ -84,10 +84,14 @@ body.round .stag.A{background:var(--A)} body.round .stag.B{background:var(--B)} 
 .tsel .tx{border:0;background:none;color:var(--sub);font-size:16px;width:24px;height:30px}
 .mrow .mx{flex:1;min-width:0;font-size:17px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--soft);font-family:inherit;color:var(--ink)}
 .mrow .x{background:var(--soft)}
-.abh{font-size:15px;margin:14px 0 6px} .abh small{font-weight:400;color:var(--sub);font-size:12.5px;margin-left:4px}
-.abrow{display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid var(--line)}
-.abrow .abd{flex:1;font-size:15px} .abrow .abd small{display:block;font-size:12px;color:var(--sub)}
-.abrow button{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:6px 10px;font:inherit;font-size:13.5px;color:var(--ink)}
+.bkc{background:var(--soft);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.bkh{display:flex;align-items:baseline;gap:8px;margin-bottom:8px} .bkh b{font-size:15.5px} .bkh span{font-size:12.5px;color:var(--sub)}
+.bkc .row2 button,.bkc .row2 label{background:var(--bg)}
+.abrow{display:flex;align-items:center;gap:6px;padding:7px 0;border-top:1px solid var(--line)}
+.abrow:first-child{border-top:0;padding-top:2px}
+.abrow .abd{font-size:15.5px;font-weight:600;min-width:58px} .abrow .abd i{font-style:normal;font-weight:400;color:var(--sub);font-size:13px}
+.abrow .abt{flex:1;font-size:13px;color:var(--sub)}
+.abrow button{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:6px 11px;font:inherit;font-size:13.5px;color:var(--ink)}
 .lv.cnt{background:#fff!important;border:1px solid var(--ac);box-shadow:none}
 .lsum .hd .cti{display:flex;gap:4px;margin:0 8px 0 auto;align-items:center;flex:none;align-self:center}
 .lsum .hd .cti .ct{padding:2px 8px;font-size:12.5px;border-radius:9px}
@@ -281,6 +285,11 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
 .lt input[type=date]{width:100%;min-width:0;font-size:15px;padding:7px 4px;border:1px solid var(--line);border-radius:8px;font-family:inherit}
 .lt .tot{width:54px;font-size:17px;padding:7px;border:1px solid var(--line);border-radius:8px;text-align:center}
 .lt .del{margin-left:auto;border:0;background:none;color:var(--sun);font-size:15px;padding:8px 4px;white-space:nowrap}
+.lt .r4{gap:8px;flex-wrap:nowrap} .lt .r4 .bl{margin-left:0;font-size:14px}
+.lt .r4 .mv{width:34px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--soft);color:var(--sub);font-size:15px;padding:0;flex:none}
+.lt .r4 .mv:disabled{opacity:.3}
+.cts,.grid.short .ctl,.grid.short .cw{display:none} .grid.short .cts{display:inline}
+.qh.ctq{display:flex}
 .add{width:100%;border:1px dashed var(--faint);background:none;border-radius:12px;padding:12px;font-size:16px;color:var(--sub)}
 .arow{display:flex;gap:8px;align-items:center}
 .aicons{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:10px}
@@ -432,12 +441,12 @@ textarea{width:100%;min-height:96px;font-size:18px;padding:12px;border-radius:12
     <div id="scBox"></div>
   </div>
   <div class="box"><h3>백업</h3>
-    <div class="small" id="sBkInfo" style="margin-bottom:8px"></div>
-    <div class="row2"><button id="sExport">파일로 저장</button><label>불러오기<input type="file" id="sImport" accept=".json,application/json" hidden></label></div>
-    <div class="small" id="sPickNote" style="margin-top:6px"></div>
-    <h4 class="abh">자동 백업 <small>앱을 연 날마다 · 최근 14일</small></h4>
-    <div id="sAuto"></div>
-    <div class="small" style="margin-top:8px">자동 백업은 이 폰 안에만 있어요 · 폰을 바꿀 땐 자동 저장(GitHub)이나 파일로 저장</div></div>
+    <div class="bkc"><div class="bkh"><b>자동 백업</b><span>앱을 연 날 하루 1개 · 14일 보관</span></div>
+      <div id="sAuto"></div></div>
+    <div class="bkc"><div class="bkh"><b>직접 백업</b><span id="sBkInfo"></span></div>
+      <div class="row2"><button id="sExport">파일로 저장</button><label>불러오기<input type="file" id="sImport" accept=".json,application/json" hidden></label></div>
+      <div class="small" id="sPickNote" style="margin-top:6px"></div></div>
+    <div class="small">폰을 바꿀 땐 자동 저장(GitHub)으로 그대로 옮겨져요</div></div>
 </div></div>
 
 <script>
@@ -803,12 +812,13 @@ function renderMy(){
     const isT = Y===T.y && M===T.m && D===T.d;
     const red = w===0 || !!hol;
     h += `<div class="cell${other?' other':''}${isT?' today':''}${hol?' hd':''}" data-k="${k}">
-      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${hol?`<span class="hin">${holNm(hol.name)}</span>`:''}${(() => { const ics = annOn(k).map(a => a.icon).filter(Boolean).map(ic => icSvg(ic)).join(''); const all = ics + (day.ex ? EX_SVG : ''); return all ? `<span class="anic">${all}</span>` : ''; })()}${six?`<span class="sb sm ${s}${chg?' chg':''}">${LABEL[s]}</span>`:''}</div>
+      <div class="top"><span class="num ${red?'su':w===6?'sa':''}">${D}</span>${hol?`<span class="hin">${holNm(hol.name)}</span>`:''}${(() => { const ics = annOn(k).map(a => a.icon).filter(Boolean).map(ic => icSvg(ic)).join(''); const all = ics + (exDay(day) ? EX_SVG : ''); return all ? `<span class="anic">${all}</span>` : ''; })()}${six?`<span class="sb sm ${s}${chg?' chg':''}">${LABEL[s]}</span>`:''}</div>
       ${hol?`<div class="hn">${holNm(hol.name)}</div>`:''}
       ${six?'':`<div class="sb ${s}${chg?' chg':''}">${LABEL[s]}</div>`}
       ${(day.leaves||[]).map(l => { const t = typeById(l.t); if (!t) return '';
         if (isCnt(t)){ const per = periodOf(t, k), nth = Math.round(usedOf(t, k, per));
-          return `<div class="lv cnt" style="color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)} ${nth}회차</div>`; }
+          const tm = ctmGet(day)[t.id];
+          return `<div class="lv cnt" style="color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)}<span class="cw"> </span>${nth}<span class="cw">회차</span>${tm ? ' ' + ctmTxt(tm) : ''}</div>`; }
         return `<div class="lv" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">${esc(t.name)} ${fmtDH(l.n)}</div>`; }).join('')}
       ${annOn(k).map(a => `<div class="ml an${a.icon ? ' hasic' : ''}">${a.icon ? `<i>${esc(a.icon)}</i>` : ''}${esc(a.name)}</div>`).join('')}
       ${parseMemo(day.memo).map(r => `<div class="ml">${r.t?`<b>${hhmm(r.t)}</b> `:''}${esc(r.x)}</div>`).join('')}
@@ -877,7 +887,7 @@ let sel = null;   // (고른 날 표시는 쓰지 않음)
 function openDay(k){
   const [Y,M,D] = k.split('-').map(Number);
   const day = S.days[k] || {};
-  ed = {k, Y, M:M-1, D, shift: day.shift || null, leaves: (day.leaves||[]).map(l=>({...l})), memos: parseMemo(day.memo), ex: !!day.ex};
+  ed = {k, Y, M:M-1, D, shift: day.shift || null, leaves: (day.leaves||[]).map(l=>({...l})), memos: parseMemo(day.memo), ex: !!day.ex, ctm: ctmGet(day)};
   ed.manual = joinMemo(ed.memos, true) !== joinMemo(ed.memos);   // 저장된 순서가 시간순과 다르면 직접 정한 순서
   const hol = holOf(Y,M-1,D);
   document.getElementById('dTitle').innerHTML = `${M}월 ${D}일 (${DOW[new Date(Y,M-1,D).getDay()]})` + (hol?` <span class="tag">${esc(hol.name)}</span>`:'');
@@ -896,7 +906,10 @@ function drawEd(){
       <button class="x" data-step="-1" data-i="${i}" aria-label="1회 빼기">−</button>
       <b class="lvval">${Math.round(l.n)}회</b>
       <button class="x" data-step="1" data-i="${i}" aria-label="1회 더하기">+</button>
-      <button class="x" data-del="${i}" aria-label="빼기">×</button></div>`;
+      <button class="x" data-del="${i}" aria-label="빼기">×</button></div>
+      <div class="qh ctq">${ed.ctm[t.id] ? (() => { const [h, m] = ed.ctm[t.id].split(':').map(Number);
+        return `<span class="tsel"><select data-cth="${t.id}" aria-label="시">${[...Array(24).keys()].map(x => `<option value="${x}"${x===h?' selected':''}>${x}시</option>`).join('')}</select><select data-ctmm="${t.id}" aria-label="분">${[...new Set([0,10,20,30,40,50,m])].sort((a,b)=>a-b).map(x => `<option value="${x}"${x===m?' selected':''}>${pad(x)}분</option>`).join('')}</select><button class="tx" data-ctclr="${t.id}" aria-label="시간 빼기">×</button></span>`; })()
+        : `<button data-ctadd="${t.id}">+ 시간</button>`}</div>`;
     return `<div class="sel" style="background:${lvGrad(t.color)};color:${lvFg(t.color)};--ac:${t.color}">
       <span class="nm">${esc(t.name)}</span>
       <button class="x" data-step="-1" data-i="${i}" aria-label="1시간 빼기">−</button>
@@ -904,7 +917,7 @@ function drawEd(){
       <button class="x" data-step="1" data-i="${i}" aria-label="1시간 더하기">+</button>
       <button class="x" data-del="${i}" aria-label="빼기">×</button></div>
       <div class="qh">${[1,2,4].map(h => `<button data-q="${h}" data-i="${i}">${h}시간</button>`).join('')}<button data-q="day" data-i="${i}">하루</button></div>`; }).join('');
-  document.getElementById('dTypes').innerHTML = S.types.map(t =>
+  document.getElementById('dTypes').innerHTML = S.types.filter(t => !t.hide).map(t =>
     `<button class="chip" data-t="${t.id}"><span class="d" style="background:${t.color}"></span>${esc(t.name)}</button>`).join('')
     + `<button class="chip exc${ed.ex ? ' on' : ''}" data-ex="1">${EX_SVG}운동함</button>`;
 }
@@ -930,7 +943,15 @@ function leaveOk(tid, n){
 document.getElementById('dTypes').onclick = e => { if (e.target.closest('[data-ex]')) { ed.ex = !ed.ex; drawEd(); return; }
   const b = e.target.closest('[data-t]'); if (!b) return;
   if (!ed.leaves.some(l => l.t===b.dataset.t) && leaveOk(b.dataset.t, 1)) ed.leaves.push({t:b.dataset.t, n:1}); drawEd(); };
+document.getElementById('dLeaves').addEventListener('change', e => {
+  const h = e.target.closest('[data-cth]'), m = e.target.closest('[data-ctmm]'); if (!h && !m) return;
+  const id = (h || m).dataset.cth || (h || m).dataset.ctmm, row = e.target.closest('.tsel');
+  ed.ctm[id] = pad(+row.querySelector('[data-cth]').value) + ':' + pad(+row.querySelector('[data-ctmm]').value);
+});
 document.getElementById('dLeaves').onclick = e => {
+  const ca = e.target.closest('[data-ctadd]'), cc = e.target.closest('[data-ctclr]');
+  if (ca){ ed.ctm[ca.dataset.ctadd] = pad(new Date().getHours()) + ':00'; drawEd(); return; }
+  if (cc){ delete ed.ctm[cc.dataset.ctclr]; drawEd(); return; }
   const del = e.target.closest('[data-del]'), st = e.target.closest('[data-step]'), q = e.target.closest('[data-q]');
   if (del){ ed.leaves.splice(+del.dataset.del,1); drawEd(); return; }
   const lt = (st || q) && ed.leaves[+(st || q).dataset.i];
@@ -944,7 +965,8 @@ document.getElementById('dSave').onclick = () => {
   const memo = joinMemo(ed.memos, ed.manual);
   const leaves = ed.leaves.filter(l => l.n>0);
   if (!memo && !leaves.length && !ed.shift && !ed.ex) delete S.days[ed.k];
-  else { S.days[ed.k] = {memo, leaves, shift: ed.shift}; if (ed.ex) S.days[ed.k].ex = 1; }
+  else { S.days[ed.k] = {memo, leaves, shift: ed.shift}; if (ed.ex) S.days[ed.k].ex = 1;
+    const cm = {}; leaves.forEach(l => { if (ed.ctm[l.t]) cm[l.t] = ed.ctm[l.t]; }); const cs = ctmStr(cm); if (cs) S.days[ed.k].ctm = cs; }
   save(); closeSheets(); render();
 };
 document.getElementById('dClose').onclick = () => closeSheets();
@@ -987,7 +1009,7 @@ const isCnt = t => !!t && t.kind === 'cnt';
 const fmtAmt = (t, n) => isCnt(t) ? Math.round(n) + '회' : fmtDH(n);
 const EX_SVG = '<svg class="dsv exi" viewBox="0 0 24 24" style="color:#2f9e44" aria-hidden="true"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>';
 // 운동: 그 해 횟수, 목표 대비 (기준일까지 지난 비율과 비교)
-const exYear = y => Object.entries(S.days).filter(([k, d]) => d.ex && +k.slice(0, 4) === y).length;
+const exYear = y => Object.entries(S.days).filter(([k, d]) => exDay(d) && +k.slice(0, 4) === y).length;
 function exGoalInfo(y, refK){
   const goal = +S.exGoal; if (!(goal > 0)) return null;
   const n = exYear(y), [ry, rm, rd] = refK.split('-').map(Number);
@@ -995,6 +1017,13 @@ function exGoalInfo(y, refK){
   const exp = goal * f, gap = n - exp;
   return {n, goal, pct: n / goal, exp, pace: gap < -goal * 0.05 ? '느림' : gap > goal * 0.05 ? '빠름' : '적정'};
 }
+// 운동한 날: '운동함'을 켰거나, '운동으로 세기'를 켠 횟수권(PT 등)을 넣은 날
+const exDay = d => !!d && (!!d.ex || (d.leaves || []).some(l => { const t = typeById(l.t); return isCnt(t) && t.ex; }));
+// 횟수권 시각 읽기/쓰기
+const ctmGet = day => { const o = {}; String((day && day.ctm) || '').split(',').forEach(p => { const [a, b] = p.split('='); if (a && /^\d{2}:\d{2}$/.test(b || '')) o[a] = b; }); return o; };
+const ctmStr = o => Object.entries(o).filter(([a, b]) => b).map(([a, b]) => a + '=' + b).join(',');
+// 달력 칸 시각: 펼친 화면 19:00, 접은 화면 19시(분 있으면 19:30)
+const ctmTxt = t => { const [h, m] = t.split(':').map(Number); return `<span class="ctl">${h}:${pad(m)}</span><span class="cts">${m ? h + ':' + pad(m) : h + '시'}</span>`; };
 // 이번 달 횟수권·운동 줄
 function cntRow(y, m, startK, endK){
   const todayK = key(T.y, T.m, T.d), refK = (y === T.y && m === T.m) ? todayK : endK;
@@ -1005,7 +1034,7 @@ function cntRow(y, m, startK, endK){
     let dd = null; if (per.end){ const [a, b, c] = per.end.split('-').map(Number); dd = dn(a, b - 1, c) - dn(T.y, T.m, T.d); }
     return `<button class="ct"><i style="background:${t.color}"></i>${esc(t.name)} <b class="${left<=0?'zero':''}">${Math.round(left)}</b><small>/${fmtN(t.total)}</small>${dd!=null && dd >= 0 && dd <= 30 ? `<small class="dd">D-${dd}</small>` : ''}</button>`;
   }).join('');
-  const exN = Object.entries(S.days).filter(([k, d]) => d.ex && k >= startK && k <= endK).length;
+  const exN = Object.entries(S.days).filter(([k, d]) => exDay(d) && k >= startK && k <= endK).length;
   const g = exGoalInfo(y, refK);
   const ex = exN || S.exOn || g ? `<button class="ct ex" title="${m+1}월 운동 ${exN}회${g ? ` · ${y}년 ${g.n}/${g.goal}회 (${Math.round(g.pct*100)}%, ${g.pace})` : ''}">${EX_SVG}<b>${exN}</b><small>회</small>${g ? `<small class="yg">· ${g.n}/${g.goal}</small>` : ''}</button>` : '';
   return chips || ex ? `<span class="cti">${chips}${ex}</span>` : '';
@@ -1057,7 +1086,11 @@ function drawSet(){
     <div class="r2"><input type="date" value="${t.start||''}" data-f="start" aria-label="시작일"><span>~</span><input type="date" value="${t.end||''}" data-f="end" aria-label="종료일"></div>
     <div class="r3">총 ${isCnt(t) ? `<input class="tot" type="number" inputmode="numeric" min="0" step="1" value="${t.total != null && t.total !== '' ? t.total : ''}" data-f="totc" placeholder="-" aria-label="횟수">회` : (() => { const has = t.total != null && t.total !== ''; const h = has ? Math.round(t.total * dayH() * 100) / 100 : 0, d = Math.floor((h + 1e-9) / dayH()), r = Math.round((h - d * dayH()) * 100) / 100;
         return `<input class="tot" type="number" inputmode="numeric" min="0" step="1" value="${has ? d : ''}" data-f="totd" placeholder="-" aria-label="일">일 <input class="tot th" type="number" inputmode="numeric" min="0" step="1" value="${has && r ? r : ''}" data-f="toth" placeholder="0" aria-label="시간">시간`; })()}
-      <label class="bl"><input type="checkbox" data-f="bar" ${t.bar?'checked':''}>표시</label>
+</div>
+    <div class="r4"><button class="mv" data-mv="-1" data-i="${i}" aria-label="위로"${i ? '' : ' disabled'}>↑</button><button class="mv" data-mv="1" data-i="${i}" aria-label="아래로"${i < S.types.length - 1 ? '' : ' disabled'}>↓</button>
+      <label class="bl"><input type="checkbox" data-f="bar" ${t.bar?'checked':''}>아래 표시</label>
+      <label class="bl"><input type="checkbox" data-f="show" ${t.hide?'':'checked'}>입력 칸</label>
+      ${isCnt(t) ? `<label class="bl" title="넣은 날을 운동한 날로 세요"><input type="checkbox" data-f="ex" ${t.ex?'checked':''}>운동</label>` : ''}
       <button class="del" data-del="${i}">삭제</button></div>
   </div>`).join('');
 }
@@ -1245,6 +1278,8 @@ document.getElementById('sTypes').addEventListener('input', e => {
     const card = e.target.closest('.lt'), dv = card.querySelector('[data-f="totd"]').value, hv = card.querySelector('[data-f="toth"]').value;
     t.total = (dv === '' && hv === '') ? null : (+dv || 0) + (+hv || 0) / dayH();
   }
+  else if (f==='show') t.hide = !e.target.checked;
+  else if (f==='ex') t.ex = e.target.checked;
   else if (f==='kind'){ if (e.target.value === 'cnt') t.kind = 'cnt'; else delete t.kind; save(); drawSet(); return; }
   else if (f==='totc') t.total = e.target.value === '' ? null : Math.max(0, Math.round(+e.target.value));
   else if (f==='rep') t.rep = e.target.value === 'year' ? true : e.target.value === 'half' ? 'half' : false;
@@ -1253,6 +1288,9 @@ document.getElementById('sTypes').addEventListener('input', e => {
   save();
 });
 document.getElementById('sTypes').addEventListener('click', e => {
+  const mv = e.target.closest('[data-mv]');
+  if (mv){ const i = +mv.dataset.i, j = i + (+mv.dataset.mv); if (j < 0 || j >= S.types.length) return;
+    [S.types[i], S.types[j]] = [S.types[j], S.types[i]]; save(); drawSet(); return; }
   const b = e.target.closest('[data-del]'); if (!b) return;
   const t = S.types[+b.dataset.del];
   if (!confirm(`'${t.name}' 종류를 지울까요?\n이미 달력에 넣은 '${t.name}' 표시도 같이 사라져요.`)) return;
@@ -1291,7 +1329,7 @@ async function shareFile(){
 function drawBk(){
   const days = S.backupAt ? Math.floor((Date.now()-S.backupAt)/864e5) : null;
   const info = document.getElementById('sBkInfo');
-  if (info) info.textContent = S.backupAt ? `마지막 백업: ${new Date(S.backupAt).toLocaleDateString('ko-KR')} (${days}일 전)` : '아직 백업한 적이 없어요.';
+  if (info) info.textContent = S.backupAt ? `마지막 ${new Date(S.backupAt).toLocaleDateString('ko-KR')} (${days ? days + '일 전' : '오늘'})` : '아직 안 했어요';
   const need = !syncedNow() && S.editedAt && (!S.backupAt || S.editedAt > S.backupAt) && (!S.backupAt ? Date.now()-S.editedAt > 864e5 : days >= 7);
   document.getElementById('bkMsg').textContent = S.backupAt ? `백업한 지 ${days}일 지났어요` : '아직 백업을 안 했어요';
   document.getElementById('bkBar').classList.toggle('show', !!need);
@@ -1320,9 +1358,9 @@ function autoBackup(){
 function drawAuto(){
   const el = document.getElementById('sAuto'); if (!el) return;
   const o = autoGet(), ks = Object.keys(o).sort().reverse();
-  el.innerHTML = ks.length ? ks.map(k => { const [y, m, d] = k.split('-').map(Number), kb = Math.max(1, Math.round((o[k].text || '').length / 1024));
-    return `<div class="abrow"><span class="abd">${m}/${d} (${DOW[new Date(y, m-1, d).getDay()]})<small>${new Date(o[k].at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'})} · ${kb}KB</small></span>
-      <button data-ab="${k}">되돌리기</button><button data-abf="${k}">파일</button></div>`; }).join('')
+  el.innerHTML = ks.length ? ks.map(k => { const [y, m, d] = k.split('-').map(Number), at = new Date(o[k].at);
+    return `<div class="abrow"><span class="abd">${m}/${d} <i>${DOW[new Date(y, m-1, d).getDay()]}</i></span><span class="abt">${pad(at.getHours())}:${pad(at.getMinutes())}</span>
+      <button data-ab="${k}">되돌리기</button><button data-abf="${k}">저장</button></div>`; }).join('')
     : '<div class="small">오늘 것부터 하루 1개씩 쌓여요</div>';
   const n = document.getElementById('sPickNote');
   if (n) n.textContent = canPick() ? '파일로 저장: 저장할 폴더를 고를 수 있어요 (마지막 폴더 기억)' : '파일로 저장: 이 기기는 다운로드 폴더에 저장돼요 (내 파일 앱에서 옮길 수 있어요)';
